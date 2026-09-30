@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shopee Seller Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F4F6; --panel:#FFFFFF; --ink:#1B1F27; --muted:#667085; --line:#E3E6EB;
+  --shopee:#EE4D2D; --shopee-soft:#FDEDE9; --off:#3551C4; --off-soft:#ECEFFB;
+  --good:#12805C; --good-soft:#E6F4EE; --bad:#C0342B; --bad-soft:#FBEAE8; --warn:#B26A00;
+  --field:#F8F9FB;
+  --ch-product:#EE4D2D;--ch-search:#F7894F;--ch-brand:#B8321A;--ch-live:#F2A57E;--ch-cpasShop:#3551C4;--ch-cpasMeta:#1F2F7A;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13161B; --panel:#1C2027; --ink:#EEF0F3; --muted:#9AA3B2; --line:#2C323C;
+    --shopee:#FF6A4A; --shopee-soft:#3A221D; --off:#7D93F0; --off-soft:#232A45;
+    --good:#3CC48F; --good-soft:#18342A; --bad:#FF7066; --bad-soft:#3C1F1D; --warn:#E8A33A;
+    --field:#232830;
+    --ch-product:#FF6A4A;--ch-search:#FFA273;--ch-brand:#E4583C;--ch-live:#FFC6A6;--ch-cpasShop:#6F88F0;--ch-cpasMeta:#B3C1FF;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13161B; --panel:#1C2027; --ink:#EEF0F3; --muted:#9AA3B2; --line:#2C323C;
+  --shopee:#FF6A4A; --shopee-soft:#3A221D; --off:#7D93F0; --off-soft:#232A45;
+  --good:#3CC48F; --good-soft:#18342A; --bad:#FF7066; --bad-soft:#3C1F1D; --warn:#E8A33A;
+  --field:#232830;
+  --ch-product:#FF6A4A;--ch-search:#FFA273;--ch-brand:#E4583C;--ch-live:#FFC6A6;--ch-cpasShop:#6F88F0;--ch-cpasMeta:#B3C1FF;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans Thai","IBM Plex Sans",system-ui,-apple-system,"Segoe UI","Noto Sans Thai",Tahoma,sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.num{font-family:"IBM Plex Sans","IBM Plex Sans Thai",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+header.top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+h1{font-size:1.55rem;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.01em}
+h1 small{display:block;font-size:.88rem;font-weight:400;color:var(--muted);margin-top:4px;letter-spacing:0}
+.period{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.period label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+input,select,button{font:inherit;color:inherit}
+input[type=date],input[type=text]{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel h2{font-size:1rem;margin:0 0 12px;font-weight:600}
+.hint{font-size:.8rem;color:var(--muted);margin:0}
+
+/* inputs */
+.salesbox{border-radius:10px;background:var(--good-soft);padding:14px;margin-bottom:16px}
+.salesbox label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px}
+.money{display:flex;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.money span{padding:0 0 0 10px;color:var(--muted);font-size:.9rem}
+.money input{border:0;background:transparent;padding:8px 10px;width:100%;min-width:0;text-align:right;outline:none}
+.money:focus-within{border-color:var(--ink);box-shadow:0 0 0 2px color-mix(in srgb,var(--ink) 15%,transparent)}
+.salesbox .money input{font-size:1.25rem;font-weight:600}
+.group{border-left:4px solid var(--c);padding-left:12px;margin:18px 0 6px}
+.group.shopee{--c:var(--shopee)} .group.off{--c:var(--off)}
+.group h3{margin:0;font-size:.95rem;font-weight:600}
+.group p{margin:2px 0 10px}
+.chrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
+.chrow:last-child{border-bottom:0}
+.chrow .nm{font-size:.88rem;line-height:1.3}
+.chrow .nm a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.chrow .money input{padding:6px 8px;font-size:.92rem}
+.colhead{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:8px;font-size:.75rem;color:var(--muted)}
+.colhead span:not(:first-child){text-align:right}
+.subsec{margin-top:14px;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--good) 25%,transparent)}
+.subsec-h{display:flex;justify-content:space-between;align-items:baseline;font-size:.86rem;margin-bottom:6px}
+.subsec-h b{font-weight:600}
+.subsec-h .muted{font-size:.74rem}
+.trow{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1.2fr) 58px;gap:8px;align-items:center;padding:4px 0}
+.trow label{font-size:.86rem;margin:0;font-weight:400}
+.trow .money input{padding:6px 8px;font-size:.92rem}
+.tpct{text-align:right;font-size:.86rem;font-weight:600;color:var(--good)}
+.sumline{font-size:.78rem;color:var(--muted);text-align:right;margin-top:4px}
+.sumline.warn{color:var(--warn)}
+.tr-wrap{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+@media (min-width:1500px){.tr-wrap{grid-template-columns:minmax(0,1fr) 280px}}
+.tr-box{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tr-box > h4{margin:0;padding:10px 16px;font-size:.9rem;font-weight:600;background:var(--field);border-bottom:1px solid var(--line)}
+.tr-row{display:flex;align-items:stretch;gap:0;padding:14px 16px}
+.tr-total{flex:1.1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;padding-right:8px}
+.tr-total small,.tr-tile small{display:block;font-size:.8rem;color:var(--muted)}
+.tr-total b{font-size:1.45rem;font-weight:700}
+.tr-op{flex:none;display:flex;align-items:center;justify-content:center;width:26px;color:var(--muted);font-size:1.1rem}
+.tr-tile{flex:1 1 0;cursor:default;transition:border-color .12s;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel);min-width:0}
+.tr-tile b{display:block;font-size:1.2rem;font-weight:700;margin:2px 0}
+.tr-tile .pc{font-size:.8rem;color:var(--muted);line-height:1.35}
+.tr-tile:hover{border-color:var(--ink)}
+.tr-tile b{font-size:clamp(1rem,1.6vw,1.2rem)}
+.tr-total b{font-size:clamp(1.2rem,2vw,1.45rem)}
+.tr-bar .seg{height:100%;transition:filter .12s,opacity .12s;cursor:crosshair}
+.tr-bar:hover .seg{opacity:.55}
+.tr-bar .seg:hover,.tr-bar .seg.on{opacity:1;filter:brightness(1.12)}
+.tr-box .tr-bar{height:14px}
+.tr-bar .seg[data-trk=nonads]{background:transparent}
+.tr-tile .pc strong{color:var(--ink);font-weight:600}
+.tr-tile.ads{border-top:3px solid var(--shopee)}
+.tr-tile i.sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.chg{font-size:.76rem;font-weight:600;margin-top:4px}
+.chg.up{color:var(--good)} .chg.down{color:var(--bad)}
+.tr-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:0 16px 14px;background:var(--field)}
+@media (max-width:900px){.tr-op{display:none}.tr-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tr-total{grid-column:1/-1}}
+@media (max-width:420px){.tr-row{grid-template-columns:1fr}}
+body.no-traffic .tr-wrap{display:none}
+.group.top5{--c:var(--ink);margin-top:4px}
+.tprow{display:grid;grid-template-columns:22px 56px minmax(0,1fr) 28px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line)}
+.tprow:last-child{border-bottom:0}
+.tprow.drag{background:var(--shopee-soft);border-radius:8px}
+.rk{width:22px;height:22px;border-radius:6px;background:var(--ink);color:var(--panel);font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tprow:nth-child(1) .rk{background:#D4A017;color:#1B1F27}
+.tprow:nth-child(2) .rk{background:#A7AFBA;color:#1B1F27}
+.tprow:nth-child(3) .rk{background:#C07A45;color:#fff}
+.thumb{width:56px;height:56px;border-radius:8px;border:1px dashed var(--line);background:var(--field);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;padding:0;color:var(--muted);font-size:.66rem;line-height:1.2;text-align:center}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb.has{border-style:solid}
+.thumb:hover{border-color:var(--ink)}
+.tpf{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tpf input{width:100%;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:.84rem}
+.tpf input.nm{font-weight:500}
+.tpl2{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:4px}
+.tpf .tps input{border:0;padding:5px 8px 5px 4px;text-align:right}
+.tpf .tps span{padding-left:8px;font-size:.8rem}
+.t5 .sl{display:none;font-size:.8rem;font-weight:700;color:var(--good)}
+@media (hover:none){.t5 .sl{display:block}}
+.tpf input.bad{border-color:var(--bad)}
+.tpx{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem;border-radius:6px;height:28px}
+.tpx:hover{background:var(--field);color:var(--ink)}
+.t5grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+@media (max-width:1000px){.t5grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:620px){.t5grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.t5{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);display:flex;flex-direction:column;color:inherit;text-decoration:none;transition:border-color .15s,transform .15s}
+a.t5:hover{border-color:var(--shopee);transform:translateY(-2px)}
+.t5 .ph{aspect-ratio:1/1;background:var(--field);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.8rem;font-weight:700}
+.t5 .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.t5 .rk{position:absolute;top:8px;left:8px;width:28px;height:28px;font-size:.9rem;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.t5:nth-child(1) .rk{background:#D4A017;color:#1B1F27}
+.t5:nth-child(2) .rk{background:#A7AFBA;color:#1B1F27}
+.t5:nth-child(3) .rk{background:#C07A45;color:#fff}
+.t5 .bd{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.t5 .nm{font-size:.86rem;font-weight:500;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.7em}
+.t5 .go{margin-top:auto;font-size:.76rem;color:var(--shopee);font-weight:600}
+.t5 .go.none{color:var(--muted);font-weight:400}
+.extra{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.extra h3{margin:0;font-size:.92rem;font-weight:600}
+body.no-profit #profitBox{display:none}
+header.top{position:relative}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+#brandLink{display:inline-flex;align-items:center;flex:none;border-radius:6px}
+#brandNameLink{display:block;color:inherit;text-decoration:none;border-radius:6px}
+.brandlink[hidden]{display:none}
+a.brandlink[href] img{cursor:pointer;transition:transform .15s,opacity .15s}
+a.brandlink[href] img:hover{transform:scale(1.04);opacity:.9}
+a.brandlink[href] .shopname:hover{color:var(--shopee);text-decoration:underline;text-underline-offset:3px}
+a.brandlink:focus-visible{outline:2px solid var(--shopee);outline-offset:3px}
+.brand img{height:52px;max-width:180px;object-fit:contain;flex:none}
+.shopname{font-size:1rem;font-weight:600;color:var(--muted);line-height:1.3;margin-bottom:2px;overflow-wrap:anywhere}
+.menu .sec{border-top:1px solid var(--line);margin-top:10px;padding-top:12px}
+.menu .fld{margin-bottom:12px}
+.menu .fld label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.menu input[type=text]{width:100%;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.logo-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.logo-prev{width:64px;height:44px;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--field);overflow:hidden;font-size:.72rem;color:var(--muted)}
+.logo-prev img{max-width:100%;max-height:100%;object-fit:contain}
+.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;opacity:0}
+.btn.sm{padding:5px 10px;font-size:.84rem}
+.settings{margin-left:auto;position:relative}
+.gear{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:500}
+.gear:hover{border-color:var(--ink)}
+.gear svg{width:18px;height:18px}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;width:min(310px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 10px 30px color-mix(in srgb,var(--ink) 16%,transparent)}
+.menu[hidden]{display:none}
+.menu h4{margin:0 0 10px;font-size:.92rem}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
+.opt input{width:18px;height:18px;margin-top:2px;accent-color:var(--shopee);flex:none}
+.opt b{display:block;font-weight:600;font-size:.9rem}
+.opt span{font-size:.8rem;color:var(--muted)}
+.extra .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.extra label{font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500}
+.btn.primary{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.btn:hover{border-color:var(--ink)}
+.btn:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--shopee);outline-offset:2px}
+
+/* results */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:18px 28px;align-items:center}
+@media (max-width:560px){.hero{grid-template-columns:1fr}}
+.roi-big{font-size:clamp(3.2rem,9vw,5.4rem);font-weight:700;line-height:.95;letter-spacing:-.03em}
+.roi-big .x{font-size:.45em;font-weight:600;margin-left:4px;color:var(--muted)}
+.roi-cap{font-size:.85rem;color:var(--muted);margin-top:6px}
+.verdict{display:inline-block;margin-top:10px;font-size:.82rem;font-weight:600;padding:3px 10px;border-radius:999px}
+.verdict.good{background:var(--good-soft);color:var(--good)}
+.verdict.bad{background:var(--bad-soft);color:var(--bad)}
+.verdict.mid{background:var(--field);color:var(--warn)}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px}
+.kpi dt{font-size:.8rem;color:var(--muted)}
+.kpi dd{margin:0;font-size:1.2rem;font-weight:600}
+.kpi dd.pos{color:var(--good)} .kpi dd.neg{color:var(--bad)}
+
+.flow{margin-top:22px}
+.flow-head{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:6px;gap:10px;flex-wrap:wrap}
+.bar{display:flex;height:34px;border-radius:8px;overflow:hidden;background:var(--field)}
+.bar div{height:100%;transition:width .35s ease}
+.bar .rest{background:var(--good-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:.8rem}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.tablewrap{overflow-x:auto;margin-top:18px}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:560px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;font-size:.78rem;color:var(--muted)}
+th:first-child,td:first-child{text-align:left}
+tr.sub td{font-weight:600;background:var(--field)}
+tr.total td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
+.share{display:inline-block;height:6px;border-radius:3px;vertical-align:middle;margin-left:6px}
+.muted{color:var(--muted)}
+
+.history{margin-top:18px}
+.overview{margin-bottom:18px;padding:20px}
+.ov-card{margin-top:16px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.card-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin-bottom:10px}
+.card h3{margin:0;font-size:1.02rem;font-weight:600}
+.small{font-size:.8rem}
+.lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted)}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.lg i.dash{width:14px;height:0;border-top:2px dashed var(--warn);border-radius:0;vertical-align:3px}
+.chartwrap{overflow-x:auto}
+.chartwrap svg{display:block;width:100%;height:auto;max-height:440px}
+.chartwrap .hcol{fill:var(--ink);opacity:0;transition:opacity .12s}
+.chartwrap .hcol.on{opacity:.06}
+.chartwrap .hhit{fill:transparent;cursor:crosshair;outline:none}
+.tip{position:fixed;z-index:50;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:250px;max-width:300px;box-shadow:0 12px 32px color-mix(in srgb,#000 22%,transparent);font-size:.84rem;line-height:1.45}
+.tip[hidden]{display:none}
+.tip h5{margin:0;font-size:.95rem;font-weight:700}
+.tip .dt{color:var(--muted);font-size:.76rem;margin-bottom:8px}
+.tip .r{display:flex;justify-content:space-between;gap:14px}
+.tip .r span:last-child{font-variant-numeric:tabular-nums;font-family:"IBM Plex Sans",sans-serif}
+.tip .r.ind{padding-left:14px;color:var(--muted);font-size:.8rem}
+.tip .r.ind i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.tip .r.hd{font-weight:600;margin-top:6px}
+.tip hr{border:0;border-top:1px solid var(--line);margin:8px 0}
+.tip .big{display:flex;gap:10px;margin-top:2px}
+.tip .big div{flex:1;background:var(--field);border-radius:8px;padding:6px 8px}
+.tip .big small{display:block;color:var(--muted);font-size:.72rem}
+.tip .big b{font-size:1.05rem}
+.fmt-note{margin:0 0 8px;font-size:.84rem;color:var(--muted)}
+.fmt-note b{color:var(--ink)}
+.split{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:0 0 12px;background:var(--field)}
+.gtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:14px}
+.gtile{border-radius:10px;padding:12px 14px;background:var(--field);border-left:4px solid var(--gc)}
+.chgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px 28px}
+.chi{padding:10px 0;border-bottom:1px solid var(--line)}
+.chi-h{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.chi-h b{font-weight:600;font-size:.95rem;flex:1;min-width:0}
+.chi-h .dot{margin-right:0;flex:none;width:10px;height:10px}
+.pill{flex:none;font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+.gtile .pill{background:var(--panel)}
+.pill.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.pill.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.pair{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-size:1.02rem}
+.pair b{font-size:1.12rem;font-weight:700}
+.pair .sep{color:var(--muted)}
+.pair span:last-child{color:var(--good);font-weight:600}
+.track{height:8px;background:var(--field);border-radius:4px;overflow:hidden;margin:8px 0 4px}
+.fill{height:100%;border-radius:4px}
+.ksub{margin:2px 0 0;font-size:.76rem;color:var(--muted)}
+.ov-kpis .k.main .ksub{color:inherit;opacity:.7}
+.ov-kpis dd{font-size:clamp(1.1rem,2.2vw,1.35rem)}
+.ov-meta{margin-top:8px}
+details.ovtable{margin-top:14px}
+details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
+.ov-filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.ov-filter .chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.84rem}
+.ov-filter .chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.ov-filter input[type=month]{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit;color:inherit}
+.ov-count{font-size:.84rem;color:var(--muted);margin-left:auto}
+.ov-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:6px}
+.ov-kpis .k{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.ov-kpis .k.main{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.ov-kpis .k.main dt{color:inherit;opacity:.75}
+.ov-kpis dt{font-size:.78rem;color:var(--muted)}
+.ov-kpis dd{margin:0;font-size:1.25rem;font-weight:600}
+.ov-kpis .k.main dd{font-size:1.9rem;line-height:1.1}
+.chartwrap svg text{font-family:"IBM Plex Sans","IBM Plex Sans Thai",sans-serif}
+.history td input[type=checkbox],.history th input[type=checkbox]{width:16px;height:16px;accent-color:var(--shopee);cursor:pointer}
+.history table{min-width:640px}
+.history td button{border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;padding:3px 10px;border-radius:6px;margin-left:4px;font-size:.82rem}
+.history td button[data-del]{color:var(--muted)}
+.history tr.editing td{background:var(--shopee-soft)}
+#formPanel.editing{border-color:var(--shopee);box-shadow:0 0 0 1px var(--shopee)}
+.editbar{background:var(--shopee-soft);color:var(--ink);border-radius:8px;padding:8px 12px;margin:-4px 0 12px;font-size:.86rem;font-weight:500}
+.history td button:hover{border-color:var(--ink);color:var(--ink)}
+.empty{padding:18px;text-align:center;color:var(--muted);font-size:.9rem;border:1px dashed var(--line);border-radius:10px}
+.formula{margin-top:18px;font-size:.8rem;color:var(--muted);line-height:1.7}
+.formula b{color:var(--ink);font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--panel);padding:9px 16px;border-radius:8px;font-size:.88rem;opacity:0;pointer-events:none;transition:.25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.store-note{font-size:.75rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <a id="brandLink" class="brandlink" target="_blank" rel="noopener noreferrer"><img id="brandLogo" alt="" hidden></a>
+      <div>
+        <a id="brandNameLink" class="brandlink" target="_blank" rel="noopener noreferrer"><div class="shopname" id="brandName" hidden></div></a>
+        <h1>Shopee Seller Performance</h1>
+      </div>
+    </div>
+    <div class="settings">
+      <button class="gear" id="gearBtn" aria-haspopup="true" aria-expanded="false" aria-controls="setMenu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        ตั้งค่า
+      </button>
+      <div class="menu" id="setMenu" hidden role="dialog" aria-label="ตั้งค่า">
+        <h4>ข้อมูลร้านบนรายงาน</h4>
+        <div class="fld"><label for="optName">ชื่อร้าน</label><input type="text" id="optName" maxlength="80" placeholder="เช่น ร้านของฉัน Official"></div>
+        <div class="fld"><label for="optUrl">ลิงก์ร้านค้า</label><input type="text" id="optUrl" inputmode="url" maxlength="500" placeholder="https://shopee.co.th/ชื่อร้าน">
+          <p class="hint" id="urlHint" style="margin-top:4px">กดที่โลโก้หรือชื่อร้านด้านบนเพื่อเปิดลิงก์นี้</p></div>
+        <div class="fld"><label>โลโก้</label>
+          <div class="logo-row">
+            <div class="logo-prev" id="logoPrev">ไม่มีโลโก้</div>
+            <button type="button" class="btn sm" id="logoBtn">อัปโหลดโลโก้</button>
+            <input type="file" id="logoFile" class="vh" tabindex="-1" aria-hidden="true" accept=".png,.jpg,.jpeg,.webp,.svg,.gif,image/png,image/jpeg,image/webp,image/svg+xml,image/gif">
+            <button class="btn sm" id="logoDel" hidden>ลบ</button>
+          </div>
+          <p class="hint" style="margin-top:6px">รองรับ JPG, PNG, WEBP, SVG · PNG พื้นหลังโปร่งใสจะดูดีที่สุด ถ้าไม่ใส่ จะไม่แสดง</p>
+        </div>
+        <div class="sec"><h4>ตั้งค่าการแสดงผล</h4></div>
+        <label class="opt"><input type="checkbox" id="optTop5"><div><b>แสดง TOP 5 สินค้าขายดี</b><span>การ์ดสินค้าขายดีพร้อมรูปและยอดขายบน Dashboard</span></div></label>
+        <label class="opt"><input type="checkbox" id="optTraffic"><div><b>แสดงยอดขายแบ่งตามที่มาการเข้าชม</b><span>สัดส่วนยอดขายจากหน้าสินค้า Live วิดีโอ พาร์ทเนอร์ และยอดขายจาก Shopee Ads บน Dashboard</span></div></label>
+        <label class="opt"><input type="checkbox" id="optProfit"><div><b>แสดงข้อมูลกำไรสุทธิ</b><span>ช่องกรอกต้นทุนสินค้าและค่าธรรมเนียม กำไรสุทธิ และ ROI จุดคุ้มทุน</span></div></label>
+      </div>
+    </div>
+  </header>
+
+      <section class="panel overview" aria-label="ภาพรวม">
+        <h2 style="font-size:1.15rem">ภาพรวมผลลัพธ์จากรอบที่บันทึก</h2>
+        <p class="hint" style="margin:-6px 0 12px">รวมตัวเลขจากรอบที่บันทึกไว้โดยอัตโนมัติ เลือกช่วงเวลาหรือติ๊กเลือกรอบในตารางประวัติด้านล่าง</p>
+        <div class="ov-filter" id="ovFilter">
+          <button class="chip" data-q="all" aria-pressed="true">ทุกรอบ</button>
+          <button class="chip" data-q="thisMonth" aria-pressed="false">เดือนนี้</button>
+          <button class="chip" data-q="last3" aria-pressed="false">3 เดือนล่าสุด</button>
+          <button class="chip" data-q="thisYear" aria-pressed="false">ปีนี้</button>
+          <span style="display:inline-flex;gap:6px;align-items:center;font-size:.84rem">
+            <label for="m1" class="muted">เดือน</label><input type="month" id="m1">
+            <label for="m2" class="muted">ถึง</label><input type="month" id="m2">
+          </span>
+          <span class="ov-count num" id="ovCount"></span>
+        </div>
+        <div id="ovBody"></div>
+      </section>
+
+  <div class="grid">
+    <!-- INPUT -->
+    <section class="panel" aria-label="กรอกข้อมูล" id="formPanel">
+      <div class="editbar" id="editBar" hidden>
+        <span>✏️ กำลังแก้ไขรอบที่บันทึกไว้</span>
+      </div>
+      <h2 id="formTitle">กรอกข้อมูลรอบใหม่</h2>
+      <div class="period">
+        <div style="flex:1 1 100%"><label for="pname">ชื่อรอบ</label><input type="text" id="pname" placeholder="เช่น ต.ค. 2026 สัปดาห์ 1" style="width:100%"></div>
+        <div style="flex:1"><label for="d1">จากวันที่</label><input type="date" id="d1" style="width:100%"></div>
+        <div style="flex:1"><label for="d2">ถึงวันที่</label><input type="date" id="d2" style="width:100%"></div>
+      </div>
+      <div class="salesbox">
+        <label for="sales">ยอดขายที่ยืนยันแล้ว (ทั้งร้าน)</label>
+        <div class="money"><span>฿</span><input id="sales" inputmode="decimal" placeholder="0" class="num"></div>
+        <div class="subsec">
+          <div class="subsec-h"><b>ยอดขายแบ่งตามที่มาการเข้าชม</b><span class="muted">% ของยอดขาย</span></div>
+          <div id="trafficRows"></div>
+          <div class="sumline" id="trafficSum"></div>
+        </div>
+        <div class="subsec">
+          <div class="subsec-h"><b>สัดส่วนยอดขายจากโฆษณา</b><span class="muted">% ของยอดขาย</span></div>
+          <div class="trow"><label for="adsSales">โฆษณา Shopee Ads</label><div class="money"><span>฿</span><input id="adsSales" inputmode="decimal" placeholder="0" class="num"></div><span class="tpct num" id="adsPct">–</span></div>
+        </div>
+      </div>
+
+      <div class="group top5">
+        <h3>TOP 5 สินค้าขายดี</h3>
+        <p class="hint">วางลิงก์สินค้า ระบบดึงชื่อจากลิงก์ให้ · รูป: กดที่กรอบรูป ลากไฟล์มาวาง หรือคัดลอกรูปจากหน้า Shopee แล้วกด Ctrl+V / ⌘V ในแถวนั้น</p>
+        <div id="topRows"></div>
+      </div>
+
+      <div class="colhead"><span>ช่องทาง</span><span>ค่าใช้จ่าย</span><span>ยอดขายจากโฆษณา*</span></div>
+
+      <div class="group shopee">
+        <h3>Shopee Ads (ภายใน Seller Centre)</h3>
+        <p class="hint">4 ประเภทโฆษณาในหน้า Shopee Ads</p>
+        <div id="grp-shopee"></div>
+      </div>
+
+      <div class="group off">
+        <h3><a href="https://seller.shopee.co.th/portal/web-shopping-ads" target="_blank" rel="noopener" style="color:inherit;text-underline-offset:3px">โฆษณานอกแพลตฟอร์ม</a></h3>
+        <p class="hint">CPAS in shop และ CPAS in Meta</p>
+        <div id="grp-off"></div>
+      </div>
+      <p class="hint" style="margin-top:8px">* ไม่บังคับ ใส่เมื่ออยากดู ROAS แยกรายช่องทาง</p>
+
+      <div class="extra" id="profitBox">
+        <h3>ต้นทุน เพื่อดูกำไรสุทธิ</h3>
+        <div class="row2">
+          <div><label for="cogs">ต้นทุนสินค้า (฿)</label><div class="money"><span>฿</span><input id="cogs" inputmode="decimal" placeholder="0" class="num"></div></div>
+          <div><label for="fees">ค่าธรรมเนียม Shopee (฿)</label><div class="money"><span>฿</span><input id="fees" inputmode="decimal" placeholder="0" class="num"></div></div>
+        </div>
+      </div>
+      <div class="extra">
+        <div class="row2" style="margin-top:0">
+          <div><label for="target">เป้า ROI (เท่า) ไม่บังคับ</label><div class="money"><span>×</span><input id="target" inputmode="decimal" placeholder="เช่น 8" class="num"></div></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="save">บันทึกรอบนี้</button>
+        <button class="btn" id="saveCopy" hidden>บันทึกเป็นรอบใหม่</button>
+        <button class="btn" id="clear">ล้างข้อมูลที่กรอก</button>
+      </div>
+      <p class="store-note" id="storeNote" style="margin-top:8px"></p>
+    </section>
+
+    <!-- RESULT -->
+    <section>
+      <div class="panel">
+        <div class="hero">
+          <div>
+            <div class="roi-big num" id="roiBig">–<span class="x">เท่า</span></div>
+            <div class="roi-cap">ROI = ยอดขายที่ยืนยันแล้ว ÷ ค่าโฆษณารวม</div>
+            <span class="verdict mid" id="verdict">กรอกยอดขายและค่าโฆษณา</span>
+          </div>
+          <dl class="kpis">
+            <div class="kpi"><dt>ยอดขายที่ยืนยันแล้ว</dt><dd class="num" id="kSales">฿0</dd></div>
+            <div class="kpi"><dt>ค่าโฆษณารวม 6 ช่องทาง</dt><dd class="num" id="kSpend">฿0</dd></div>
+            <div class="kpi"><dt>ACOS (ค่าโฆษณา ÷ ยอดขาย)</dt><dd class="num" id="kAcos">–</dd></div>
+            <div class="kpi"><dt id="kProfitLbl">ยอดขายหลังหักค่าโฆษณา</dt><dd class="num" id="kProfit">฿0</dd></div>
+          </dl>
+        </div>
+
+        <div class="flow">
+          <div class="flow-head"><span>ยอดขาย 100% ถูกใช้เป็นค่าโฆษณาเท่าไร</span><span class="num" id="flowPct"></span></div>
+          <div class="bar" id="bar" role="img" aria-label="สัดส่วนค่าโฆษณาต่อยอดขาย"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>ช่องทาง</th><th>ค่าใช้จ่าย</th><th>สัดส่วนงบ</th><th>ยอดขายจากโฆษณา</th><th>ROAS ช่องทาง</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="formula" id="formula"></div>
+      </div>
+
+      <div class="panel history">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+          <div><h2 style="margin:0">ประวัติรอบที่บันทึก</h2><p class="hint" style="margin-top:2px">ดาวน์โหลดเก็บไว้เป็นไฟล์สำรอง แล้วนำเข้ากลับมาได้ทุกเมื่อ</p></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn" id="importBtn">นำเข้าไฟล์ CSV</button>
+            <input type="file" id="importFile" class="vh" tabindex="-1" aria-hidden="true" accept=".csv,text/csv">
+            <button class="btn" id="exportCsv" hidden>ดาวน์โหลดไฟล์สำรอง (CSV)</button>
+          </div>
+        </div>
+        <div id="history"></div>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="tip" id="tip" hidden role="tooltip"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+let SHOW_PROFIT = true;
+let SHOW_TRAFFIC = true;
+let SHOW_TOP5 = true;
+try{ SHOW_TOP5 = localStorage.getItem('shopee-roi-show-top5') !== '0'; }catch(e){}
+try{ SHOW_TRAFFIC = localStorage.getItem('shopee-roi-show-traffic') !== '0'; }catch(e){}
+const TR = [
+  {k:'pdp', n:'หน้ารายละเอียดสินค้า', c:'#4F7CF7'},
+  {k:'live', n:'Live ของร้านค้า', c:'#EE4D2D'},
+  {k:'video', n:'วิดีโอของร้านค้า', c:'#9B5DE5'},
+  {k:'partner', n:'พาร์ทเนอร์', c:'#12A57A'},
+];
+try{ SHOW_PROFIT = localStorage.getItem('shopee-roi-show-profit') !== '0'; }catch(e){}
+const CH = [
+  {k:'product', g:'shopee', n:'โฆษณาสินค้า', c:'var(--ch-product)'},
+  {k:'search',  g:'shopee', n:'โฆษณาคำค้นหา', c:'var(--ch-search)'},
+  {k:'brand',   g:'shopee', n:'Brand Ads', c:'var(--ch-brand)'},
+  {k:'live',    g:'shopee', n:'Live Ads', c:'var(--ch-live)'},
+  {k:'cpasShop',g:'off', n:'CPAS in shop', c:'var(--ch-cpasShop)'},
+  {k:'cpasMeta',g:'off', n:'CPAS in Meta', c:'var(--ch-cpasMeta)'},
+];
+const $ = id => document.getElementById(id);
+const fmtB = v => { const r=Math.round(v*100)/100; const d=Number.isInteger(r)?0:2; return '฿' + r.toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d}); };
+const fmtB0 = v => '฿' + Math.round(v).toLocaleString('th-TH');
+const fmtX = v => isFinite(v) ? v.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}) : '–';
+const fmtP = v => isFinite(v) ? v.toLocaleString('th-TH',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%' : '–';
+const num = el => { const v = parseFloat(String(el.value).replace(/[,\s฿]/g,'')); return isFinite(v) ? v : 0; };
+const esc = s => String(s??'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+// Build traffic rows
+for (const t of TR){
+  $('trafficRows').insertAdjacentHTML('beforeend', `<div class="trow"><label for="t_${t.k}"><span class="dot" style="background:${t.c}"></span>${t.n}</label>
+    <div class="money"><span>฿</span><input id="t_${t.k}" inputmode="decimal" placeholder="0" class="num"></div><span class="tpct num" id="tp_${t.k}">–</span></div>`);
+}
+// Build TOP 5 rows
+let topImgs=['','','','',''];
+const topAuto=[true,true,true,true,true];
+function nameFromUrl(u){
+  const c=cleanUrl(u); if(!c) return '';
+  try{
+    const x=new URL(c); const seg=x.pathname.split('/').filter(Boolean);
+    for(const sgm of seg){ let d; try{ d=decodeURIComponent(sgm); }catch(e){ d=sgm; }
+      const m=d.match(/^(.+)-i\.\d+\.\d+$/); if(m) return m[1].replace(/-/g,' ').replace(/\s+/g,' ').trim(); }
+  }catch(e){}
+  return '';
+}
+function paintThumb(i){
+  const b=$('tpi_'+i); b.classList.toggle('has', !!topImgs[i]);
+  b.innerHTML = topImgs[i] ? `<img src="${topImgs[i]}" alt="">` : 'เพิ่ม<br>รูป';
+  b.setAttribute('aria-label', topImgs[i] ? `เปลี่ยนรูปสินค้าอันดับ ${i+1}` : `เพิ่มรูปสินค้าอันดับ ${i+1}`);
+}
+async function productImage(file){
+  const src=await readAsDataURL(file); const im=await loadImg(src);
+  const S=220, w=im.naturalWidth||S, h=im.naturalHeight||S, side=Math.min(w,h);
+  const c=document.createElement('canvas'); c.width=S; c.height=S; const g=c.getContext('2d');
+  g.fillStyle='#fff'; g.fillRect(0,0,S,S);
+  g.drawImage(im,(w-side)/2,(h-side)/2,side,side,0,0,S,S);
+  return c.toDataURL('image/jpeg',0.8);
+}
+async function setTopImage(i,file){
+  if(!file) return;
+  if(!(file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name||''))){ toast('เลือกไฟล์รูปภาพ JPG หรือ PNG'); return; }
+  try{ topImgs[i]=await productImage(file); paintThumb(i); }catch(e){ toast('เปิดรูปนี้ไม่ได้ ลองไฟล์ JPG หรือ PNG'); }
+}
+for(let i=0;i<5;i++){
+  $('topRows').insertAdjacentHTML('beforeend', `<div class="tprow" id="tpr_${i}">
+    <span class="rk">${i+1}</span>
+    <button type="button" class="thumb" id="tpi_${i}"></button>
+    <div class="tpf"><input type="text" id="tpu_${i}" inputmode="url" placeholder="ลิงก์สินค้า Shopee" aria-label="ลิงก์สินค้าอันดับ ${i+1}">
+      <div class="tpl2"><input type="text" class="nm" id="tpn_${i}" maxlength="200" placeholder="ชื่อสินค้า" aria-label="ชื่อสินค้าอันดับ ${i+1}">
+      <div class="money tps"><span>฿</span><input class="num" id="tps_${i}" inputmode="decimal" placeholder="ยอดขาย" aria-label="ยอดขายสินค้าอันดับ ${i+1}"></div></div></div>
+    <button type="button" class="tpx" id="tpx_${i}" title="ล้างอันดับ ${i+1}" aria-label="ล้างอันดับ ${i+1}">✕</button>
+    <input type="file" class="vh" id="tpf_${i}" tabindex="-1" aria-hidden="true" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+  </div>`);
+  paintThumb(i);
+  $('tpi_'+i).addEventListener('click', ()=>$('tpf_'+i).click());
+  $('tpf_'+i).addEventListener('change', e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; setTopImage(i,f); });
+  $('tpu_'+i).addEventListener('input', e=>{
+    const v=e.target.value.trim(); e.target.classList.toggle('bad', !!v && !cleanUrl(v));
+    const n=nameFromUrl(v); const nm=$('tpn_'+i);
+    if(n && (topAuto[i] || !nm.value.trim())){ nm.value=n; topAuto[i]=true; }
+  });
+  $('tpn_'+i).addEventListener('input', ()=>{ topAuto[i]=false; });
+  $('tpx_'+i).addEventListener('click', ()=>{ $('tpu_'+i).value=''; $('tpn_'+i).value=''; $('tps_'+i).value=''; $('tpu_'+i).classList.remove('bad'); topImgs[i]=''; topAuto[i]=true; paintThumb(i); });
+  const row=$('tpr_'+i);
+  row.addEventListener('paste', e=>{
+    const items=[...(e.clipboardData&&e.clipboardData.items||[])]; const it=items.find(x=>x.kind==='file'&&x.type.startsWith('image/'));
+    if(it){ e.preventDefault(); setTopImage(i, it.getAsFile()); toast(`วางรูปสินค้าอันดับ ${i+1} แล้ว`); }
+  });
+  row.addEventListener('dragover', e=>{ if([...e.dataTransfer.types].includes('Files')){ e.preventDefault(); row.classList.add('drag'); } });
+  row.addEventListener('dragleave', ()=>row.classList.remove('drag'));
+  row.addEventListener('drop', e=>{ const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(f){ e.preventDefault(); row.classList.remove('drag'); setTopImage(i,f); } });
+}
+function readTop5(){ return [0,1,2,3,4].map(i=>({url:cleanUrl($('tpu_'+i).value)||'', name:$('tpn_'+i).value.trim(), img:topImgs[i]||'', sales:num($('tps_'+i))})); }
+function fillTop5(t){
+  t=Array.isArray(t)?t:[];
+  for(let i=0;i<5;i++){ const x=t[i]||{}; $('tpu_'+i).value=x.url||''; $('tpn_'+i).value=x.name||''; $('tps_'+i).value=x.sales||''; $('tpu_'+i).classList.remove('bad');
+    topImgs[i]=x.img||''; topAuto[i]=!x.name || x.name===nameFromUrl(x.url); paintThumb(i); }
+}
+const hasTop5 = r => Array.isArray(r.top5) && r.top5.some(x=>x&&(x.url||x.name||x.img||x.sales));
+
+// Build channel rows
+for (const ch of CH){
+  const row = document.createElement('div');
+  row.className = 'chrow';
+  const name = ch.link ? `<a href="${ch.link}" target="_blank" rel="noopener">${ch.n}</a>` : ch.n;
+  row.innerHTML = `<div class="nm"><span class="dot" style="background:${ch.c}"></span>${name}</div>
+    <div class="money"><span>฿</span><input class="num" inputmode="decimal" placeholder="0" id="s_${ch.k}" aria-label="ค่าใช้จ่าย ${ch.n}"></div>
+    <div class="money"><span>฿</span><input class="num" inputmode="decimal" placeholder="–" id="r_${ch.k}" aria-label="ยอดขายจาก ${ch.n}"></div>`;
+  $(ch.g==='shopee'?'grp-shopee':'grp-off').appendChild(row);
+}
+
+function readForm(){
+  const channels = {};
+  for (const ch of CH) channels[ch.k] = {spend:num($('s_'+ch.k)), sales:num($('r_'+ch.k))};
+  return {
+    name:$('pname').value.trim(), d1:$('d1').value, d2:$('d2').value,
+    sales:num($('sales')), cogs:num($('cogs')), fees:num($('fees')), target:num($('target')),
+    traffic:Object.fromEntries(TR.map(t=>[t.k, num($('t_'+t.k))])), adsSales:num($('adsSales')),
+    top5:readTop5(),
+    channels
+  };
+}
+function fillForm(r){
+  $('pname').value=r.name||''; $('d1').value=r.d1||''; $('d2').value=r.d2||'';
+  $('sales').value=r.sales||''; $('cogs').value=r.cogs||''; $('fees').value=r.fees||''; $('target').value=r.target||'';
+  for (const t of TR) $('t_'+t.k).value=((r.traffic||{})[t.k])||'';
+  $('adsSales').value=r.adsSales||'';
+  fillTop5(r.top5);
+  for (const ch of CH){ const c=(r.channels||{})[ch.k]||{}; $('s_'+ch.k).value=c.spend||''; $('r_'+ch.k).value=c.sales||''; }
+  render();
+}
+function calc(r){
+  let shopee=0, off=0;
+  for (const ch of CH){ const s=r.channels[ch.k].spend; if(ch.g==='shopee') shopee+=s; else off+=s; }
+  const spend = shopee+off;
+  const roi = spend>0 ? r.sales/spend : NaN;
+  const acos = r.sales>0 ? spend/r.sales*100 : NaN;
+  const hasCost = SHOW_PROFIT && (r.cogs>0 || r.fees>0);
+  const profit = r.sales - spend - r.cogs - r.fees;
+  const netRoi = spend>0 ? profit/spend*100 : NaN;
+  const margin = r.sales>0 ? (r.sales - r.cogs - r.fees)/r.sales : NaN;
+  const breakEven = hasCost && margin>0 ? 1/margin : NaN;
+  return {shopee, off, spend, roi, acos, hasCost, profit, netRoi, breakEven};
+}
+
+function tableRows(r,m){
+  const row = (ch)=>{
+    const c=r.channels[ch.k]; const share = m.spend>0? c.spend/m.spend*100 : 0;
+    const roi = c.spend>0 && c.sales>0 ? fmtX(c.sales/c.spend)+' เท่า' : '<span class="muted">–</span>';
+    const nm = ch.link ? `<a href="${ch.link}" target="_blank" rel="noopener" style="color:inherit">${ch.n}</a>` : ch.n;
+    return `<tr><td><span class="dot" style="background:${ch.c}"></span>${nm}</td><td class="num">${fmtB(c.spend)}</td>
+      <td class="num">${fmtP(share)}<span class="share" style="width:${Math.round(share*0.5)}px;background:${ch.c}"></span></td>
+      <td class="num">${c.sales?fmtB(c.sales):'<span class="muted">–</span>'}</td><td class="num">${roi}</td></tr>`;
+  };
+  const sub = (label, g, total)=>{
+    const s = CH.filter(c=>c.g===g).reduce((a,c)=>a+r.channels[c.k].sales,0);
+    return `<tr class="sub"><td>${label}</td><td class="num">${fmtB(total)}</td><td class="num">${fmtP(m.spend>0?total/m.spend*100:0)}</td><td class="num">${s?fmtB(s):'–'}</td><td class="num">${total>0&&s>0?fmtX(s/total)+' เท่า':'–'}</td></tr>`;
+  };
+  let h = sub('Shopee Ads รวม','shopee',m.shopee) + CH.filter(c=>c.g==='shopee').map(row).join('');
+  h += sub('นอกแพลตฟอร์มรวม','off',m.off) + CH.filter(c=>c.g==='off').map(row).join('');
+  h += `<tr class="total"><td>รวมทั้งหมด → ROI ร้าน</td><td class="num">${fmtB(m.spend)}</td><td class="num">100%</td><td class="num">${fmtB(r.sales)} <span class="muted" style="font-weight:400">(ยอดขายที่ยืนยันแล้ว)</span></td><td class="num">${isFinite(m.roi)?'ROI '+fmtX(m.roi)+' เท่า':'–'}</td></tr>`;
+  return h;
+}
+
+function renderTrafficForm(r){
+  const pc = v => r.sales>0 && v ? fmtP(v/r.sales*100) : '–';
+  let sum=0; for(const t of TR){ const v=r.traffic[t.k]; sum+=v; $('tp_'+t.k).textContent=pc(v); }
+  $('adsPct').textContent = pc(r.adsSales);
+  const el=$('trafficSum');
+  if(!sum){ el.textContent=''; el.className='sumline'; return; }
+  const diff = r.sales ? sum-r.sales : 0;
+  el.className = 'sumline' + (r.sales && Math.abs(diff) > Math.max(1, r.sales*0.005) ? ' warn' : '');
+  el.textContent = `รวม 4 ช่อง ${fmtB(sum)}` + (r.sales ? ` = ${fmtP(sum/r.sales*100)} ของยอดขาย` + (Math.abs(diff) > Math.max(1, r.sales*0.005) ? ` (ต่าง ${fmtB(diff)})` : ' ✓') : '');
+}
+function render(){
+  const r = readForm(), m = calc(r);
+  renderTrafficForm(r);
+  $('roiBig').innerHTML = (isFinite(m.roi)?fmtX(m.roi):'–') + '<span class="x">เท่า</span>';
+  $('kSales').textContent = fmtB(r.sales);
+  $('kSpend').textContent = fmtB(m.spend);
+  $('kAcos').textContent = fmtP(m.acos);
+  const pv = m.hasCost ? m.profit : r.sales - m.spend;
+  $('kProfitLbl').textContent = m.hasCost ? 'กำไรสุทธิหลังหักทุกอย่าง' : 'ยอดขายหลังหักค่าโฆษณา';
+  $('kProfit').textContent = fmtB(pv);
+  $('kProfit').className = 'num ' + (pv>0?'pos':pv<0?'neg':'');
+
+  // verdict
+  const v = $('verdict');
+  if (!isFinite(m.roi)) { v.className='verdict mid'; v.textContent='กรอกยอดขายและค่าโฆษณา'; }
+  else {
+    const goal = r.target>0 ? r.target : (isFinite(m.breakEven)? m.breakEven : null);
+    if (r.target>0){
+      const ok = m.roi >= r.target;
+      v.className = 'verdict ' + (ok?'good':'bad');
+      v.textContent = ok ? `ถึงเป้า ${fmtX(r.target)} เท่าแล้ว` : `ต่ำกว่าเป้า ${fmtX(r.target)} เท่า`;
+    } else if (goal){
+      const ok = m.roi >= goal;
+      v.className = 'verdict ' + (ok?'good':'bad');
+      v.textContent = ok ? `คุ้มทุน (จุดคุ้มทุน ${fmtX(goal)} เท่า)` : `ยังไม่คุ้มทุน (ต้องได้ ${fmtX(goal)} เท่า)`;
+    } else {
+      v.className = 'verdict mid';
+      v.textContent = 'ใส่ต้นทุนหรือเป้า ROI เพื่อดูว่าคุ้มไหม';
+    }
+  }
+
+  // flow bar
+  const bar = $('bar'); bar.innerHTML=''; const lg = $('legend'); lg.innerHTML='';
+  const base = Math.max(r.sales, m.spend);
+  if (base>0){
+    for (const ch of CH){
+      const s=r.channels[ch.k].spend; if(!s) continue;
+      const d=document.createElement('div'); d.style.width=(s/base*100)+'%'; d.style.background=ch.c; d.title=`${ch.n}: ${fmtB(s)}`; bar.appendChild(d);
+      lg.insertAdjacentHTML('beforeend', `<span><i style="background:${ch.c}"></i>${ch.n} <span class="num muted">${fmtB(s)}</span></span>`);
+    }
+    if (r.sales>m.spend){ const d=document.createElement('div'); d.className='rest'; d.style.width=((r.sales-m.spend)/base*100)+'%'; d.title='ยอดขายที่เหลือหลังค่าโฆษณา'; bar.appendChild(d);
+      lg.insertAdjacentHTML('beforeend', `<span><i style="background:var(--good-soft);border:1px solid var(--good)"></i>ยอดขายที่เหลือ</span>`); }
+  }
+  $('flowPct').textContent = isFinite(m.acos) ? `ค่าโฆษณา ${fmtP(m.acos)} ของยอดขาย` : '';
+
+  $('tbody').innerHTML = tableRows(r,m);
+
+  let f = `<b>ROI</b> = ยอดขายที่ยืนยันแล้ว ÷ (โฆษณาสินค้า + โฆษณาคำค้นหา + Brand Ads + Live Ads + CPAS in shop + CPAS in Meta)<br>
+    <b>ROAS ช่องทาง</b> = ยอดขายจากแอดของช่องทางนั้น ÷ ค่าแอดของช่องทางนั้น<br>
+    <b>ACOS</b> = ค่าโฆษณารวม ÷ ยอดขาย × 100`;
+  if (m.hasCost) f += `<br><b>กำไรสุทธิ</b> = ยอดขาย − ต้นทุนสินค้า − ค่าธรรมเนียม − ค่าโฆษณา = <span class="num">${fmtB(m.profit)}</span>
+    &nbsp;·&nbsp; <b>ROI กำไร</b> = กำไรสุทธิ ÷ ค่าโฆษณา = <span class="num">${fmtP(m.netRoi)}</span>
+    ${isFinite(m.breakEven)?`<br><b>ROI จุดคุ้มทุน</b> = 1 ÷ อัตรากำไรขั้นต้น = <span class="num">${fmtX(m.breakEven)}</span> เท่า`:''}`;
+  $('formula').innerHTML = f;
+}
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input', render));
+
+// ---------- storage ----------
+let records = [];  // {id, ...form, savedAt}
+let db=null, uid=null, downloads=null;
+const LSKEY='shopee-roi-records-v1';
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2200); }
+function lsLoad(){ try{ return JSON.parse(localStorage.getItem(LSKEY)||'[]'); }catch(e){ return []; } }
+function lsSave(){ try{ localStorage.setItem(LSKEY, JSON.stringify(records)); }catch(e){} }
+function coll(){ return db.collection('data/users/'+uid); }
+
+function renderHistory(){
+  const el=$('history');
+  $('exportCsv').hidden = !records.length;
+  if(!records.length){ el.innerHTML='<div class="empty">ยังไม่มีรอบที่บันทึก กรอกตัวเลขแล้วกด “บันทึกรอบนี้” เพื่อเก็บไว้เทียบกัน</div>'; renderOverview(); return; }
+  const sorted=[...records].sort((a,b)=>(b.d2||b.savedAt||'').localeCompare(a.d2||a.savedAt||''));
+  let h='<div class="tablewrap" style="margin-top:0"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="เลือกทุกรอบ"></th><th>รอบ</th><th>ยอดขายที่ยืนยันแล้ว</th><th>Shopee Ads</th><th>นอกแพลตฟอร์ม</th><th>ค่าโฆษณารวม</th><th>ROI</th><th>ACOS</th><th></th></tr></thead><tbody>';
+  for(const r of sorted){
+    const m=calc(r);
+    const label = r.name || [r.d1,r.d2].filter(Boolean).join(' – ') || 'ไม่มีชื่อ';
+    const dates = r.name && (r.d1||r.d2) ? `<br><span class="muted" style="font-size:.75rem">${esc([r.d1,r.d2].filter(Boolean).join(' – '))}</span>` : '';
+    h+=`<tr class="${editingId===r.id?'editing':''}"><td><input type="checkbox" data-sel="${esc(r.id)}" ${selected.has(r.id)?'checked':''} aria-label="รวม ${esc(label)} ในภาพรวม"></td><td>${esc(label)}${dates}</td><td class="num">${fmtB(r.sales)}</td><td class="num">${fmtB(m.shopee)}</td><td class="num">${fmtB(m.off)}</td><td class="num">${fmtB(m.spend)}</td>
+      <td class="num" style="font-weight:600">${isFinite(m.roi)?fmtX(m.roi):'–'}</td><td class="num">${fmtP(m.acos)}</td>
+      <td style="white-space:nowrap"><button data-load="${esc(r.id)}">${editingId===r.id?'กำลังแก้ไข':'แก้ไข'}</button><button data-del="${esc(r.id)}">ลบ</button></td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table></div>';
+  const sa=$('selAll'); sa.checked = records.length>0 && records.every(r=>selected.has(r.id));
+  sa.indeterminate = !sa.checked && records.some(r=>selected.has(r.id));
+  renderOverview();
+}
+$('history').addEventListener('click', async e=>{
+  const l=e.target.dataset.load, d=e.target.dataset.del;
+  if(l){ const r=records.find(x=>x.id===l); if(!r) return;
+    const f=readForm();
+    if(editingId!==r.id && (f.sales || calc(f).spend) && !confirm('ตัวเลขที่กรอกค้างไว้ในฟอร์มจะถูกแทนที่ด้วยรอบนี้ ดำเนินการต่อ?')) return;
+    fillForm(r); setEditing(r.id);
+    $('formPanel').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'});
+    toast('เปิดรอบนี้ในฟอร์มแล้ว แก้ตัวเลขแล้วกด “บันทึกการแก้ไข”'); }
+  if(d){ if(!confirm('ลบรอบนี้ออกจากประวัติ?')) return;
+    records=records.filter(x=>x.id!==d); selected.delete(d);
+    if(db&&uid){ try{ await coll().doc(d).delete(); }catch(err){ toast('ลบบนระบบไม่สำเร็จ ลองอีกครั้ง'); } } else lsSave();
+    if(editingId===d) setEditing(null);
+    renderHistory(); toast('ลบรอบแล้ว'); }
+});
+let editingId=null;
+function setEditing(id){
+  editingId=id;
+  const r=id?records.find(x=>x.id===id):null;
+  $('editBar').hidden=!r;
+  $('formPanel').classList.toggle('editing',!!r);
+  $('formTitle').textContent = r ? 'แก้ไขรอบ: '+(r.name||[r.d1,r.d2].filter(Boolean).join(' – ')||'ไม่มีชื่อ') : 'กรอกข้อมูลรอบใหม่';
+  $('save').textContent = r ? 'บันทึกการแก้ไข' : 'บันทึกรอบนี้';
+  $('saveCopy').hidden = !r;
+  $('clear').textContent = r ? 'ยกเลิกการแก้ไข' : 'ล้างข้อมูลที่กรอก';
+  renderHistory();
+}
+async function saveRecord(asNew){
+  const f=readForm(); const m=calc(f);
+  if(!f.sales && !m.spend){ toast('กรอกยอดขายหรือค่าโฆษณาก่อนบันทึก'); return; }
+  const updating = !!editingId && !asNew;
+  const id = updating ? editingId : ('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+  const old = records.find(x=>x.id===id);
+  const rec = {...f, id, createdAt:(old&&old.createdAt)||(old&&old.savedAt)||new Date().toISOString(), savedAt:new Date().toISOString()};
+  const i = records.findIndex(x=>x.id===id); if(i>=0) records[i]=rec; else { records.push(rec); if(quick==='all'||quick==='manual'||inQuick(rec)) selected.add(id); }
+  let msg = updating ? 'บันทึกการแก้ไขแล้ว' : 'บันทึกรอบใหม่แล้ว';
+  if(db&&uid){ try{ await coll().doc(id).set(rec); }catch(err){ lsSave(); msg+=' (เก็บในเครื่องนี้ ระบบออนไลน์ไม่ตอบ)'; } }
+  else lsSave();
+  fillForm({channels:{}}); setEditing(null); toast(msg);
+}
+$('save').addEventListener('click', ()=>saveRecord(false));
+$('saveCopy').addEventListener('click', ()=>saveRecord(true));
+$('clear').addEventListener('click', ()=>{ fillForm({channels:{}}); setEditing(null); });
+
+const CSV_HEAD = ()=>['รอบ','จาก','ถึง','ยอดขายที่ยืนยันแล้ว',...CH.map(c=>'ค่าใช้จ่าย '+c.n),...CH.map(c=>'ยอดขาย '+c.n),'Shopee Ads รวม','นอกแพลตฟอร์มรวม','ค่าโฆษณารวม','ROI (เท่า)','ACOS %','ต้นทุนสินค้า','ค่าธรรมเนียม','กำไรสุทธิ','เป้า ROI','รหัสรอบ','สร้างเมื่อ',...TR.map(t=>'ยอดขายที่มา '+t.n),'ยอดขายจากโฆษณา Shopee Ads',...[1,2,3,4,5].flatMap(n=>['TOP '+n+' ชื่อ','TOP '+n+' ลิงก์','TOP '+n+' รูป']),...[1,2,3,4,5].map(n=>'TOP '+n+' ยอดขาย')];
+$('exportCsv').addEventListener('click', async ()=>{
+  const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const lines=[CSV_HEAD().map(q).join(',')];
+  const sorted=[...records].sort((a,b)=>recStart(a).localeCompare(recStart(b)));
+  for(const r of sorted){ const m=calc(r); const pr=r.sales-m.spend-(r.cogs||0)-(r.fees||0);
+    lines.push([r.name,r.d1,r.d2,r.sales,...CH.map(c=>r.channels[c.k].spend),...CH.map(c=>r.channels[c.k].sales),m.shopee,m.off,m.spend,
+      isFinite(m.roi)?m.roi.toFixed(2):'',isFinite(m.acos)?m.acos.toFixed(2):'',r.cogs||'',r.fees||'',(r.cogs||r.fees)?pr.toFixed(2):'',r.target||'',r.id,r.createdAt||r.savedAt||'',...TR.map(t=>((r.traffic||{})[t.k])||''),r.adsSales||'',...[0,1,2,3,4].flatMap(i=>{ const x=(r.top5||[])[i]||{}; return [x.name||'',x.url||'',(x.img&&x.img.length<32000)?x.img:'']; }),...[0,1,2,3,4].map(i=>((r.top5||[])[i]||{}).sales||'')].map(q).join(',')); }
+  const d=new Date(); const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const fname=`shopee-performance-backup-${stamp}.csv`, data='\uFEFF'+lines.join('\n');
+  if(downloads){ try{ await downloads.save({filename:fname, data}); toast('ดาวน์โหลดไฟล์สำรองแล้ว'); }catch(e){ toast('ไม่ได้ดาวน์โหลดไฟล์'); } return; }
+  // standalone hosting (e.g. GitHub Pages): plain browser download
+  const url=URL.createObjectURL(new Blob([data],{type:'text/csv;charset=utf-8'}));
+  const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1500); toast('ดาวน์โหลดไฟล์สำรองแล้ว');
+});
+
+// ---------- import ----------
+function parseCSV(text){
+  text=text.replace(/^\uFEFF/,'');
+  const delim = (text.split('\n')[0].split(';').length > text.split('\n')[0].split(',').length) ? ';' : ',';
+  const rows=[]; let row=[], cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(inQ){ if(ch==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else inQ=false; } else cur+=ch; }
+    else if(ch==='"') inQ=true;
+    else if(ch===delim){ row.push(cur); cur=''; }
+    else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&text[i+1]==='\n') i++; row.push(cur); rows.push(row); row=[]; cur=''; }
+    else cur+=ch;
+  }
+  if(cur!==''||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=>r.some(c=>String(c).trim()!==''));
+}
+const pNum = v => { const n=parseFloat(String(v??'').replace(/[,\s฿%]/g,'')); return isFinite(n)?n:0; };
+function pDate(v){
+  v=String(v??'').trim(); if(!v) return '';
+  let m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(!m){ const t=v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/); if(t) m=[null,t[3],t[2],t[1]]; }
+  if(!m) return '';
+  let y=+m[1]; if(y>2400) y-=543;
+  return y+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[3]).padStart(2,'0');
+}
+$('importFile').addEventListener('change', async e=>{
+  const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
+  let rows; try{ rows=parseCSV(await file.text()); }catch(err){ toast('อ่านไฟล์ไม่ได้ ใช้ไฟล์ CSV ที่ดาวน์โหลดจากหน้านี้'); return; }
+  if(rows.length<2){ toast('ไฟล์นี้ไม่มีข้อมูลรอบ'); return; }
+  const head=rows[0].map(h=>String(h).trim()); const col=n=>head.indexOf(n);
+  const salesCol = col('ยอดขายที่ยืนยันแล้ว')>=0 ? 'ยอดขายที่ยืนยันแล้ว' : 'ยอดขายชำระแล้ว';
+  if(col(salesCol)<0 || !CH.some(c=>col('ค่าใช้จ่าย '+c.n)>=0)){ toast('รูปแบบไฟล์ไม่ตรง ใช้ไฟล์ CSV ที่ดาวน์โหลดจากหน้านี้'); return; }
+  const get=(r,n)=>{ const i=col(n); return i>=0 ? r[i] : ''; };
+  const incoming=[];
+  for(const r of rows.slice(1)){
+    const channels={}; for(const c of CH) channels[c.k]={spend:pNum(get(r,'ค่าใช้จ่าย '+c.n)), sales:pNum(get(r,'ยอดขาย '+c.n))};
+    const rec={name:String(get(r,'รอบ')).trim(), d1:pDate(get(r,'จาก')), d2:pDate(get(r,'ถึง')), sales:pNum(get(r,salesCol)),
+      cogs:pNum(get(r,'ต้นทุนสินค้า')), fees:pNum(get(r,'ค่าธรรมเนียม')), target:pNum(get(r,'เป้า ROI')), channels,
+      traffic:Object.fromEntries(TR.map(t=>[t.k,pNum(get(r,'ยอดขายที่มา '+t.n))])), adsSales:pNum(get(r,'ยอดขายจากโฆษณา Shopee Ads')),
+      top5:[1,2,3,4,5].map(n=>{ const img=String(get(r,'TOP '+n+' รูป')||'').trim(); return {sales:pNum(get(r,'TOP '+n+' ยอดขาย')), name:String(get(r,'TOP '+n+' ชื่อ')||'').trim(), url:cleanUrl(get(r,'TOP '+n+' ลิงก์')), img:/^data:image\/(png|jpe?g|webp|gif);base64,/.test(img)?img:''}; })};
+    if(!rec.sales && !CH.some(c=>channels[c.k].spend)) continue;
+    let id=String(get(r,'รหัสรอบ')).trim();
+    if(!id){ const same=records.find(x=>(x.name||'')===rec.name && (x.d1||'')===rec.d1 && (x.d2||'')===rec.d2); id = same ? same.id : ''; }
+    if(!/^[A-Za-z0-9_-]{1,60}$/.test(id)) id='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+    rec.id=id; rec.createdAt=String(get(r,'สร้างเมื่อ')).trim()||new Date().toISOString(); rec.savedAt=new Date().toISOString();
+    incoming.push(rec);
+  }
+  if(!incoming.length){ toast('ไม่พบรอบที่มีตัวเลขในไฟล์นี้'); return; }
+  const dup=incoming.filter(r=>records.some(x=>x.id===r.id));
+  let overwrite=true;
+  if(dup.length) overwrite=confirm(`ในไฟล์มี ${incoming.length} รอบ ซ้ำกับที่มีอยู่แล้ว ${dup.length} รอบ\n\nกด OK = เขียนทับรอบที่ซ้ำด้วยข้อมูลจากไฟล์\nกด Cancel = ข้ามรอบที่ซ้ำ นำเข้าเฉพาะรอบใหม่`);
+  let added=0, updated=0, failed=0;
+  for(const rec of incoming){
+    const i=records.findIndex(x=>x.id===rec.id);
+    if(i>=0 && !overwrite) continue;
+    if(db&&uid){ try{ await coll().doc(rec.id).set(rec); }catch(err){ failed++; continue; } }
+    if(i>=0){ records[i]=rec; updated++; } else { records.push(rec); added++; }
+    selected.add(rec.id);
+  }
+  if(!(db&&uid)) lsSave();
+  if(editingId && !records.some(x=>x.id===editingId)) setEditing(null); else renderHistory();
+  toast(`นำเข้าแล้ว: ใหม่ ${added} รอบ${updated?`, อัปเดต ${updated} รอบ`:''}${failed?`, ไม่สำเร็จ ${failed} รอบ`:''}`);
+});
+
+
+// ---------- overview ----------
+let selected = new Set(); let quick='all'; let selInit=false;
+const recDate = r => r.d2 || r.d1 || (r.savedAt||'').slice(0,10);
+const recStart = r => r.d1 || r.d2 || (r.savedAt||'').slice(0,10);
+function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function quickRange(q){
+  const now=new Date(); const mk=monthKey(now);
+  if(q==='thisMonth') return [mk,mk];
+  if(q==='last3'){ const d=new Date(now.getFullYear(),now.getMonth()-2,1); return [monthKey(d),mk]; }
+  if(q==='thisYear') return [now.getFullYear()+'-01',mk];
+  if(q==='custom') return [$('m1').value||'0000-00',$('m2').value||'9999-99'];
+  return null;
+}
+function inQuick(r){ const rg=quickRange(quick); if(!rg) return true; const m=recDate(r).slice(0,7); return m>=rg[0] && m<=rg[1]; }
+function applyQuick(q){
+  quick=q;
+  document.querySelectorAll('#ovFilter .chip').forEach(c=>c.setAttribute('aria-pressed', c.dataset.q===q));
+  selected = new Set(records.filter(inQuick).map(r=>r.id));
+  renderHistory();
+}
+$('ovFilter').addEventListener('click', e=>{ const q=e.target.dataset && e.target.dataset.q; if(q){ $('m1').value=''; $('m2').value=''; applyQuick(q);} });
+['m1','m2'].forEach(id=>$(id).addEventListener('change', ()=>applyQuick('custom')));
+$('history').addEventListener('change', e=>{
+  if(e.target.id==='selAll'){ selected = e.target.checked ? new Set(records.map(r=>r.id)) : new Set(); }
+  else if(e.target.dataset.sel){ e.target.checked ? selected.add(e.target.dataset.sel) : selected.delete(e.target.dataset.sel); }
+  else return;
+  quick='manual'; document.querySelectorAll('#ovFilter .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+  renderHistory();
+});
+
+function aggregate(list){
+  const agg={sales:0,cogs:0,fees:0,target:0,channels:{},traffic:Object.fromEntries(TR.map(t=>[t.k,0])),adsSales:0};
+  for(const ch of CH) agg.channels[ch.k]={spend:0,sales:0};
+  for(const r of list){
+    agg.sales+=+r.sales||0; agg.cogs+=+r.cogs||0; agg.fees+=+r.fees||0; agg.adsSales+=+r.adsSales||0;
+    for(const t of TR) agg.traffic[t.k]+=+((r.traffic||{})[t.k])||0;
+    for(const ch of CH){ const c=(r.channels||{})[ch.k]||{}; agg.channels[ch.k].spend+=+c.spend||0; agg.channels[ch.k].sales+=+c.sales||0; }
+  }
+  const ts=list.map(r=>+r.target||0).filter(Boolean); if(ts.length) agg.target=ts[ts.length-1];
+  return agg;
+}
+
+const fmtK = v => { const a=Math.abs(v); return (v<0?'-':'')+'฿'+(a>=1e6?(a/1e6).toFixed(a>=1e7?0:1)+'M':a>=1e3?(a/1e3).toFixed(a>=1e5?0:1)+'k':Math.round(a)); };
+
+function trendSvg(list, target){
+  const n=list.length; const gw=Math.max(84, 900/n);
+  const padL=58, padR=18, W=padL+padR+gw*n;
+  const rTop=26, rH=96, gap=34, bTop=rTop+rH+gap, bH=190, bottom=40, H=bTop+bH+bottom;
+  const data=list.map(r=>({r,m:calc(r)})); trendData=data;
+  const maxV=Math.max(1,...data.map(d=>Math.max(d.r.sales||0,d.m.spend)))*1.12;
+  const rois=data.map(d=>d.m.roi).filter(isFinite);
+  const maxR=Math.max(1,target||0,...rois)*1.15;
+  const y=v=>bTop+bH-(v/maxV)*bH, yr=v=>rTop+rH-(v/maxR)*rH;
+  let g='';
+  // ROI panel
+  g+=`<text x="4" y="${rTop-10}" font-size="12" font-weight="600" style="fill:var(--ink)">ROI แต่ละรอบ (เท่า)</text>`;
+  g+=`<line x1="${padL}" x2="${W-padR}" y1="${rTop+rH}" y2="${rTop+rH}" style="stroke:var(--line)"/>`;
+  if(target>0){ const ty=yr(target);
+    g+=`<line x1="${padL}" x2="${W-padR}" y1="${ty}" y2="${ty}" style="stroke:var(--warn)" stroke-dasharray="5 4" stroke-width="1.5"/>`;
+    g+=`<text x="${padL-6}" y="${ty+4}" text-anchor="end" font-size="11" style="fill:var(--warn)">เป้า ${fmtX(target)}</text>`; }
+  const pts=[];
+  data.forEach((d,i)=>{ if(isFinite(d.m.roi)) pts.push([padL+i*gw+gw/2, yr(d.m.roi), d.m.roi]); });
+  if(pts.length>1) g+=`<polyline points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="none" style="stroke:var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  for(const p of pts){ const ok=!(target>0)||p[2]>=target;
+    g+=`<circle cx="${p[0]}" cy="${p[1]}" r="6" style="fill:${ok?'var(--good)':'var(--bad)'};stroke:var(--panel)" stroke-width="2"/>`;
+    g+=`<text x="${p[0]}" y="${p[1]-12}" text-anchor="middle" font-size="14" font-weight="700" style="fill:var(--ink)">${fmtX(p[2])}</text>`; }
+  // money panel
+  g+=`<text x="4" y="${bTop-12}" font-size="12" font-weight="600" style="fill:var(--ink)">ยอดขายที่ยืนยันแล้ว เทียบค่าโฆษณา</text>`;
+  for(let i=0;i<=4;i++){ const v=maxV/1.12*i/4, yy=y(v);
+    g+=`<line x1="${padL}" x2="${W-padR}" y1="${yy}" y2="${yy}" style="stroke:var(--line)" ${i?'stroke-dasharray="2 4"':''}/>`;
+    g+=`<text x="${padL-8}" y="${yy+4}" text-anchor="end" font-size="11" style="fill:var(--muted)">${fmtK(v)}</text>`; }
+  data.forEach((d,i)=>{
+    g+=`<rect class="hcol" data-col="${i}" x="${padL+i*gw+2}" y="${rTop-18}" width="${gw-4}" height="${bTop+bH-rTop+22}" rx="8"/>`;
+    const cx=padL+i*gw+gw/2, bw=Math.min(40,(gw-20)/2);
+    const sv=d.r.sales||0, sy=y(sv);
+    g+=`<rect x="${cx-bw-3}" y="${sy}" width="${bw}" height="${bTop+bH-sy}" rx="3" style="fill:var(--good)"><title>ยอดขาย ${fmtB(sv)}</title></rect>`;
+    g+=`<text x="${cx-bw/2-3}" y="${sy-6}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--good)">${fmtK(sv)}</text>`;
+    const hs=(d.m.shopee/maxV)*bH, ho=(d.m.off/maxV)*bH, ax=cx+3;
+    g+=`<rect x="${ax}" y="${bTop+bH-hs}" width="${bw}" height="${hs}" style="fill:var(--shopee)"><title>Shopee Ads ${fmtB(d.m.shopee)}</title></rect>`;
+    g+=`<rect x="${ax}" y="${bTop+bH-hs-ho}" width="${bw}" height="${ho}" style="fill:var(--off)"><title>CPAS ${fmtB(d.m.off)}</title></rect>`;
+    g+=`<text x="${ax+bw/2}" y="${bTop+bH-hs-ho-6}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--shopee)">${fmtK(d.m.spend)}</text>`;
+    const lbl=String(d.r.name||recStart(d.r)||''); const short=lbl.length>14?lbl.slice(0,13)+'…':lbl;
+    g+=`<text x="${cx}" y="${bTop+bH+18}" text-anchor="middle" font-size="12" style="fill:var(--ink)">${esc(short)}<title>${esc(lbl)}</title></text>`;
+    const dt=[d.r.d1,d.r.d2].filter(Boolean).map(x=>x.slice(5).split('-').reverse().join('/')).join('–');
+    if(dt && d.r.name) g+=`<text x="${cx}" y="${bTop+bH+33}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${esc(dt)}</text>`;
+  });
+  data.forEach((d,i)=>{ g+=`<rect class="hhit" data-hit="${i}" tabindex="0" aria-label="รายละเอียด ${esc(d.r.name||recStart(d.r))}" x="${padL+i*gw}" y="0" width="${gw}" height="${H}"/>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" style="min-width:${Math.max(560,n*78)}px" role="img" aria-label="กราฟ ROI ยอดขาย และค่าโฆษณาแต่ละรอบ">${g}</svg>`;
+}
+
+function trafficSection(agg, list){
+  const tsum=TR.reduce((a,t)=>a+agg.traffic[t.k],0);
+  if(!tsum && !agg.adsSales) return `<div class="tr-wrap"><div class="empty" style="grid-column:1/-1">ยังไม่มียอดขายแบ่งตามที่มาการเข้าชม กรอกในฟอร์มใต้ “ยอดขายที่ยืนยันแล้ว” แล้วบันทึกรอบ</div></div>`;
+  // compare with the previous saved round when a single round is selected
+  let prev=null;
+  if(list.length===1){ const cur=recStart(list[0]); prev=records.filter(x=>x.id!==list[0].id && recStart(x)<cur).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0]||null; }
+  const chg=(now,before)=>{ if(!prev || !before || !now) return ''; const d=(now-before)/before*100; if(!isFinite(d)) return '';
+    return `<div class="chg ${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${fmtP(Math.abs(d))} <span class="muted" style="font-weight:400">เทียบรอบก่อน</span></div>`; };
+  const pct=v=>agg.sales>0?fmtP(v/agg.sales*100):'–';
+  let row=`<div class="tr-total"><small>ยอดขาย (100%)</small><b class="num">${fmtB0(agg.sales)}</b>${chg(agg.sales, prev&&prev.sales)}</div><div class="tr-op">=</div>`;
+  TR.forEach((t,i)=>{ const v=agg.traffic[t.k];
+    row+=`${i?'<div class="tr-op">+</div>':''}<div class="tr-tile" data-trk="${t.k}"><small><i class="sw" style="background:${t.c}"></i>${t.n}</small><b class="num">${fmtB0(v)}</b>
+      <div class="pc"><strong class="num">${pct(v)}</strong> ของยอดขายร้านค้า</div>${chg(v, prev&&prev.traffic&&prev.traffic[t.k])}</div>`; });
+  trafficTipData={agg, prev, tsum};
+  const bar = agg.sales>0 ? TR.map(t=>`<div class="seg" data-trk="${t.k}" style="width:${agg.traffic[t.k]/Math.max(agg.sales,tsum)*100}%;background:${t.c}"></div>`).join('') : '';
+  const ads=`<div class="tr-box"><h4>สัดส่วนยอดขายจากโฆษณา</h4><div class="tr-row"><div class="tr-tile ads" data-trk="ads"><small>โฆษณา Shopee Ads</small><b class="num">${fmtB0(agg.adsSales)}</b>
+      <div class="pc"><strong class="num">${pct(agg.adsSales)}</strong> ของยอดขายร้านค้า</div>${chg(agg.adsSales, prev&&prev.adsSales)}</div></div>
+      <div class="tr-bar"><div class="seg" data-trk="ads" style="width:${agg.sales>0?Math.min(100,agg.adsSales/agg.sales*100):0}%;background:var(--shopee)"></div><div class="seg" data-trk="nonads" style="flex:1"></div></div></div>`;
+  return `<div class="tr-wrap"><div class="tr-box"><h4>ยอดขายแบ่งตามที่มาการเข้าชม</h4><div class="tr-row">${row}</div><div class="tr-bar">${bar}</div></div>${ads}</div>`;
+}
+
+function top5Section(list){
+  const src=[...list].reverse().find(hasTop5); top5TipData=src||null; if(!src) return '';
+  const lbl=src.name||[src.d1,src.d2].filter(Boolean).join(' – ')||recStart(src);
+  const cards=src.top5.map((x,i)=>{
+    if(!x||!(x.url||x.name||x.img||x.sales)) return `<div class="t5" style="opacity:.5"><span class="rk">${i+1}</span><div class="ph">–</div><div class="bd"><div class="nm muted">ยังไม่ได้ระบุ</div></div></div>`;
+    const url=cleanUrl(x.url); const nm=x.name||nameFromUrl(x.url)||'สินค้าอันดับ '+(i+1);
+    const ph = x.img ? `<img src="${esc(x.img)}" alt="">` : esc((nm.trim()[0]||'?').toUpperCase());
+    const tag = url ? 'a' : 'div';
+    return `<${tag} class="t5" data-t5="${i}" ${url?`href="${esc(url)}" target="_blank" rel="noopener noreferrer"`:'tabindex="0"'}><span class="rk">${i+1}</span><div class="ph">${ph}</div>
+      <div class="bd"><div class="nm">${esc(nm)}</div>${x.sales?`<div class="sl num">${fmtB0(x.sales)}</div>`:''}<div class="go ${url?'':'none'}">${url?'ดูสินค้าบน Shopee ↗':'ไม่มีลิงก์'}</div></div></${tag}>`;
+  }).join('');
+  return `<div class="card ov-card"><div class="card-h"><h3>TOP 5 สินค้าขายดี</h3><span class="muted small">รอบ ${esc(lbl)}${list.length>1?' (รอบล่าสุดที่เลือกซึ่งมีข้อมูล)':''}</span></div><div class="t5grid">${cards}</div></div>`;
+}
+
+function renderOverview(){
+  const body=$('ovBody');
+  const list=records.filter(r=>selected.has(r.id)).sort((a,b)=>recStart(a).localeCompare(recStart(b)));
+  $('ovCount').textContent = records.length ? `รวม ${list.length} จาก ${records.length} รอบ` : '';
+  if(!records.length){ body.innerHTML='<div class="empty">ยังไม่มีข้อมูล กรอกตัวเลขด้านล่างแล้วกด “บันทึกรอบนี้” กราฟภาพรวมจะแสดงที่นี่</div>'; return; }
+  if(!list.length){ body.innerHTML='<div class="empty">ไม่มีรอบในช่วงที่เลือก ลองเลือก “ทุกรอบ” หรือติ๊กรอบในตารางประวัติ</div>'; return; }
+  const agg=aggregate(list), m=calc(agg);
+  const first=recStart(list[0]), last=recDate(list[list.length-1]);
+  const best=list.map(r=>({r,roi:calc(r).roi})).filter(x=>isFinite(x.roi)).sort((a,b)=>b.roi-a.roi);
+  const pv = m.hasCost ? m.profit : agg.sales-m.spend;
+  const target = agg.target || (isFinite(m.breakEven)?m.breakEven:0);
+  const adSales = CH.reduce((t,c)=>t+agg.channels[c.k].sales,0);
+  let h=`<dl class="ov-kpis">
+    <div class="k main"><dt>ROI รวม</dt><dd class="num">${isFinite(m.roi)?fmtX(m.roi):'–'} <span style="font-size:.5em;font-weight:500">เท่า</span></dd></div>
+    <div class="k"><dt>ยอดขายที่ยืนยันแล้วรวม</dt><dd class="num">${fmtB0(agg.sales)}</dd>${adSales?`<p class="ksub num">จากแอด ${fmtB0(adSales)}</p>`:''}</div>
+    <div class="k"><dt>ค่าโฆษณารวม</dt><dd class="num">${fmtB0(m.spend)}</dd><p class="ksub num">Shopee ${fmtB0(m.shopee)} · CPAS ${fmtB0(m.off)}</p></div>
+    <div class="k"><dt>ACOS</dt><dd class="num">${fmtP(m.acos)}</dd><p class="ksub">ค่าแอดต่อยอดขาย</p></div>
+    <div class="k"><dt>${m.hasCost?'กำไรสุทธิรวม':'ยอดขายหลังหักค่าแอด'}</dt><dd class="num" style="color:${pv>=0?'var(--good)':'var(--bad)'}">${fmtB0(pv)}</dd></div>
+  </dl>
+  <p class="hint ov-meta">${esc(first)}${last&&last!==first?' ถึง '+esc(last):''}${best.length>1?` · ROI ดีที่สุด: <b style="color:var(--ink)">${esc(best[0].r.name||recStart(best[0].r))}</b> ${fmtX(best[0].roi)} เท่า · ต่ำสุด: ${esc(best[best.length-1].r.name||recStart(best[best.length-1].r))} ${fmtX(best[best.length-1].roi)} เท่า`:''}</p>`;
+
+  if(SHOW_TRAFFIC) h+=trafficSection(agg, list);
+  // trend
+  h+=`<div class="card ov-card"><div class="card-h"><h3>แนวโน้มแต่ละรอบ</h3>
+      <div class="lg">
+        <span><i style="background:var(--good)"></i>ยอดขายที่ยืนยันแล้ว</span>
+        <span><i style="background:var(--shopee)"></i>Shopee Ads</span>
+        <span><i style="background:var(--off)"></i>CPAS</span>
+        ${target>0?`<span><i class="dash"></i>${agg.target?'เป้า ROI':'ROI จุดคุ้มทุน'}</span>`:''}
+      </div></div>
+      <div class="chartwrap">${trendSvg(list, target)}</div></div>`;
+
+  if(SHOW_TOP5) h+=top5Section(list);
+  // channels
+  const pill = roi => { if(!isFinite(roi)) return `<span class="pill">ROAS –</span>`;
+    const cls = target>0 ? (roi>=target?'good':'bad') : ''; return `<span class="pill ${cls} num">ROAS ${fmtX(roi)}</span>`; };
+  const grp = (g,label,color,total)=>{ const sl=CH.filter(c=>c.g===g).reduce((t,c)=>t+agg.channels[c.k].sales,0);
+    return `<div class="gtile" style="--gc:${color}"><div class="chi-h"><b>${label}</b>${pill(total>0&&sl>0?sl/total:NaN)}</div>
+      <div class="pair num"><b>${fmtB0(total)}</b><span class="sep">/</span><span>${sl?fmtB0(sl):'–'}</span></div>
+      <div class="muted small">${fmtP(m.spend?total/m.spend*100:NaN)} ของงบทั้งหมด</div></div>`; };
+  const maxS=Math.max(1,...CH.map(c=>agg.channels[c.k].spend));
+  let items='';
+  for(const ch of [...CH].sort((a,b)=>agg.channels[b.k].spend-agg.channels[a.k].spend)){
+    const c=agg.channels[ch.k]; const sh=m.spend?c.spend/m.spend*100:0;
+    items+=`<div class="chi">
+      <div class="chi-h"><span class="dot" style="background:${ch.c}"></span><b>${ch.n}</b>${pill(c.spend>0&&c.sales>0?c.sales/c.spend:NaN)}</div>
+      <div class="pair num"><b>${fmtB0(c.spend)}</b><span class="sep">/</span><span>${c.sales?fmtB0(c.sales):'–'}</span></div>
+      <div class="track"><div class="fill" style="width:${c.spend/maxS*100}%;background:${ch.c}"></div></div>
+      <div class="muted small num">${fmtP(sh)} ของงบ</div>
+    </div>`;
+  }
+  h+=`<div class="card ov-card"><div class="card-h"><h3>ค่าโฆษณาแยกช่องทาง</h3><span class="muted small">รวมทุกรอบที่เลือก เรียงตามค่าแอดมากไปน้อย</span></div>
+    <p class="fmt-note">ตัวเลขแสดงเป็น <b>ค่าแอด</b> / ยอดขายจากแอด</p>
+    <div class="split">${m.spend>0?`<div style="width:${m.shopee/m.spend*100}%;background:var(--shopee)"></div><div style="width:${m.off/m.spend*100}%;background:var(--off)"></div>`:''}</div>
+    <div class="gtiles">${grp('shopee','Shopee Ads','var(--shopee)',m.shopee)}${grp('off','นอกแพลตฟอร์ม (CPAS)','var(--off)',m.off)}</div>
+    <div class="chgrid">${items}</div>
+  </div>
+  <details class="ovtable"><summary>ตารางตัวเลขแยกช่องทาง</summary>
+    <div class="tablewrap"><table><thead><tr><th>ช่องทาง</th><th>ค่าใช้จ่าย</th><th>สัดส่วนงบ</th><th>ยอดขายจากโฆษณา</th><th>ROAS ช่องทาง</th></tr></thead><tbody>${tableRows(agg,m)}</tbody></table></div>
+  </details>`;
+  body.innerHTML=h;
+}
+
+// ---------- chart tooltip ----------
+let trendData=[];
+function tipHtml(d){
+  const r=d.r, m=d.m;
+  const adSales=CH.reduce((t,c)=>t+(r.channels[c.k].sales||0),0);
+  const dt=[r.d1,r.d2].filter(Boolean).join(' – ');
+  const line=(c)=>{ const x=r.channels[c.k]; return `<div class="r ind"><span><i style="background:${c.c}"></i>${c.n}</span><span>${fmtB(x.spend)}${x.sales?` / ${fmtB(x.sales)}`:''}</span></div>`; };
+  let h=`<h5>${esc(r.name||recStart(r)||'รอบนี้')}</h5><div class="dt">${esc(dt||'ไม่ระบุวันที่')}</div>
+    <div class="big"><div><small>ROI</small><b>${isFinite(m.roi)?fmtX(m.roi)+' เท่า':'–'}</b></div><div><small>ACOS</small><b>${fmtP(m.acos)}</b></div></div>
+    <hr><div class="r"><span>ยอดขายที่ยืนยันแล้ว</span><span style="color:var(--good);font-weight:700">${fmtB(r.sales)}</span></div>
+    ${adSales?`<div class="r ind"><span>ยอดขายจากแอด</span><span>${fmtB(adSales)}</span></div>`:''}
+    <div class="r"><span>ค่าแอดรวม</span><span style="font-weight:700">${fmtB(m.spend)}</span></div>
+    <div class="muted" style="font-size:.72rem;text-align:right">ค่าแอด / ยอดขายจากแอด</div>
+    <div class="r hd"><span style="color:var(--shopee)">Shopee Ads</span><span>${fmtB(m.shopee)}</span></div>
+    ${CH.filter(c=>c.g==='shopee').map(line).join('')}
+    <div class="r hd"><span style="color:var(--off)">นอกแพลตฟอร์ม</span><span>${fmtB(m.off)}</span></div>
+    ${CH.filter(c=>c.g==='off').map(line).join('')}`;
+  const tr=r.traffic||{}; const tsum=TR.reduce((a,t)=>a+(+tr[t.k]||0),0);
+  if(SHOW_TRAFFIC && (tsum||r.adsSales)){
+    const pc=v=>r.sales>0?fmtP(v/r.sales*100):'–';
+    h+=`<hr><div class="r hd" style="margin-top:0"><span>ที่มาการเข้าชม</span><span>% ยอดขาย</span></div>`+TR.map(t=>`<div class="r ind"><span><i style="background:${t.c}"></i>${t.n}</span><span>${fmtB(+tr[t.k]||0)} · ${pc(+tr[t.k]||0)}</span></div>`).join('');
+    if(r.adsSales) h+=`<div class="r ind"><span><i style="background:var(--shopee)"></i>ยอดขายจาก Shopee Ads</span><span>${fmtB(r.adsSales)} · ${pc(r.adsSales)}</span></div>`;
+  }
+  if(m.hasCost) h+=`<hr><div class="r"><span>กำไรสุทธิ</span><span style="font-weight:700;color:${m.profit>=0?'var(--good)':'var(--bad)'}">${fmtB(m.profit)}</span></div>`;
+  return h;
+}
+let trafficTipData=null;
+function trkHtml(k){
+  const D=trafficTipData; if(!D) return '';
+  const {agg, prev}=D; const S=agg.sales;
+  const pc=v=>S>0?fmtP(v/S*100):'–';
+  const chg=(now,b)=>{ if(!prev||!b) return ''; const d=(now-b)/b*100; return isFinite(d)?`<div class="r" style="margin-top:4px"><span>เทียบรอบก่อน</span><span style="color:${d>=0?'var(--good)':'var(--bad)'};font-weight:600">${d>=0?'▲':'▼'} ${fmtP(Math.abs(d))}</span></div>`:''; };
+  if(k==='ads'||k==='nonads'){
+    const v = k==='ads' ? agg.adsSales : Math.max(0,S-agg.adsSales);
+    return `<h5>${k==='ads'?'ยอดขายจากโฆษณา Shopee Ads':'ยอดขายที่ไม่ได้มาจาก Shopee Ads'}</h5><hr>
+      <div class="big"><div><small>ยอดขาย</small><b class="num">${fmtB(v)}</b></div><div><small>% ของยอดขาย</small><b class="num">${pc(v)}</b></div></div>
+      <div class="r" style="margin-top:8px"><span>ยอดขายที่ยืนยันแล้ว</span><span>${fmtB(S)}</span></div>${k==='ads'?chg(v, prev&&prev.adsSales):''}`;
+  }
+  const t=TR.find(x=>x.k===k); if(!t) return '';
+  const v=agg.traffic[k];
+  let h=`<h5><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${t.c};margin-right:6px"></i>${t.n}</h5><hr>
+    <div class="big"><div><small>ยอดขาย</small><b class="num">${fmtB(v)}</b></div><div><small>% ของยอดขาย</small><b class="num">${pc(v)}</b></div></div>
+    <div class="r" style="margin-top:8px"><span>ยอดขายที่ยืนยันแล้ว</span><span>${fmtB(S)}</span></div>${chg(v, prev&&prev.traffic&&prev.traffic[k])}
+    <hr><div class="muted" style="font-size:.74rem;margin-bottom:2px">ทุกช่องทาง</div>`;
+  h+=TR.map(x=>`<div class="r ind" style="${x.k===k?'color:var(--ink);font-weight:600':''}"><span><i style="background:${x.c}"></i>${x.n}</span><span>${fmtB0(agg.traffic[x.k])} · ${pc(agg.traffic[x.k])}</span></div>`).join('');
+  return h;
+}
+let top5TipData=null;
+function t5Html(i){
+  const r=top5TipData; if(!r) return ''; const x=(r.top5||[])[i]; if(!x) return '';
+  const nm=x.name||nameFromUrl(x.url)||'สินค้าอันดับ '+(i+1);
+  const all=(r.top5||[]).reduce((a,y)=>a+(+((y||{}).sales)||0),0);
+  const pcShop = r.sales>0 && x.sales ? fmtP(x.sales/r.sales*100) : '–';
+  const pcTop = all>0 && x.sales ? fmtP(x.sales/all*100) : '–';
+  let h=`<div style="display:flex;gap:10px;align-items:flex-start">${x.img?`<img src="${esc(x.img)}" alt="" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex:none">`:''}
+    <div style="min-width:0"><div class="dt" style="margin:0">อันดับ ${i+1} · ${esc(r.name||recStart(r))}</div><h5 style="line-height:1.35">${esc(nm)}</h5></div></div><hr>`;
+  if(x.sales){
+    h+=`<div class="big"><div><small>ยอดขาย</small><b class="num">${fmtB(x.sales)}</b></div><div><small>% ของยอดขายร้าน</small><b class="num">${pcShop}</b></div></div>
+      <div class="r" style="margin-top:8px"><span>สัดส่วนใน TOP 5</span><span>${pcTop}</span></div>
+      <div class="r"><span>ยอดขายรวม TOP 5</span><span>${fmtB(all)}</span></div>`;
+    // same product in the previous saved round
+    const prev=records.filter(y=>y.id!==r.id && recStart(y)<recStart(r) && hasTop5(y)).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0];
+    const key=x.url||x.name; const px=prev && (prev.top5||[]).find(y=>y&&key&&(y.url===x.url&&x.url || y.name===x.name&&x.name));
+    if(px && px.sales){ const d=(x.sales-px.sales)/px.sales*100; const pr=(prev.top5||[]).indexOf(px)+1;
+      h+=`<div class="r" style="margin-top:4px"><span>เทียบรอบก่อน (อันดับ ${pr})</span><span style="color:${d>=0?'var(--good)':'var(--bad)'};font-weight:600">${d>=0?'▲':'▼'} ${fmtP(Math.abs(d))}</span></div>`; }
+  } else h+=`<div class="muted">ยังไม่ได้กรอกยอดขาย</div>`;
+  if(cleanUrl(x.url)) h+=`<div class="muted" style="font-size:.74rem;margin-top:8px">กดเพื่อเปิดหน้าสินค้าบน Shopee</div>`;
+  return h;
+}
+function showT5(i,x,y){ const html=t5Html(i); if(!html) return hideTip(); const t=$('tip'); t.innerHTML=html; t.hidden=false; placeTip(t,x,y); }
+function placeTip(t,x,y){
+  const w=t.offsetWidth, h=t.offsetHeight, vw=innerWidth, vh=innerHeight;
+  let left=x+16, top=y+16;
+  if(left+w>vw-8) left=x-w-16;
+  if(left<8) left=Math.max(8,(vw-w)/2);
+  if(top+h>vh-8) top=Math.max(8,y-h-16);
+  t.style.left=left+'px'; t.style.top=top+'px';
+}
+function showTrk(k,x,y,el){
+  const html=trkHtml(k); if(!html) return hideTip();
+  const t=$('tip'); t.innerHTML=html; t.hidden=false;
+  document.querySelectorAll('#ovBody .seg.on').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll(`#ovBody .seg[data-trk="${k}"]`).forEach(e=>e.classList.add('on'));
+  placeTip(t,x,y);
+}
+function showTip(i, x, y){
+  const d=trendData[i]; if(!d) return;
+  const t=$('tip'); t.innerHTML=tipHtml(d); t.hidden=false;
+  document.querySelectorAll('#ovBody .hcol').forEach(el=>el.classList.toggle('on', el.dataset.col==String(i)));
+  const w=t.offsetWidth, h=t.offsetHeight, vw=innerWidth, vh=innerHeight;
+  let left=x+16, top=y+16;
+  if(left+w>vw-8) left=x-w-16;
+  if(left<8) left=Math.max(8,(vw-w)/2);
+  if(top+h>vh-8) top=Math.max(8,vh-h-8);
+  t.style.left=left+'px'; t.style.top=top+'px';
+}
+function hideTip(){ $('tip').hidden=true; document.querySelectorAll('#ovBody .seg.on').forEach(e=>e.classList.remove('on')); document.querySelectorAll('#ovBody .hcol.on').forEach(el=>el.classList.remove('on')); }
+$('ovBody').addEventListener('pointermove', e=>{ const c=e.target.closest; if(!c){hideTip();return;} const h=e.target.closest('[data-hit]'); if(h) return showTip(+h.dataset.hit, e.clientX, e.clientY); const k=e.target.closest('[data-trk]'); if(k) return showTrk(k.dataset.trk, e.clientX, e.clientY, k); const q=e.target.closest('[data-t5]'); if(q) return showT5(+q.dataset.t5, e.clientX, e.clientY); hideTip(); });
+$('ovBody').addEventListener('pointerdown', e=>{ if(!e.target.closest) return; const h=e.target.closest('[data-hit]'); if(h) return showTip(+h.dataset.hit, e.clientX, e.clientY); const k=e.target.closest('[data-trk]'); if(k) showTrk(k.dataset.trk, e.clientX, e.clientY, k); });
+$('ovBody').addEventListener('pointerleave', hideTip);
+$('ovBody').addEventListener('focusin', e=>{ const q=e.target.closest&&e.target.closest('[data-t5]'); if(q){ const b=q.getBoundingClientRect(); return showT5(+q.dataset.t5, b.right-20, b.top+20); } const h=e.target.dataset && e.target.dataset.hit; if(h!==undefined){ const b=e.target.getBoundingClientRect(); showTip(+h, b.right-10, b.top+40); } });
+$('ovBody').addEventListener('focusout', hideTip);
+document.addEventListener('pointerdown', e=>{ if(!(e.target.closest && e.target.closest('[data-hit],[data-trk]'))) hideTip(); });
+addEventListener('scroll', hideTip, {passive:true});
+
+// ---------- settings ----------
+function applySettings(){
+  document.body.classList.toggle('no-profit', !SHOW_PROFIT);
+  $('optProfit').checked = SHOW_PROFIT;
+  $('optTraffic').checked = SHOW_TRAFFIC;
+  $('optTop5').checked = SHOW_TOP5;
+}
+$('gearBtn').addEventListener('click', e=>{ e.stopPropagation(); const m=$('setMenu'); m.hidden=!m.hidden; $('gearBtn').setAttribute('aria-expanded', String(!m.hidden)); });
+document.addEventListener('click', e=>{ const m=$('setMenu'); if(!m.hidden && !m.contains(e.target)){ m.hidden=true; $('gearBtn').setAttribute('aria-expanded','false'); } });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('setMenu').hidden){ $('setMenu').hidden=true; $('gearBtn').setAttribute('aria-expanded','false'); $('gearBtn').focus(); } });
+$('optProfit').addEventListener('change', e=>{
+  SHOW_PROFIT = e.target.checked;
+  try{ localStorage.setItem('shopee-roi-show-profit', SHOW_PROFIT?'1':'0'); }catch(err){}
+  applySettings(); render(); renderOverview();
+  toast(SHOW_PROFIT ? 'แสดงข้อมูลกำไรสุทธิแล้ว' : 'ซ่อนข้อมูลกำไรสุทธิแล้ว');
+});
+$('optTop5').addEventListener('change', e=>{
+  SHOW_TOP5 = e.target.checked;
+  try{ localStorage.setItem('shopee-roi-show-top5', SHOW_TOP5?'1':'0'); }catch(err){}
+  applySettings(); hideTip(); renderOverview();
+  toast(SHOW_TOP5 ? 'แสดง TOP 5 สินค้าขายดีบน Dashboard แล้ว' : 'ซ่อน TOP 5 สินค้าขายดีบน Dashboard แล้ว');
+});
+$('optTraffic').addEventListener('change', e=>{
+  SHOW_TRAFFIC = e.target.checked;
+  try{ localStorage.setItem('shopee-roi-show-traffic', SHOW_TRAFFIC?'1':'0'); }catch(err){}
+  applySettings(); renderOverview();
+  toast(SHOW_TRAFFIC ? 'แสดงยอดขายแบ่งตามที่มาการเข้าชมบน Dashboard แล้ว' : 'ซ่อนยอดขายแบ่งตามที่มาการเข้าชมบน Dashboard แล้ว');
+});
+applySettings();
+
+// ---------- brand ----------
+let BRAND={name:'',logo:'',url:''};
+try{ BRAND=Object.assign(BRAND, JSON.parse(localStorage.getItem('shopee-roi-brand')||'{}')); }catch(e){}
+function applyBrand(){
+  const img=$('brandLogo'), nm=$('brandName');
+  if(BRAND.logo){ img.src=BRAND.logo; img.alt=BRAND.name?('โลโก้ '+BRAND.name):'โลโก้ร้าน'; img.hidden=false; } else { img.hidden=true; img.removeAttribute('src'); }
+  nm.textContent=BRAND.name||''; nm.hidden=!BRAND.name;
+  const safe=cleanUrl(BRAND.url);
+  for(const id of ['brandLink','brandNameLink']){ const a=$(id);
+    if(safe){ a.href=safe; a.title='เปิดหน้าร้าน'; } else { a.removeAttribute('href'); a.removeAttribute('title'); } }
+  if(document.activeElement!==$('optUrl')) $('optUrl').value=BRAND.url||'';
+  $('brandLink').hidden=!BRAND.logo; $('brandNameLink').hidden=!BRAND.name;
+  const pv=$('logoPrev'); pv.innerHTML = BRAND.logo ? '' : 'ไม่มีโลโก้';
+  if(BRAND.logo){ const i=document.createElement('img'); i.src=BRAND.logo; i.alt=''; pv.appendChild(i); }
+  $('logoDel').hidden=!BRAND.logo;
+  if(document.activeElement!==$('optName')) $('optName').value=BRAND.name||'';
+  document.title = BRAND.name ? BRAND.name+' – Shopee Seller Performance' : 'Shopee Seller Performance';
+}
+function cleanUrl(u){
+  u=String(u||'').trim(); if(!u) return '';
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(u)) u='https://'+u.replace(/^\/+/,'');
+  try{ const x=new URL(u); return (x.protocol==='https:'||x.protocol==='http:') && x.hostname.includes('.') ? x.href : ''; }catch(e){ return ''; }
+}
+async function saveBrand(msg){
+  try{ localStorage.setItem('shopee-roi-brand', JSON.stringify(BRAND)); }catch(e){}
+  if(db&&uid){ try{ await coll().doc('_settings').set({brand:BRAND}); }catch(e){ toast('บันทึกการตั้งค่าออนไลน์ไม่สำเร็จ ใช้ได้ในเครื่องนี้'); return; } }
+  if(msg) toast(msg);
+}
+let urlT;
+$('optUrl').addEventListener('input', e=>{
+  const v=e.target.value.trim(); const ok=!v||!!cleanUrl(v);
+  $('urlHint').textContent = ok ? 'กดที่โลโก้หรือชื่อร้านด้านบนเพื่อเปิดลิงก์นี้' : 'ลิงก์ไม่ถูกต้อง ตัวอย่าง: https://shopee.co.th/ชื่อร้าน';
+  $('urlHint').style.color = ok ? '' : 'var(--bad)';
+  if(!ok) return;
+  BRAND.url = v ? cleanUrl(v) : ''; applyBrand(); clearTimeout(urlT); urlT=setTimeout(()=>saveBrand(), 600);
+});
+$('optUrl').addEventListener('change', e=>{ if(!e.target.value.trim()||cleanUrl(e.target.value)){ clearTimeout(urlT); e.target.value=BRAND.url; saveBrand(BRAND.url?'บันทึกลิงก์ร้านค้าแล้ว':'ลบลิงก์ร้านค้าแล้ว'); } });
+let nameT;
+$('optName').addEventListener('input', e=>{ BRAND.name=e.target.value.trim(); applyBrand(); clearTimeout(nameT); nameT=setTimeout(()=>saveBrand(), 600); });
+$('optName').addEventListener('change', ()=>{ clearTimeout(nameT); saveBrand('บันทึกชื่อร้านแล้ว'); });
+function readAsDataURL(file){
+  return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=()=>rej(fr.error||new Error('read')); fr.readAsDataURL(file); });
+}
+function loadImg(src){
+  return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error('decode')); im.src=src; });
+}
+async function shrinkImage(file){
+  let src=await readAsDataURL(file);
+  // some systems give an empty/odd MIME type: fix the data URL header from the file extension
+  const ext=(file.name.match(/\.([a-z0-9]+)$/i)||[])[1]; const mt={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',svg:'image/svg+xml',gif:'image/gif'}[(ext||'').toLowerCase()];
+  if(mt && !/^data:image\//.test(src)) src=src.replace(/^data:[^;,]*/, 'data:'+mt);
+  const im=await loadImg(src);
+  const maxW=480, maxH=200; let w=im.naturalWidth||maxW, h=im.naturalHeight||maxH;
+  const k=Math.min(1, maxW/w, maxH/h); w=Math.max(1,Math.round(w*k)); h=Math.max(1,Math.round(h*k));
+  try{
+    const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h);
+    let out=c.toDataURL('image/png'); if(out.length>180000) out=c.toDataURL('image/webp',0.9);
+    if(out.length>180000) out=c.toDataURL('image/jpeg',0.85);
+    if(out.length>180000) out=c.toDataURL('image/jpeg',0.7);
+    return out;
+  }catch(e){
+    // canvas unavailable: keep the original if it is small enough
+    if(src.length<=180000) return src;
+    throw new Error('toolarge');
+  }
+}
+$('logoBtn').addEventListener('click', ()=>$('logoFile').click());
+$('importBtn').addEventListener('click', ()=>$('importFile').click());
+$('logoFile').addEventListener('change', async e=>{
+  const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
+  if(!(f.type.startsWith('image/') || /\.(png|jpe?g|webp|svg|gif)$/i.test(f.name))){ toast('ไฟล์นี้ไม่ใช่รูปภาพ เลือก PNG หรือ JPG'); return; }
+  if(/\.(heic|heif)$/i.test(f.name) || /heic|heif/i.test(f.type)){ toast('ไฟล์ HEIC ของ iPhone ยังไม่รองรับ แปลงเป็น JPG หรือ PNG ก่อน'); return; }
+  if(f.size>20*1024*1024){ toast('ไฟล์ใหญ่เกิน 20 MB ลองย่อรูปก่อน'); return; }
+  $('logoBtn').disabled=true; $('logoBtn').textContent='กำลังอัปโหลด…';
+  try{ BRAND.logo=await shrinkImage(f); applyBrand(); await saveBrand('อัปโหลดโลโก้แล้ว'); }
+  catch(err){ toast(err&&err.message==='toolarge' ? 'รูปใหญ่เกินไป ลองใช้ไฟล์ที่เล็กลง' : 'เปิดไฟล์รูปนี้ไม่ได้ ลองบันทึกเป็น PNG หรือ JPG ใหม่อีกครั้ง'); }
+  finally{ $('logoBtn').disabled=false; $('logoBtn').textContent='อัปโหลดโลโก้'; }
+});
+$('logoDel').addEventListener('click', ()=>{ BRAND.logo=''; applyBrand(); saveBrand('ลบโลโก้แล้ว'); });
+applyBrand();
+
+// init
+render();
+records = lsLoad(); selected=new Set(records.map(r=>r.id)); renderHistory();
+$('storeNote').textContent='ข้อมูลที่บันทึกเก็บไว้ในเบราว์เซอร์นี้';
+(async ()=>{
+  try{
+    const [d,u,dl] = await Promise.all([claude.use('db'), claude.use('user'), claude.use('downloads')]);
+    downloads=dl;
+    if(d && u){ const id=await u.id(); if(id){ db=d; uid=id;
+      const snap=await coll().get();
+      const sdoc=snap.docs.find(x=>x.id==='_settings');
+      if(sdoc && sdoc.data() && sdoc.data().brand){ BRAND=Object.assign({name:'',logo:'',url:''}, structuredClone(sdoc.data().brand)); try{localStorage.setItem('shopee-roi-brand',JSON.stringify(BRAND));}catch(e){} applyBrand(); }
+      else if(BRAND.name||BRAND.logo||BRAND.url){ try{ await coll().doc('_settings').set({brand:BRAND}); }catch(e){} }
+      const remote=snap.docs.filter(x=>x.id!=='_settings').map(x=>x.data()).filter(x=>x&&x.channels).map(x=>structuredClone(x));
+      // merge any local-only records up to the account
+      const ids=new Set(remote.map(x=>x.id));
+      for(const r of records){ if(!ids.has(r.id)){ try{ await coll().doc(r.id).set(r); remote.push(r);}catch(e){} } }
+      records=remote; selected=new Set(records.filter(inQuick).map(r=>r.id)); try{localStorage.removeItem(LSKEY);}catch(e){}
+      $('storeNote').textContent='ประวัติบันทึกในบัญชีของคุณ เห็นเฉพาะคุณ เปิดจากเครื่องไหนก็ได้';
+    }}
+  }catch(e){}
+  renderHistory();
+})();
+</script>
+</body>
+</html>
