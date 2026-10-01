@@ -48,7 +48,26 @@ h1 small{display:block;font-size:.88rem;font-weight:400;color:var(--muted);margi
 input,select,button{font:inherit;color:inherit}
 input[type=date],input[type=text]{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
 .grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:18px;align-items:start}
-@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.rescol{align-self:stretch}
+#livePanel th,#livePanel td{padding:8px 7px}
+@media (min-width:901px){
+  #livePanel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;overscroll-behavior:contain;scroll-behavior:smooth}
+}
+.live-h{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;margin:-4px 0 12px;color:var(--ink)}
+.live-h .muted{font-weight:400}
+.dotlive{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px var(--good-soft);flex:none}
+#tbody tr.hl td{background:color-mix(in srgb,var(--shopee) 14%,transparent)}
+#tbody tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--shopee)}
+.kpi.hl,.hero .hl{outline:2px solid var(--shopee);outline-offset:4px;border-radius:6px}
+#tbody tr td,.kpi{transition:background .2s}
+.minibar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -6px 20px color-mix(in srgb,#000 12%,transparent);padding:8px 14px calc(8px + env(safe-area-inset-bottom,0px));display:none;gap:6px 16px;flex-wrap:wrap;justify-content:space-between;font-size:.8rem}
+.minibar div{display:flex;flex-direction:column;min-width:0}
+.minibar small{color:var(--muted);font-size:.7rem}
+.minibar b{font-size:.95rem}
+.minibar .focus{flex-basis:100%;color:var(--muted);font-size:.76rem;border-top:1px dashed var(--line);padding-top:4px;flex-direction:row;gap:6px}
+.minibar .focus b{font-size:.8rem;color:var(--ink)}
+@media (max-width:900px){ body.formvis .minibar{display:flex} body.formvis{padding-bottom:96px} }
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
 .panel h2{font-size:1rem;margin:0 0 12px;font-weight:600}
 .hint{font-size:.8rem;color:var(--muted);margin:0}
@@ -72,6 +91,25 @@ input[type=date],input[type=text]{background:var(--panel);border:1px solid var(-
 .chrow .money input{padding:6px 8px;font-size:.92rem}
 .colhead{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:8px;font-size:.75rem;color:var(--muted)}
 .colhead span:not(:first-child){text-align:right}
+.modebar{position:sticky;top:calc(env(safe-area-inset-top,0px));z-index:6;background:var(--panel);margin:0 -18px 12px;padding:8px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap}
+.modebar .mb-l{font-size:.8rem;font-weight:600}
+.modebar .hint{flex:1 1 100%;font-size:.74rem}
+.fill-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--good);margin-left:6px;vertical-align:2px}
+.fill-dot[hidden]{display:none}
+#modeSeg button[data-fm="paid"][aria-checked="true"]{background:var(--off);color:#fff}
+#modeSeg button[data-fm="conf"][aria-checked="true"]{background:var(--good);color:#fff}
+body.fm-paid .salesbox{background:var(--off-soft)}
+body.fm-paid input.si{border-color:color-mix(in srgb,var(--off) 55%,var(--line))}
+body.fm-paid .money:has(input.si){border-color:color-mix(in srgb,var(--off) 55%,var(--line))}
+body.fm-paid .tpf .tps{border-color:color-mix(in srgb,var(--off) 55%,var(--line))}
+.offnote{display:none;color:var(--off)!important;margin-top:-6px!important}
+body.fm-paid .offnote{display:block}
+.pmtag{display:none;font-size:.7rem;font-weight:600;color:var(--off);margin-left:6px}
+body.fm-paid .pmtag{display:inline}
+.ksub2{margin:3px 0 0;font-size:.78rem;color:var(--muted);line-height:1.4}
+.ksub2 b{color:var(--ink);font-weight:600}
+.roi-sec{margin-top:6px;font-size:.84rem;color:var(--muted)}
+.roi-sec b{color:var(--ink)}
 .subsec{margin-top:14px;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--good) 25%,transparent)}
 .subsec-h{display:flex;justify-content:space-between;align-items:baseline;font-size:.86rem;margin-bottom:6px}
 .subsec-h b{font-weight:600}
@@ -129,6 +167,28 @@ body.no-traffic .tr-wrap{display:none}
 .tpl2{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:4px}
 .tpf .tps input{border:0;padding:5px 8px 5px 4px;text-align:right}
 .tpf .tps span{padding-left:8px;font-size:.8rem}
+.tpf .tps.u input{text-align:right;padding-right:4px}
+.tpf .tps.u span{padding:0 8px 0 0}
+.group.top5 + .group.top5{margin-top:20px}
+.rksel{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;text-align:center;text-align-last:center;padding:0;font:inherit;font-size:.78rem;font-weight:700;width:26px;height:26px;background-image:none}
+.rksel:hover{outline:2px solid var(--shopee);outline-offset:1px}
+.rksel option{color:#1B1F27;background:#fff}
+.tprow{grid-template-columns:26px 56px minmax(0,1fr) 28px}
+.tprow.moved{animation:flash .7s ease}
+@keyframes flash{0%{background:var(--shopee-soft)}100%{background:transparent}}
+@media (prefers-reduced-motion: reduce){.tprow.moved{animation:none}}
+.pullbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px;padding:10px 12px;border-radius:10px;background:var(--field)}
+.pullbar .hint{flex:1;min-width:180px}
+.sug{position:fixed;z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px color-mix(in srgb,#000 20%,transparent);padding:4px;max-height:300px;overflow:auto;width:320px}
+.sug[hidden]{display:none}
+.sug .sh{font-size:.72rem;color:var(--muted);padding:4px 8px}
+.sug .it{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:7px;cursor:pointer}
+.sug .it.on,.sug .it:hover{background:var(--field)}
+.sug .it img,.sug .it .ni{width:34px;height:34px;border-radius:6px;object-fit:cover;flex:none;background:var(--field);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--muted)}
+.sug .it .tx{min-width:0;font-size:.84rem;line-height:1.3}
+.sug .it .tx small{display:block;color:var(--muted);font-size:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t5head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.t5 .sl.u{color:var(--off)}
 .t5 .sl{display:none;font-size:.8rem;font-weight:700;color:var(--good)}
 @media (hover:none){.t5 .sl{display:block}}
 .tpf input.bad{border-color:var(--bad)}
@@ -145,10 +205,24 @@ a.t5:hover{border-color:var(--shopee);transform:translateY(-2px)}
 .t5:nth-child(1) .rk{background:#D4A017;color:#1B1F27}
 .t5:nth-child(2) .rk{background:#A7AFBA;color:#1B1F27}
 .t5:nth-child(3) .rk{background:#C07A45;color:#fff}
+.t5 .part{position:absolute;top:8px;right:8px;font-size:.7rem;font-weight:600;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,#000 55%,transparent);color:#FFD27A}
 .t5 .bd{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
 .t5 .nm{font-size:.86rem;font-weight:500;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.7em}
 .t5 .go{margin-top:auto;font-size:.76rem;color:var(--shopee);font-weight:600}
 .t5 .go.none{color:var(--muted);font-weight:400}
+.seg{display:inline-flex;flex-wrap:wrap;background:var(--field);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:7px;padding:5px 12px;font-size:.84rem;cursor:pointer;color:var(--muted);font-weight:500}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"],.seg button[aria-checked="true"],.seg button[aria-selected="true"]{background:var(--panel);color:var(--ink);font-weight:600;box-shadow:0 1px 3px color-mix(in srgb,#000 14%,transparent)}
+.seg.big button{padding:7px 16px;font-size:.92rem}
+.seg button .ct{font-size:.74rem;color:var(--muted);margin-left:5px;font-weight:500}
+.seg-lbl{font-size:.8rem;color:var(--muted);padding:5px 4px 5px 8px}
+.seg[hidden]{display:none}
+.ov-type{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
+.ptb{display:inline-block;font-size:.7rem;font-weight:600;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:1px;background:var(--field);color:var(--muted);border:1px solid var(--line)}
+.ptb.day{color:#2F7D4F}.ptb.week{color:var(--off)}.ptb.month{color:var(--shopee)}
+.warnbox{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--ink);border-radius:8px;padding:8px 12px;font-size:.84rem;margin-bottom:10px}
+.history th:nth-child(2),.history td:nth-child(2){text-align:left}
 .extra{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
 .extra h3{margin:0;font-size:.92rem;font-weight:600}
 body.no-profit #profitBox{display:none}
@@ -181,6 +255,9 @@ a.brandlink:focus-visible{outline:2px solid var(--shopee);outline-offset:3px}
 .menu h4{margin:0 0 10px;font-size:.92rem}
 .opt{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
 .opt input{width:18px;height:18px;margin-top:2px;accent-color:var(--shopee);flex:none}
+.optgrp{border:1px solid var(--line);border-radius:10px;padding:2px 10px;margin-bottom:6px}
+.optgrp-h{font-size:.74rem;color:var(--muted);padding-top:8px}
+.menu{max-height:calc(100vh - 90px);overflow:auto}
 .opt b{display:block;font-weight:600;font-size:.9rem}
 .opt span{font-size:.8rem;color:var(--muted)}
 .extra .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
@@ -249,6 +326,9 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
 .tip .r.ind{padding-left:14px;color:var(--muted);font-size:.8rem}
 .tip .r.ind i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
 .tip .r.hd{font-weight:600;margin-top:6px}
+.tip .remark{margin-top:8px;padding:7px 9px;border-radius:8px;background:color-mix(in srgb,var(--warn) 14%,transparent);font-size:.78rem;line-height:1.45}
+.tip .remark b{font-weight:600}
+.tip .remark.ok{background:var(--good-soft);color:var(--good);font-weight:600}
 .tip hr{border:0;border-top:1px solid var(--line);margin:8px 0}
 .tip .big{display:flex;gap:10px;margin-top:2px}
 .tip .big div{flex:1;background:var(--field);border-radius:8px;padding:6px 8px}
@@ -340,7 +420,12 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
           <p class="hint" style="margin-top:6px">รองรับ JPG, PNG, WEBP, SVG · PNG พื้นหลังโปร่งใสจะดูดีที่สุด ถ้าไม่ใส่ จะไม่แสดง</p>
         </div>
         <div class="sec"><h4>ตั้งค่าการแสดงผล</h4></div>
+        <div class="optgrp"><div class="optgrp-h">ยอดขายที่ใช้คำนวณ ROI</div>
+          <label class="opt"><input type="checkbox" id="optConf"><div><b>แสดงยอดขายที่ยืนยันแล้ว</b><span>ถ้าเลือกไว้ จะเป็นตัวเลขหลักของ ROI, ACOS และกราฟ</span></div></label>
+          <label class="opt"><input type="checkbox" id="optPaid"><div><b>แสดงยอดขายที่ชำระเงินแล้ว</b><span>เลือกคู่กัน = แสดงเป็นข้อมูลรอง · เลือกอย่างเดียว = ใช้เป็นตัวเลขหลัก</span></div></label>
+        </div>
         <label class="opt"><input type="checkbox" id="optTop5"><div><b>แสดง TOP 5 สินค้าขายดี</b><span>การ์ดสินค้าขายดีพร้อมรูปและยอดขายบน Dashboard</span></div></label>
+        <label class="opt"><input type="checkbox" id="optTop5u"><div><b>แสดง TOP 5 สินค้าจำนวนขายได้</b><span>การ์ดสินค้าที่ขายได้จำนวนชิ้นมากที่สุดบน Dashboard</span></div></label>
         <label class="opt"><input type="checkbox" id="optTraffic"><div><b>แสดงยอดขายแบ่งตามที่มาการเข้าชม</b><span>สัดส่วนยอดขายจากหน้าสินค้า Live วิดีโอ พาร์ทเนอร์ และยอดขายจาก Shopee Ads บน Dashboard</span></div></label>
         <label class="opt"><input type="checkbox" id="optProfit"><div><b>แสดงข้อมูลกำไรสุทธิ</b><span>ช่องกรอกต้นทุนสินค้าและค่าธรรมเนียม กำไรสุทธิ และ ROI จุดคุ้มทุน</span></div></label>
       </div>
@@ -350,6 +435,12 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
       <section class="panel overview" aria-label="ภาพรวม">
         <h2 style="font-size:1.15rem">ภาพรวมผลลัพธ์จากรอบที่บันทึก</h2>
         <p class="hint" style="margin:-6px 0 12px">รวมตัวเลขจากรอบที่บันทึกไว้โดยอัตโนมัติ เลือกช่วงเวลาหรือติ๊กเลือกรอบในตารางประวัติด้านล่าง</p>
+        <div class="ov-type">
+          <div class="seg big" id="typeSeg" role="tablist" aria-label="ประเภทข้อมูล"></div>
+          <div class="seg" id="groupSeg" hidden aria-label="แสดงกราฟเป็น">
+            <span class="seg-lbl">กราฟ:</span><button type="button" data-g="none">รายวัน</button><button type="button" data-g="week">รวมรายสัปดาห์</button><button type="button" data-g="month">รวมรายเดือน</button>
+          </div>
+        </div>
         <div class="ov-filter" id="ovFilter">
           <button class="chip" data-q="all" aria-pressed="true">ทุกรอบ</button>
           <button class="chip" data-q="thisMonth" aria-pressed="false">เดือนนี้</button>
@@ -375,10 +466,25 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
         <div style="flex:1 1 100%"><label for="pname">ชื่อรอบ</label><input type="text" id="pname" placeholder="เช่น ต.ค. 2026 สัปดาห์ 1" style="width:100%"></div>
         <div style="flex:1"><label for="d1">จากวันที่</label><input type="date" id="d1" style="width:100%"></div>
         <div style="flex:1"><label for="d2">ถึงวันที่</label><input type="date" id="d2" style="width:100%"></div>
+        <div style="flex:1 1 100%"><label>ประเภทรอบ</label>
+          <div class="seg" id="ptSeg" role="radiogroup" aria-label="ประเภทรอบ">
+            <button type="button" data-pt="day" role="radio">รายวัน</button><button type="button" data-pt="week" role="radio">รายสัปดาห์</button><button type="button" data-pt="month" role="radio">รายเดือน</button><button type="button" data-pt="custom" role="radio">กำหนดเอง</button>
+          </div>
+          <p class="hint" id="ptHint" style="margin-top:4px">เลือกวันที่แล้วระบบเลือกประเภทให้อัตโนมัติ เปลี่ยนเองได้</p>
+        </div>
+      </div>
+      <div class="modebar" id="modeBar">
+        <span class="mb-l">กรอกยอดขายแบบ</span>
+        <div class="seg" id="modeSeg" role="radiogroup" aria-label="ชุดยอดขายที่กำลังกรอก">
+          <button type="button" data-fm="conf" role="radio" aria-checked="true">ยืนยันแล้ว<i class="fill-dot" id="fdConf" hidden></i></button>
+          <button type="button" data-fm="paid" role="radio" aria-checked="false">ชำระเงินแล้ว<i class="fill-dot" id="fdPaid" hidden></i></button>
+        </div>
+        <span class="hint" id="modeHint">ค่าใช้จ่ายโฆษณาใช้ร่วมกันทั้ง 2 แบบ</span>
       </div>
       <div class="salesbox">
-        <label for="sales">ยอดขายที่ยืนยันแล้ว (ทั้งร้าน)</label>
+        <label for="sales" id="salesLbl">ยอดขายที่ยืนยันแล้ว (ทั้งร้าน)</label>
         <div class="money"><span>฿</span><input id="sales" inputmode="decimal" placeholder="0" class="num"></div>
+        <div class="sumline" id="payRate"></div>
         <div class="subsec">
           <div class="subsec-h"><b>ยอดขายแบ่งตามที่มาการเข้าชม</b><span class="muted">% ของยอดขาย</span></div>
           <div id="trafficRows"></div>
@@ -390,10 +496,23 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
         </div>
       </div>
 
+      <div class="pullbar">
+        <button type="button" class="btn sm" id="pullPrev">⟲ ดึง TOP 5 จากรอบก่อน</button>
+        <span class="hint" id="pullHint">ดึงลิงก์ ชื่อ และรูปของทั้ง 2 รายการจากรอบก่อนประเภทเดียวกัน แล้วกรอกเฉพาะตัวเลข</span>
+      </div>
       <div class="group top5">
-        <h3>TOP 5 สินค้าขายดี</h3>
+        <div class="t5head"><h3>TOP 5 สินค้าขายดี</h3>
+          <button type="button" class="btn sm" data-sort="top5">↓ เรียงตามยอดขาย</button></div>
         <p class="hint">วางลิงก์สินค้า ระบบดึงชื่อจากลิงก์ให้ · รูป: กดที่กรอบรูป ลากไฟล์มาวาง หรือคัดลอกรูปจากหน้า Shopee แล้วกด Ctrl+V / ⌘V ในแถวนั้น</p>
         <div id="topRows"></div>
+      </div>
+
+      <div class="group top5">
+        <div class="t5head"><h3>TOP 5 สินค้าจำนวนขายได้</h3>
+          <span style="display:inline-flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn sm" id="copyTop">⧉ คัดลอกจาก TOP 5 สินค้าขายดี</button>
+          <button type="button" class="btn sm" data-sort="top5u">↓ เรียงตามจำนวนชิ้น</button></span></div>
+        <p class="hint">กดคัดลอก → กรอกจำนวนชิ้น → กด “เรียงตามจำนวนชิ้น” ระบบจัดอันดับให้เอง หรือกดที่ตัวเลขอันดับเพื่อย้ายทีละรายการ</p>
+        <div id="topURows"></div>
       </div>
 
       <div class="colhead"><span>ช่องทาง</span><span>ค่าใช้จ่าย</span><span>ยอดขายจากโฆษณา*</span></div>
@@ -407,6 +526,7 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
       <div class="group off">
         <h3><a href="https://seller.shopee.co.th/portal/web-shopping-ads" target="_blank" rel="noopener" style="color:inherit;text-underline-offset:3px">โฆษณานอกแพลตฟอร์ม</a></h3>
         <p class="hint">CPAS in shop และ CPAS in Meta</p>
+        <p class="hint offnote">ยอดขายจากโฆษณานอกแพลตฟอร์มใช้ข้อมูลชุดเดียวกันทั้ง “ยืนยันแล้ว” และ “ชำระเงินแล้ว” กรอกครั้งเดียวพอ</p>
         <div id="grp-off"></div>
       </div>
       <p class="hint" style="margin-top:8px">* ไม่บังคับ ใส่เมื่ออยากดู ROAS แยกรายช่องทาง</p>
@@ -433,16 +553,18 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
     </section>
 
     <!-- RESULT -->
-    <section>
-      <div class="panel">
+    <section class="rescol">
+      <div class="panel" id="livePanel">
+        <div class="live-h"><span class="dotlive"></span>ผลลัพธ์ของรอบที่กำลังกรอก <span class="muted">· อัปเดตทันทีขณะพิมพ์</span></div>
         <div class="hero">
           <div>
             <div class="roi-big num" id="roiBig">–<span class="x">เท่า</span></div>
-            <div class="roi-cap">ROI = ยอดขายที่ยืนยันแล้ว ÷ ค่าโฆษณารวม</div>
+            <div class="roi-cap" id="roiCap">ROI = ยอดขายที่ยืนยันแล้ว ÷ ค่าโฆษณารวม</div>
+            <div class="roi-sec" id="roiSec" hidden></div>
             <span class="verdict mid" id="verdict">กรอกยอดขายและค่าโฆษณา</span>
           </div>
           <dl class="kpis">
-            <div class="kpi"><dt>ยอดขายที่ยืนยันแล้ว</dt><dd class="num" id="kSales">฿0</dd></div>
+            <div class="kpi"><dt id="kSalesLbl">ยอดขายที่ยืนยันแล้ว</dt><dd class="num" id="kSales">฿0</dd><p class="ksub2" id="kSalesSub" hidden></p></div>
             <div class="kpi"><dt>ค่าโฆษณารวม 6 ช่องทาง</dt><dd class="num" id="kSpend">฿0</dd></div>
             <div class="kpi"><dt>ACOS (ค่าโฆษณา ÷ ยอดขาย)</dt><dd class="num" id="kAcos">–</dd></div>
             <div class="kpi"><dt id="kProfitLbl">ยอดขายหลังหักค่าโฆษณา</dt><dd class="num" id="kProfit">฿0</dd></div>
@@ -465,7 +587,10 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
         <div class="formula" id="formula"></div>
       </div>
 
-      <div class="panel history">
+    </section>
+  </div>
+
+  <div class="panel history">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
           <div><h2 style="margin:0">ประวัติรอบที่บันทึก</h2><p class="hint" style="margin-top:2px">ดาวน์โหลดเก็บไว้เป็นไฟล์สำรอง แล้วนำเข้ากลับมาได้ทุกเมื่อ</p></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -476,16 +601,29 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
         </div>
         <div id="history"></div>
       </div>
-    </section>
-  </div>
+
+</div>
+<div class="minibar" id="minibar" aria-live="polite">
+  <div><small>ROI</small><b class="num" id="mbRoi">–</b></div>
+  <div><small id="mbSalesLbl">ยอดขายที่ยืนยันแล้ว</small><b class="num" id="mbSales">฿0</b></div>
+  <div><small>ค่าแอดรวม</small><b class="num" id="mbSpend">฿0</b></div>
+  <div><small>ACOS</small><b class="num" id="mbAcos">–</b></div>
+  <div class="focus" id="mbFocus" hidden></div>
 </div>
 <div class="tip" id="tip" hidden role="tooltip"></div>
+<div class="sug" id="sug" hidden role="listbox" aria-label="สินค้าที่เคยกรอก"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 let SHOW_PROFIT = true;
 let SHOW_TRAFFIC = true;
+let SHOW_CONF = true, SHOW_PAID = true;
+try{ SHOW_CONF = localStorage.getItem('shopee-roi-show-conf') !== '0'; SHOW_PAID = localStorage.getItem('shopee-roi-show-paid') !== '0'; }catch(e){}
+if(!SHOW_CONF && !SHOW_PAID) SHOW_CONF = true;
+const SL = () => SHOW_CONF ? 'ยอดขายที่ยืนยันแล้ว' : 'ยอดขายที่ชำระเงินแล้ว';
 let SHOW_TOP5 = true;
+let SHOW_TOP5U = true;
+try{ SHOW_TOP5U = localStorage.getItem('shopee-roi-show-top5u') !== '0'; }catch(e){}
 try{ SHOW_TOP5 = localStorage.getItem('shopee-roi-show-top5') !== '0'; }catch(e){}
 try{ SHOW_TRAFFIC = localStorage.getItem('shopee-roi-show-traffic') !== '0'; }catch(e){}
 const TR = [
@@ -516,9 +654,106 @@ for (const t of TR){
   $('trafficRows').insertAdjacentHTML('beforeend', `<div class="trow"><label for="t_${t.k}"><span class="dot" style="background:${t.c}"></span>${t.n}</label>
     <div class="money"><span>฿</span><input id="t_${t.k}" inputmode="decimal" placeholder="0" class="num"></div><span class="tpct num" id="tp_${t.k}">–</span></div>`);
 }
-// Build TOP 5 rows
-let topImgs=['','','','',''];
-const topAuto=[true,true,true,true,true];
+// Period type in the form
+let formPt='', ptManual=false;
+function setFormPt(pt, manual){
+  formPt=pt||''; ptManual=!!manual;
+  document.querySelectorAll('#ptSeg button').forEach(b=>b.setAttribute('aria-checked', String(b.dataset.pt===formPt)));
+  const n=dayCount($('d1').value,$('d2').value);
+  $('ptHint').textContent = formPt ? `${PT[formPt]}${n?` · ${n} วัน`:''}${ptManual?' (เลือกเอง)':' (เลือกให้อัตโนมัติจากวันที่)'}` : 'เลือกวันที่แล้วระบบเลือกประเภทให้อัตโนมัติ เปลี่ยนเองได้';
+}
+$('ptSeg').addEventListener('click', e=>{ const b=e.target.closest('button[data-pt]'); if(!b) return;
+  setFormPt(b.dataset.pt, b.dataset.pt!==guessType($('d1').value,$('d2').value));
+  if(b.dataset.pt==='day' && $('d1').value && !$('d2').value) $('d2').value=$('d1').value; });
+function onDates(){
+  // single-day shortcut: picking only "from" in day mode fills "to"
+  if(formPt==='day' && ptManual && $('d1').value) $('d2').value=$('d1').value;
+  if(!ptManual) setFormPt($('d1').value||$('d2').value ? guessType($('d1').value,$('d2').value) : '', false); else setFormPt(formPt,true);
+}
+$('d1').addEventListener('change', onDates); $('d2').addEventListener('change', onDates);
+// ---------- product library (remembers link, name and picture of products used before) ----------
+const LIB = new Map();      // key -> {key,url,name,img,t,saved}
+const LIBKEY='shopee-roi-products-v1';
+function prodKey(x){
+  const u=cleanUrl(x&&x.url);
+  if(u){ const m=decodeURIComponent(u).match(/i\.(\d+)\.(\d+)/) || u.match(/product\/(\d+)\/(\d+)/); if(m) return 'i.'+m[1]+'.'+m[2]; return u.split('?')[0].replace(/\/$/,''); }
+  const n=String((x&&x.name)||'').trim().toLowerCase(); return n ? 'n:'+n : '';
+}
+function hashKey(k){ let h=5381; for(let i=0;i<k.length;i++) h=((h<<5)+h+k.charCodeAt(i))>>>0; return 'p_'+h.toString(36)+'_'+k.length.toString(36); }
+const imgOf = x => (x && x.img) || ((LIB.get(prodKey(x))||{}).img) || '';
+function libPut(x, t, saved){
+  const k=prodKey(x); if(!k || !(x.url||x.name)) return null;
+  const cur=LIB.get(k)||{key:k,url:'',name:'',img:'',t:''};
+  const newer = !cur.t || (t||'') >= cur.t;
+  const next={...cur, url:(newer&&x.url)||cur.url||x.url||'', name:(newer&&x.name)||cur.name||x.name||'', img:(newer&&x.img)||cur.img||x.img||'', t:newer?(t||cur.t):cur.t};
+  next.saved = saved===undefined ? (cur.saved && next.img===cur.img && next.name===cur.name && next.url===cur.url) : saved;
+  LIB.set(k,next); return next;
+}
+function libSeedFromRecords(){
+  for(const r of records) for(const key of ['top5','top5u']) for(const x of (r[key]||[])) if(x) libPut(x, r.savedAt||recStart(r));
+}
+function libLoadLocal(){ try{ for(const p of JSON.parse(localStorage.getItem(LIBKEY)||'[]')) if(p&&p.key) LIB.set(p.key,{...p,saved:true}); }catch(e){} }
+function libSaveLocal(){ try{ localStorage.setItem(LIBKEY, JSON.stringify([...LIB.values()].map(({saved,...p})=>p))); return true; }catch(e){ return false; } }
+// store products used in a record; returns keys whose picture is safely stored in the library
+async function libStore(list, t){
+  const touched=new Set();
+  for(const x of list){ if(!x||!(x.url||x.name)) continue; const p=libPut(x,t); if(p) touched.add(p.key); }
+  const ok=new Set();
+  if(db&&uid){
+    for(const k of touched){ const p=LIB.get(k); if(!p||!p.img) continue;
+      if(p.saved){ ok.add(k); continue; }
+      try{ const {saved,...doc}=p; await coll().doc(hashKey(k)).set({...doc, kind:'product'}); p.saved=true; ok.add(k); }catch(e){} }
+  } else if(libSaveLocal()){ for(const k of touched){ const p=LIB.get(k); if(p&&p.img){ p.saved=true; ok.add(k); } } }
+  return ok;
+}
+function libSearch(q, exclude){
+  q=String(q||'').trim().toLowerCase();
+  const all=[...LIB.values()].filter(p=>p.url||p.name).sort((a,b)=>(b.t||'').localeCompare(a.t||''));
+  const res=q ? all.filter(p=>(p.name||'').toLowerCase().includes(q) || (p.url||'').toLowerCase().includes(q) || prodKey({url:q})===p.key) : all;
+  return res.filter(p=>!exclude || !exclude.has(p.key)).slice(0,8);
+}
+// suggestion dropdown
+let sugCtx=null, sugIdx=-1, sugItems=[];
+function hideSug(){ $('sug').hidden=true; sugCtx=null; sugItems=[]; }
+function openSug(key,i,input){
+  const P=TOPS[key].pfx;
+  const used=new Set(readTopList(key).map((x,j)=>j===i?'':prodKey(x)).filter(Boolean));
+  const q = input.id.startsWith(P+'u_') ? '' : input.value;
+  sugItems=libSearch(input.id.startsWith(P+'u_') ? input.value : q, used);
+  if(!sugItems.length){ hideSug(); return; }
+  sugCtx={key,i,input}; sugIdx=-1;
+  const el=$('sug');
+  el.innerHTML=`<div class="sh">สินค้าที่เคยกรอก · เลือกเพื่อเติมลิงก์ ชื่อ และรูป</div>`+sugItems.map((p,k)=>`<div class="it" role="option" data-k="${k}">${p.img?`<img src="${esc(p.img)}" alt="">`:`<span class="ni">${esc((p.name||'?').trim()[0]||'?')}</span>`}<div class="tx">${esc(p.name||nameFromUrl(p.url)||'(ไม่มีชื่อ)')}<small>${esc(p.url||'ไม่มีลิงก์')}</small></div></div>`).join('');
+  const b=input.getBoundingClientRect(); el.hidden=false;
+  const w=Math.min(360, Math.max(260, b.width+60)); el.style.width=w+'px';
+  el.style.left=Math.max(8, Math.min(b.left, innerWidth-w-8))+'px';
+  const below=b.bottom+4, h=el.offsetHeight; el.style.top=(below+h>innerHeight-8 ? Math.max(8,b.top-h-4) : below)+'px';
+}
+function pickSug(k){
+  if(!sugCtx) return; const p=sugItems[k]; if(!p) return;
+  const {key,i}=sugCtx, P=TOPS[key].pfx, st=topState[key];
+  $(P+'u_'+i).value=p.url||''; $(P+'n_'+i).value=p.name||nameFromUrl(p.url)||''; $(P+'u_'+i).classList.remove('bad');
+  st.imgs[i]=p.img||st.imgs[i]; st.auto[i]=false; paintThumb(key,i);
+  hideSug(); $(P+'s_'+i).focus();
+}
+$('sug').addEventListener('pointerdown', e=>{ const it=e.target.closest('.it'); if(it){ e.preventDefault(); pickSug(+it.dataset.k); } });
+document.addEventListener('pointerdown', e=>{ if(!$('sug').hidden && !e.target.closest('#sug') && (!sugCtx || e.target!==sugCtx.input)) hideSug(); });
+addEventListener('scroll', ()=>{ if(!$('sug').hidden) hideSug(); }, {passive:true});
+function sugKeys(e){
+  if($('sug').hidden) return;
+  const its=[...$('sug').querySelectorAll('.it')];
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); sugIdx=(sugIdx+(e.key==='ArrowDown'?1:-1)+its.length)%its.length; its.forEach((x,k)=>x.classList.toggle('on',k===sugIdx)); its[sugIdx].scrollIntoView({block:'nearest'}); }
+  else if(e.key==='Enter' && sugIdx>=0){ e.preventDefault(); pickSug(sugIdx); }
+  else if(e.key==='Escape'){ hideSug(); }
+}
+
+// Build TOP 5 lists (by sales and by units)
+const TOPS = {
+  top5:  {pfx:'tp', box:'topRows',  field:'sales', title:'TOP 5 สินค้าขายดี', short:'TOP 5 ยอดขาย', csv:'TOP '},
+  top5u: {pfx:'tq', box:'topURows', field:'units', title:'TOP 5 สินค้าจำนวนขายได้', short:'TOP 5 จำนวนชิ้น', csv:'TOPชิ้น '},
+};
+const topState = { top5:{imgs:['','','','',''], auto:[true,true,true,true,true]}, top5u:{imgs:['','','','',''], auto:[true,true,true,true,true]} };
+const fmtU = v => (Math.round(v*100)/100).toLocaleString('th-TH') + ' ชิ้น';
 function nameFromUrl(u){
   const c=cleanUrl(u); if(!c) return '';
   try{
@@ -528,11 +763,6 @@ function nameFromUrl(u){
   }catch(e){}
   return '';
 }
-function paintThumb(i){
-  const b=$('tpi_'+i); b.classList.toggle('has', !!topImgs[i]);
-  b.innerHTML = topImgs[i] ? `<img src="${topImgs[i]}" alt="">` : 'เพิ่ม<br>รูป';
-  b.setAttribute('aria-label', topImgs[i] ? `เปลี่ยนรูปสินค้าอันดับ ${i+1}` : `เพิ่มรูปสินค้าอันดับ ${i+1}`);
-}
 async function productImage(file){
   const src=await readAsDataURL(file); const im=await loadImg(src);
   const S=220, w=im.naturalWidth||S, h=im.naturalHeight||S, side=Math.min(w,h);
@@ -541,47 +771,124 @@ async function productImage(file){
   g.drawImage(im,(w-side)/2,(h-side)/2,side,side,0,0,S,S);
   return c.toDataURL('image/jpeg',0.8);
 }
-async function setTopImage(i,file){
+function paintThumb(key,i){
+  const P=TOPS[key].pfx, im=topState[key].imgs[i], b=$(P+'i_'+i); b.classList.toggle('has', !!im);
+  b.innerHTML = im ? `<img src="${im}" alt="">` : 'เพิ่ม<br>รูป';
+  b.setAttribute('aria-label', im ? `เปลี่ยนรูปสินค้าอันดับ ${i+1}` : `เพิ่มรูปสินค้าอันดับ ${i+1}`);
+}
+async function setTopImage(key,i,file){
   if(!file) return;
   if(!(file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name||''))){ toast('เลือกไฟล์รูปภาพ JPG หรือ PNG'); return; }
-  try{ topImgs[i]=await productImage(file); paintThumb(i); }catch(e){ toast('เปิดรูปนี้ไม่ได้ ลองไฟล์ JPG หรือ PNG'); }
+  try{ topState[key].imgs[i]=await productImage(file); paintThumb(key,i); }catch(e){ toast('เปิดรูปนี้ไม่ได้ ลองไฟล์ JPG หรือ PNG'); }
 }
-for(let i=0;i<5;i++){
-  $('topRows').insertAdjacentHTML('beforeend', `<div class="tprow" id="tpr_${i}">
-    <span class="rk">${i+1}</span>
-    <button type="button" class="thumb" id="tpi_${i}"></button>
-    <div class="tpf"><input type="text" id="tpu_${i}" inputmode="url" placeholder="ลิงก์สินค้า Shopee" aria-label="ลิงก์สินค้าอันดับ ${i+1}">
-      <div class="tpl2"><input type="text" class="nm" id="tpn_${i}" maxlength="200" placeholder="ชื่อสินค้า" aria-label="ชื่อสินค้าอันดับ ${i+1}">
-      <div class="money tps"><span>฿</span><input class="num" id="tps_${i}" inputmode="decimal" placeholder="ยอดขาย" aria-label="ยอดขายสินค้าอันดับ ${i+1}"></div></div></div>
-    <button type="button" class="tpx" id="tpx_${i}" title="ล้างอันดับ ${i+1}" aria-label="ล้างอันดับ ${i+1}">✕</button>
-    <input type="file" class="vh" id="tpf_${i}" tabindex="-1" aria-hidden="true" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
-  </div>`);
-  paintThumb(i);
-  $('tpi_'+i).addEventListener('click', ()=>$('tpf_'+i).click());
-  $('tpf_'+i).addEventListener('change', e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; setTopImage(i,f); });
-  $('tpu_'+i).addEventListener('input', e=>{
-    const v=e.target.value.trim(); e.target.classList.toggle('bad', !!v && !cleanUrl(v));
-    const n=nameFromUrl(v); const nm=$('tpn_'+i);
-    if(n && (topAuto[i] || !nm.value.trim())){ nm.value=n; topAuto[i]=true; }
-  });
-  $('tpn_'+i).addEventListener('input', ()=>{ topAuto[i]=false; });
-  $('tpx_'+i).addEventListener('click', ()=>{ $('tpu_'+i).value=''; $('tpn_'+i).value=''; $('tps_'+i).value=''; $('tpu_'+i).classList.remove('bad'); topImgs[i]=''; topAuto[i]=true; paintThumb(i); });
-  const row=$('tpr_'+i);
-  row.addEventListener('paste', e=>{
-    const items=[...(e.clipboardData&&e.clipboardData.items||[])]; const it=items.find(x=>x.kind==='file'&&x.type.startsWith('image/'));
-    if(it){ e.preventDefault(); setTopImage(i, it.getAsFile()); toast(`วางรูปสินค้าอันดับ ${i+1} แล้ว`); }
-  });
-  row.addEventListener('dragover', e=>{ if([...e.dataTransfer.types].includes('Files')){ e.preventDefault(); row.classList.add('drag'); } });
-  row.addEventListener('dragleave', ()=>row.classList.remove('drag'));
-  row.addEventListener('drop', e=>{ const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(f){ e.preventDefault(); row.classList.remove('drag'); setTopImage(i,f); } });
+function buildTop(key){
+  const T=TOPS[key], P=T.pfx, st=topState[key], units=T.field==='units';
+  for(let i=0;i<5;i++){
+    const val = units
+      ? `<div class="money tps u"><input class="num" id="${P}s_${i}" inputmode="numeric" placeholder="จำนวน" aria-label="จำนวนชิ้นสินค้าอันดับ ${i+1}"><span>ชิ้น</span></div>`
+      : `<div class="money tps"><span>฿</span><input class="num" id="${P}s_${i}" inputmode="decimal" placeholder="ยอดขาย" aria-label="ยอดขายสินค้าอันดับ ${i+1}"></div>`;
+    $(T.box).insertAdjacentHTML('beforeend', `<div class="tprow" id="${P}r_${i}">
+      <select class="rk rksel" id="${P}k_${i}" aria-label="ย้ายสินค้าอันดับ ${i+1} ไปอันดับ" title="เปลี่ยนอันดับ">${[1,2,3,4,5].map(n=>`<option value="${n}" ${n===i+1?'selected':''}>${n}</option>`).join('')}</select>
+      <button type="button" class="thumb" id="${P}i_${i}"></button>
+      <div class="tpf"><input type="text" id="${P}u_${i}" inputmode="url" placeholder="ลิงก์สินค้า Shopee" aria-label="ลิงก์สินค้าอันดับ ${i+1}">
+        <div class="tpl2"><input type="text" class="nm" id="${P}n_${i}" maxlength="200" placeholder="ชื่อสินค้า" aria-label="ชื่อสินค้าอันดับ ${i+1}">${val}</div></div>
+      <button type="button" class="tpx" id="${P}x_${i}" title="ล้างอันดับ ${i+1}" aria-label="ล้างอันดับ ${i+1}">✕</button>
+      <input type="file" class="vh" id="${P}f_${i}" tabindex="-1" aria-hidden="true" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+    </div>`);
+    paintThumb(key,i);
+    $(P+'k_'+i).addEventListener('change', e=>{ const j=+e.target.value-1; e.target.value=String(i+1); if(j!==i) moveTop(key,i,j); });
+    $(P+'i_'+i).addEventListener('click', ()=>$(P+'f_'+i).click());
+    $(P+'f_'+i).addEventListener('change', e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; setTopImage(key,i,f); });
+    $(P+'u_'+i).addEventListener('input', e=>{
+      const v=e.target.value.trim(); e.target.classList.toggle('bad', !!v && !cleanUrl(v));
+      const n=nameFromUrl(v); const nm=$(P+'n_'+i);
+      const known=cleanUrl(v) && LIB.get(prodKey({url:v}));
+      if(known){ if(st.auto[i] || !nm.value.trim()){ nm.value=known.name||n||nm.value; st.auto[i]=!known.name; } if(!st.imgs[i] && known.img){ st.imgs[i]=known.img; paintThumb(key,i); toast('พบสินค้านี้ในคลัง เติมชื่อและรูปให้แล้ว'); } hideSug(); return; }
+      if(n && (st.auto[i] || !nm.value.trim())){ nm.value=n; st.auto[i]=true; }
+      if(v && !cleanUrl(v)) openSug(key,i,e.target); else hideSug();
+    });
+    $(P+'n_'+i).addEventListener('input', e=>{ st.auto[i]=false; openSug(key,i,e.target); });
+    $(P+'n_'+i).addEventListener('focus', e=>{ if(!e.target.value.trim() && !$(P+'u_'+i).value.trim()) openSug(key,i,e.target); });
+    $(P+'n_'+i).addEventListener('keydown', sugKeys); $(P+'u_'+i).addEventListener('keydown', sugKeys);
+    $(P+'n_'+i).addEventListener('blur', ()=>setTimeout(()=>{ if(sugCtx&&sugCtx.input===$(P+'n_'+i)&&document.activeElement!==$(P+'n_'+i)) hideSug(); },150));
+    $(P+'x_'+i).addEventListener('click', ()=>{ $(P+'u_'+i).value=''; $(P+'n_'+i).value=''; setFS(P+'s_'+i,'',''); $(P+'u_'+i).classList.remove('bad'); st.imgs[i]=''; st.auto[i]=true; paintThumb(key,i); });
+    const row=$(P+'r_'+i);
+    row.addEventListener('paste', e=>{
+      const items=[...(e.clipboardData&&e.clipboardData.items||[])]; const it=items.find(x=>x.kind==='file'&&x.type.startsWith('image/'));
+      if(it){ e.preventDefault(); setTopImage(key,i, it.getAsFile()); toast(`วางรูปสินค้าอันดับ ${i+1} แล้ว`); }
+    });
+    row.addEventListener('dragover', e=>{ if([...e.dataTransfer.types].includes('Files')){ e.preventDefault(); row.classList.add('drag'); } });
+    row.addEventListener('dragleave', ()=>row.classList.remove('drag'));
+    row.addEventListener('drop', e=>{ const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(f){ e.preventDefault(); row.classList.remove('drag'); setTopImage(key,i,f); } });
+  }
 }
-function readTop5(){ return [0,1,2,3,4].map(i=>({url:cleanUrl($('tpu_'+i).value)||'', name:$('tpn_'+i).value.trim(), img:topImgs[i]||'', sales:num($('tps_'+i))})); }
-function fillTop5(t){
-  t=Array.isArray(t)?t:[];
-  for(let i=0;i<5;i++){ const x=t[i]||{}; $('tpu_'+i).value=x.url||''; $('tpn_'+i).value=x.name||''; $('tps_'+i).value=x.sales||''; $('tpu_'+i).classList.remove('bad');
-    topImgs[i]=x.img||''; topAuto[i]=!x.name || x.name===nameFromUrl(x.url); paintThumb(i); }
+buildTop('top5'); buildTop('top5u');
+function readTopList(key){ const T=TOPS[key], P=T.pfx; return [0,1,2,3,4].map(i=>({url:cleanUrl($(P+'u_'+i).value)||'', name:$(P+'n_'+i).value.trim(), img:topState[key].imgs[i]||'', [T.field]:fn(P+'s_'+i,'conf'), [T.field+'Paid']:fn(P+'s_'+i,'paid')})); }
+function fillTopList(key,t){
+  const T=TOPS[key], P=T.pfx, st=topState[key]; t=Array.isArray(t)?t:[];
+  for(let i=0;i<5;i++){ const x=t[i]||{}; $(P+'u_'+i).value=x.url||''; $(P+'n_'+i).value=x.name||''; setFS(P+'s_'+i, x[T.field], x[T.field+'Paid']); $(P+'u_'+i).classList.remove('bad');
+    st.imgs[i]=imgOf(x); st.auto[i]=!x.name || x.name===nameFromUrl(x.url); paintThumb(key,i); }
 }
-const hasTop5 = r => Array.isArray(r.top5) && r.top5.some(x=>x&&(x.url||x.name||x.img||x.sales));
+function moveTop(key,from,to){
+  const L=readTopList(key), A=topState[key].auto.slice();
+  const [it]=L.splice(from,1); L.splice(to,0,it); const [a]=A.splice(from,1); A.splice(to,0,a);
+  fillTopList(key,L); A.forEach((v,k)=>topState[key].auto[k]=v);
+  const row=$(TOPS[key].pfx+'r_'+to); row.classList.add('moved'); setTimeout(()=>row.classList.remove('moved'),700);
+  toast(`ย้ายไปอันดับ ${to+1} แล้ว`);
+}
+function sortTop(key){
+  const F=TOPS[key].field+(formMode==='paid'?'Paid':''), L=readTopList(key);
+  const has=x=>x.url||x.name||x.img||x[F];
+  if(!L.some(x=>x[F])){ toast(`กรอก${F==='units'?'จำนวนชิ้น':'ยอดขาย'}ก่อน แล้วค่อยกดเรียง`); return; }
+  const idx=L.map((x,i)=>i).sort((a,b)=>{ const xa=L[a], xb=L[b];
+    if(!!has(xa)!==!!has(xb)) return has(xa)?-1:1;
+    return (+xb[F]||0)-(+xa[F]||0) || a-b; });
+  const A=topState[key].auto.slice();
+  fillTopList(key, idx.map(i=>L[i])); idx.forEach((i,k)=>topState[key].auto[k]=A[i]);
+  document.querySelectorAll(`#${TOPS[key].box} .tprow`).forEach(r=>{ r.classList.add('moved'); setTimeout(()=>r.classList.remove('moved'),700); });
+  toast(`เรียงอันดับตาม${F==='units'?'จำนวนชิ้น':'ยอดขาย'}จากมากไปน้อยแล้ว`);
+}
+const readTop5 = ()=>readTopList('top5');
+const fillTop5 = t=>fillTopList('top5',t);
+const hasTopList = (r,key) => Array.isArray(r[key]) && r[key].some(x=>x&&(x.url||x.name||x.img||x[TOPS[key].field]));
+const hasTop5 = r => hasTopList(r,'top5');
+function prevRoundForForm(){
+  const pt = formPt || guessType($('d1').value,$('d2').value);
+  const start = $('d1').value || $('d2').value || '9999-12-31';
+  const cands = records.filter(r=>r.id!==editingId && (hasTopList(r,'top5')||hasTopList(r,'top5u')) && recStart(r) < start);
+  const same = cands.filter(r=>ptypeOf(r)===pt);
+  const pick = L => L.sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0];
+  return pick(same) || pick(cands) || null;
+}
+function updatePullHint(){
+  const r=prevRoundForForm();
+  $('pullHint').textContent = r ? `จะดึงจาก: ${r.name||recStart(r)} (${PT[ptypeOf(r)]}) · ลิงก์ ชื่อ และรูป ไม่รวมตัวเลข` : 'ยังไม่มีรอบก่อนหน้าที่มี TOP 5 · บันทึกรอบแรกก่อน รอบต่อไปจะดึงได้';
+  $('pullPrev').disabled=!r;
+}
+$('pullPrev').addEventListener('click', ()=>{
+  const r=prevRoundForForm(); if(!r){ toast('ยังไม่มีรอบก่อนหน้าที่มี TOP 5'); return; }
+  const filled=['top5','top5u'].some(k=>readTopList(k).some(x=>x.url||x.name||x.img));
+  if(filled && !confirm(`แทนที่ TOP 5 ทั้ง 2 รายการในฟอร์ม ด้วยสินค้าจาก “${r.name||recStart(r)}”?\n(ตัวเลขยอดขายและจำนวนชิ้นจะเว้นว่างให้กรอกใหม่)`)) return;
+  for(const k of ['top5','top5u']){
+    const F=TOPS[k].field;
+    fillTopList(k, (r[k]||[]).map(x=>x?{url:x.url||'', name:x.name||'', img:imgOf(x), [F]:0, [F+'Paid']:0}:{}));
+  }
+  toast(`ดึงสินค้าจาก ${r.name||recStart(r)} แล้ว กรอกตัวเลขแล้วกดเรียงอันดับ`);
+  $('tps_0').focus();
+});
+['d1','d2'].forEach(id=>$(id).addEventListener('change', updatePullHint));
+$('ptSeg').addEventListener('click', ()=>setTimeout(updatePullHint));
+
+document.querySelectorAll('[data-sort]').forEach(b=>b.addEventListener('click', ()=>sortTop(b.dataset.sort)));
+$('copyTop').addEventListener('click', ()=>{
+  const src=readTopList('top5');
+  if(!src.some(x=>x.url||x.name||x.img)){ toast('TOP 5 สินค้าขายดียังว่างอยู่ กรอกก่อนแล้วค่อยคัดลอก'); return; }
+  const cur=readTopList('top5u');
+  if(cur.some(x=>x.url||x.name||x.img) && !confirm('TOP 5 สินค้าจำนวนขายได้มีข้อมูลอยู่แล้ว จะแทนที่ลิงก์ ชื่อ และรูปด้วยข้อมูลจาก TOP 5 สินค้าขายดีไหม?\n(จำนวนชิ้นที่กรอกไว้จะยังอยู่)')) return;
+  fillTopList('top5u', src.map((x,i)=>({url:x.url, name:x.name, img:x.img, units:cur[i].units, unitsPaid:cur[i].unitsPaid})));
+  toast('คัดลอกแล้ว กรอกจำนวนชิ้น แล้วกด “เรียงตามจำนวนชิ้น”');
+  $('tqs_0').focus();
+});
 
 // Build channel rows
 for (const ch of CH){
@@ -594,46 +901,103 @@ for (const ch of CH){
   $(ch.g==='shopee'?'grp-shopee':'grp-off').appendChild(row);
 }
 
+// ---------- two sets of sales numbers: confirmed / paid (ad spend is shared) ----------
+const FS={conf:{}, paid:{}}; let formMode='conf';
+const SALES_IDS = () => ['sales', ...TR.map(t=>'t_'+t.k), 'adsSales', ...CH.filter(c=>c.g==='shopee').map(c=>'r_'+c.k), ...[0,1,2,3,4].map(i=>'tps_'+i), ...[0,1,2,3,4].map(i=>'tqs_'+i)];
+function fvRaw(id,mode){ return mode===formMode ? $(id).value : (FS[mode][id]||''); }
+function fn(id,mode){ const v=parseFloat(String(fvRaw(id,mode)).replace(/[,\s฿]/g,'')); return isFinite(v)?v:0; }
+function setFS(id, conf, paid){ FS.conf[id]=conf?String(conf):''; FS.paid[id]=paid?String(paid):''; $(id).value=FS[formMode][id]; }
+function modeHasData(mode){ return SALES_IDS().some(id=>fn(id,mode)>0); }
+function updateModeUI(){
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-checked', String(b.dataset.fm===formMode)));
+  document.body.classList.toggle('fm-paid', formMode==='paid');
+  $('fdConf').hidden=!modeHasData('conf'); $('fdPaid').hidden=!modeHasData('paid');
+  const P = formMode==='paid';
+  $('salesLbl').textContent = P ? 'ยอดขายที่ชำระเงินแล้ว (ทั้งร้าน)' : 'ยอดขายที่ยืนยันแล้ว (ทั้งร้าน)';
+  $('modeHint').textContent = P ? 'กำลังกรอกชุด “ชำระเงินแล้ว” · ช่องยอดขายทุกช่องเป็นของชุดนี้ · ค่าใช้จ่ายโฆษณาใช้ร่วมกัน' : 'กำลังกรอกชุด “ยืนยันแล้ว” · สลับไป “ชำระเงินแล้ว” เพื่อกรอกยอดขายอีกชุด · ค่าใช้จ่ายโฆษณาใช้ร่วมกัน';
+  for(let i=0;i<5;i++){ $('tps_'+i).placeholder = P?'ชำระแล้ว':'ยอดขาย'; $('tqs_'+i).placeholder = P?'ชำระแล้ว':'จำนวน'; }
+}
+function switchMode(m){
+  if(m===formMode) return;
+  for(const id of SALES_IDS()) FS[formMode][id]=$(id).value;
+  formMode=m;
+  for(const id of SALES_IDS()) $(id).value=FS[m][id]||'';
+  updateModeUI(); render();
+  toast(m==='paid' ? 'สลับไปกรอกยอดขายที่ชำระเงินแล้ว' : 'สลับไปกรอกยอดขายที่ยืนยันแล้ว');
+}
+$('modeSeg').addEventListener('click', e=>{ const b=e.target.closest('button[data-fm]'); if(b) switchMode(b.dataset.fm); });
+function viewOf(r){
+  if(!r) return r;
+  return {...r, _view:true, _noPaid:!(+r.paid>0), sales:+r.paid||0, paid:0, _paidSpend:undefined, _paidConf:undefined, _paidN:undefined,
+    traffic:Object.fromEntries(TR.map(t=>[t.k, +((r.trafficPaid||{})[t.k])||0])), adsSales:+r.adsSalesPaid||0,
+    channels:Object.fromEntries(CH.map(c=>{ const x=(r.channels||{})[c.k]||{}; return [c.k,{spend:+x.spend||0, sales:c.g==='off' ? (+x.sales||0) : (+x.salesPaid||0)}]; })),
+    top5:(r.top5||[]).map(x=>x?{...x, sales:+x.salesPaid||0}:x), top5u:(r.top5u||[]).map(x=>x?{...x, units:+x.unitsPaid||0}:x)};
+}
+const isPaidB = () => !SHOW_CONF;
+const V = r => isPaidB() ? viewOf(r) : r;
+setTimeout(()=>{ try{ SALES_IDS().forEach(id=>$(id).classList.add('si')); updateModeUI(); }catch(e){} });
+const liveRec = () => { const r=readForm(); return formMode==='paid' ? viewOf(r) : r; };
 function readForm(){
   const channels = {};
-  for (const ch of CH) channels[ch.k] = {spend:num($('s_'+ch.k)), sales:num($('r_'+ch.k))};
+  for (const ch of CH){ const sv= ch.g==='off' ? num($('r_'+ch.k)) : fn('r_'+ch.k,'conf'); channels[ch.k] = {spend:num($('s_'+ch.k)), sales:sv, salesPaid: ch.g==='off' ? sv : fn('r_'+ch.k,'paid')}; }
   return {
-    name:$('pname').value.trim(), d1:$('d1').value, d2:$('d2').value,
-    sales:num($('sales')), cogs:num($('cogs')), fees:num($('fees')), target:num($('target')),
-    traffic:Object.fromEntries(TR.map(t=>[t.k, num($('t_'+t.k))])), adsSales:num($('adsSales')),
+    name:$('pname').value.trim(), d1:$('d1').value, d2:$('d2').value, ptype:formPt,
+    sales:fn('sales','conf'), paid:fn('sales','paid'), cogs:num($('cogs')), fees:num($('fees')), target:num($('target')),
+    traffic:Object.fromEntries(TR.map(t=>[t.k, fn('t_'+t.k,'conf')])), adsSales:fn('adsSales','conf'),
+    trafficPaid:Object.fromEntries(TR.map(t=>[t.k, fn('t_'+t.k,'paid')])), adsSalesPaid:fn('adsSales','paid'),
     top5:readTop5(),
+    top5u:readTopList('top5u'),
     channels
   };
 }
 function fillForm(r){
   $('pname').value=r.name||''; $('d1').value=r.d1||''; $('d2').value=r.d2||'';
-  $('sales').value=r.sales||''; $('cogs').value=r.cogs||''; $('fees').value=r.fees||''; $('target').value=r.target||'';
-  for (const t of TR) $('t_'+t.k).value=((r.traffic||{})[t.k])||'';
-  $('adsSales').value=r.adsSales||'';
+  setFormPt(r.ptype && PT[r.ptype] ? r.ptype : (r.d1||r.d2 ? guessType(r.d1,r.d2) : ''), !!(r.ptype && r.ptype!==guessType(r.d1,r.d2)));
+  setFS('sales', r.sales, r.paid); $('cogs').value=r.cogs||''; $('fees').value=r.fees||''; $('target').value=r.target||'';
+  for (const t of TR) setFS('t_'+t.k, (r.traffic||{})[t.k], (r.trafficPaid||{})[t.k]);
+  setFS('adsSales', r.adsSales, r.adsSalesPaid);
   fillTop5(r.top5);
-  for (const ch of CH){ const c=(r.channels||{})[ch.k]||{}; $('s_'+ch.k).value=c.spend||''; $('r_'+ch.k).value=c.sales||''; }
-  render();
+  fillTopList('top5u', r.top5u);
+  for (const ch of CH){ const c=(r.channels||{})[ch.k]||{}; $('s_'+ch.k).value=c.spend||''; if(ch.g==='off'){ FS.conf['r_'+ch.k]=FS.paid['r_'+ch.k]=''; $('r_'+ch.k).value=c.sales||''; } else setFS('r_'+ch.k, c.sales, c.salesPaid); }
+  render(); updateModeUI();
 }
 function calc(r){
   let shopee=0, off=0;
   for (const ch of CH){ const s=r.channels[ch.k].spend; if(ch.g==='shopee') shopee+=s; else off+=s; }
   const spend = shopee+off;
-  const roi = spend>0 ? r.sales/spend : NaN;
-  const acos = r.sales>0 ? spend/r.sales*100 : NaN;
-  const hasCost = SHOW_PROFIT && (r.cogs>0 || r.fees>0);
-  const profit = r.sales - spend - r.cogs - r.fees;
-  const netRoi = spend>0 ? profit/spend*100 : NaN;
-  const margin = r.sales>0 ? (r.sales - r.cogs - r.fees)/r.sales : NaN;
+  const conf=+r.sales||0, paid=+r.paid||0, cogs=+r.cogs||0, fees=+r.fees||0;
+  // paid figures only count rounds that actually have a paid number
+  const pSpend = r._paidSpend!==undefined ? r._paidSpend : (paid>0 ? spend : 0);
+  const pConf  = r._paidConf!==undefined ? r._paidConf : (paid>0 ? conf : 0);
+  const roiC = spend>0 ? conf/spend : NaN, acosC = conf>0 ? spend/conf*100 : NaN;
+  const roiP = pSpend>0 && paid>0 ? paid/pSpend : NaN, acosP = paid>0 ? pSpend/paid*100 : NaN;
+  const payRate = pConf>0 && paid>0 ? paid/pConf*100 : NaN;
+  const usePaid = !!r._view;
+  const S = conf, sp = spend;
+  const roi = r._noPaid ? NaN : roiC, acos = r._noPaid ? NaN : acosC;
+  const hasCost = SHOW_PROFIT && (cogs>0 || fees>0);
+  const profit = S - sp - cogs - fees;
+  const netRoi = sp>0 ? profit/sp*100 : NaN;
+  const margin = S>0 ? (S - cogs - fees)/S : NaN;
   const breakEven = hasCost && margin>0 ? 1/margin : NaN;
-  return {shopee, off, spend, roi, acos, hasCost, profit, netRoi, breakEven};
+  const secPaid = SHOW_CONF && SHOW_PAID && !r._view;
+  const SLm = r._view ? 'ยอดขายที่ชำระเงินแล้ว' : 'ยอดขายที่ยืนยันแล้ว';
+  const paidCov = r._n!==undefined ? [r._paidN||0, r._n] : null;
+  return {SL:SLm, shopee, off, spend, roi, acos, hasCost, profit, netRoi, breakEven, conf, paid, roiC, acosC, roiP, acosP, payRate, usePaid, S, secPaid, paidCov};
 }
 
+function paidSecText(m, compact){
+  if(!m.secPaid || !(m.paid>0)) return '';
+  const cov = m.paidCov && m.paidCov[0]<m.paidCov[1] ? ` · มีข้อมูล ${m.paidCov[0]}/${m.paidCov[1]} รอบ` : '';
+  return compact ? `ชำระแล้ว ${fmtB0(m.paid)} · ${fmtP(m.payRate)}`
+    : `ชำระแล้ว <b class="num">${fmtB0(m.paid)}</b> · อัตราชำระ <b class="num">${fmtP(m.payRate)}</b> · ROI ชำระแล้ว <b class="num">${isFinite(m.roiP)?fmtX(m.roiP):'–'}</b>${cov}`;
+}
 function tableRows(r,m){
   const row = (ch)=>{
     const c=r.channels[ch.k]; const share = m.spend>0? c.spend/m.spend*100 : 0;
     const roi = c.spend>0 && c.sales>0 ? fmtX(c.sales/c.spend)+' เท่า' : '<span class="muted">–</span>';
     const nm = ch.link ? `<a href="${ch.link}" target="_blank" rel="noopener" style="color:inherit">${ch.n}</a>` : ch.n;
-    return `<tr><td><span class="dot" style="background:${ch.c}"></span>${nm}</td><td class="num">${fmtB(c.spend)}</td>
+    return `<tr data-ch="${ch.k}"><td><span class="dot" style="background:${ch.c}"></span>${nm}</td><td class="num">${fmtB(c.spend)}</td>
       <td class="num">${fmtP(share)}<span class="share" style="width:${Math.round(share*0.5)}px;background:${ch.c}"></span></td>
       <td class="num">${c.sales?fmtB(c.sales):'<span class="muted">–</span>'}</td><td class="num">${roi}</td></tr>`;
   };
@@ -643,7 +1007,7 @@ function tableRows(r,m){
   };
   let h = sub('Shopee Ads รวม','shopee',m.shopee) + CH.filter(c=>c.g==='shopee').map(row).join('');
   h += sub('นอกแพลตฟอร์มรวม','off',m.off) + CH.filter(c=>c.g==='off').map(row).join('');
-  h += `<tr class="total"><td>รวมทั้งหมด → ROI ร้าน</td><td class="num">${fmtB(m.spend)}</td><td class="num">100%</td><td class="num">${fmtB(r.sales)} <span class="muted" style="font-weight:400">(ยอดขายที่ยืนยันแล้ว)</span></td><td class="num">${isFinite(m.roi)?'ROI '+fmtX(m.roi)+' เท่า':'–'}</td></tr>`;
+  h += `<tr class="total"><td>รวมทั้งหมด → ROI ร้าน</td><td class="num">${fmtB(m.spend)}</td><td class="num">100%</td><td class="num">${fmtB(m.S)} <span class="muted" style="font-weight:400">(${m.SL})</span></td><td class="num">${isFinite(m.roi)?'ROI '+fmtX(m.roi)+' เท่า':'–'}</td></tr>`;
   return h;
 }
 
@@ -658,13 +1022,21 @@ function renderTrafficForm(r){
   el.textContent = `รวม 4 ช่อง ${fmtB(sum)}` + (r.sales ? ` = ${fmtP(sum/r.sales*100)} ของยอดขาย` + (Math.abs(diff) > Math.max(1, r.sales*0.005) ? ` (ต่าง ${fmtB(diff)})` : ' ✓') : '');
 }
 function render(){
-  const r = readForm(), m = calc(r);
+  const raw = readForm(), r = formMode==='paid' ? viewOf(raw) : raw, m = calc(r);
   renderTrafficForm(r);
   $('roiBig').innerHTML = (isFinite(m.roi)?fmtX(m.roi):'–') + '<span class="x">เท่า</span>';
-  $('kSales').textContent = fmtB(r.sales);
+  $('kSales').textContent = fmtB(m.S); $('kSalesLbl').textContent = m.SL;
+  $('roiCap').textContent = `ROI = ${m.SL} ÷ ค่าโฆษณารวม`;
+  const sec = m.secPaid && m.paid>0;
+  $('roiSec').hidden = !sec; $('roiSec').innerHTML = sec ? `ROI ชำระแล้ว <b class="num">${fmtX(m.roiP)} เท่า</b>` : '';
+  $('kSalesSub').hidden = !sec; $('kSalesSub').innerHTML = sec ? `ชำระแล้ว <b class="num">${fmtB(m.paid)}</b> · อัตราชำระ <b class="num">${fmtP(m.payRate)}</b>` : '';
+  { const pr=$('payRate'); const c=raw.sales, p=raw.paid; pr.className='sumline';
+    pr.textContent = c>0 && p>0 ? `ยืนยันแล้ว ${fmtB(c)} · ชำระแล้ว ${fmtB(p)} · อัตราชำระ ${fmtP(p/c*100)}` + (p>c*1.001 ? ' — ชำระแล้วมากกว่ายืนยันแล้ว ตรวจสอบอีกครั้ง' : '') : (formMode==='paid' && c>0 ? `ยอดขายที่ยืนยันแล้ว ${fmtB(c)}` : (formMode==='conf' && p>0 ? `ยอดขายที่ชำระเงินแล้ว ${fmtB(p)}` : ''));
+    if(p>c*1.001 && c>0) pr.className='sumline warn'; }
+  try{ updateModeUI(); }catch(e){}
   $('kSpend').textContent = fmtB(m.spend);
   $('kAcos').textContent = fmtP(m.acos);
-  const pv = m.hasCost ? m.profit : r.sales - m.spend;
+  const pv = m.hasCost ? m.profit : m.S - m.spend;
   $('kProfitLbl').textContent = m.hasCost ? 'กำไรสุทธิหลังหักทุกอย่าง' : 'ยอดขายหลังหักค่าโฆษณา';
   $('kProfit').textContent = fmtB(pv);
   $('kProfit').className = 'num ' + (pv>0?'pos':pv<0?'neg':'');
@@ -690,23 +1062,26 @@ function render(){
 
   // flow bar
   const bar = $('bar'); bar.innerHTML=''; const lg = $('legend'); lg.innerHTML='';
-  const base = Math.max(r.sales, m.spend);
+  const base = Math.max(m.S, m.spend);
   if (base>0){
     for (const ch of CH){
       const s=r.channels[ch.k].spend; if(!s) continue;
       const d=document.createElement('div'); d.style.width=(s/base*100)+'%'; d.style.background=ch.c; d.title=`${ch.n}: ${fmtB(s)}`; bar.appendChild(d);
       lg.insertAdjacentHTML('beforeend', `<span><i style="background:${ch.c}"></i>${ch.n} <span class="num muted">${fmtB(s)}</span></span>`);
     }
-    if (r.sales>m.spend){ const d=document.createElement('div'); d.className='rest'; d.style.width=((r.sales-m.spend)/base*100)+'%'; d.title='ยอดขายที่เหลือหลังค่าโฆษณา'; bar.appendChild(d);
+    if (m.S>m.spend){ const d=document.createElement('div'); d.className='rest'; d.style.width=((m.S-m.spend)/base*100)+'%'; d.title='ยอดขายที่เหลือหลังค่าโฆษณา'; bar.appendChild(d);
       lg.insertAdjacentHTML('beforeend', `<span><i style="background:var(--good-soft);border:1px solid var(--good)"></i>ยอดขายที่เหลือ</span>`); }
   }
   $('flowPct').textContent = isFinite(m.acos) ? `ค่าโฆษณา ${fmtP(m.acos)} ของยอดขาย` : '';
 
   $('tbody').innerHTML = tableRows(r,m);
+  if(typeof liveHighlight==='function' && focusKey) liveHighlight();
+  if(typeof miniUpdate==='function') try{ miniUpdate(r,m); }catch(e){}
 
-  let f = `<b>ROI</b> = ยอดขายที่ยืนยันแล้ว ÷ (โฆษณาสินค้า + โฆษณาคำค้นหา + Brand Ads + Live Ads + CPAS in shop + CPAS in Meta)<br>
+  let f = `<b>ROI</b> = ${m.SL} ÷ (โฆษณาสินค้า + โฆษณาคำค้นหา + Brand Ads + Live Ads + CPAS in shop + CPAS in Meta)<br>
     <b>ROAS ช่องทาง</b> = ยอดขายจากแอดของช่องทางนั้น ÷ ค่าแอดของช่องทางนั้น<br>
     <b>ACOS</b> = ค่าโฆษณารวม ÷ ยอดขาย × 100`;
+  if (m.secPaid) f += `<br><b>ROI ชำระแล้ว</b> = ยอดขายที่ชำระเงินแล้ว ÷ ค่าโฆษณารวม &nbsp;·&nbsp; <b>อัตราการชำระเงิน</b> = ชำระแล้ว ÷ ยืนยันแล้ว`;
   if (m.hasCost) f += `<br><b>กำไรสุทธิ</b> = ยอดขาย − ต้นทุนสินค้า − ค่าธรรมเนียม − ค่าโฆษณา = <span class="num">${fmtB(m.profit)}</span>
     &nbsp;·&nbsp; <b>ROI กำไร</b> = กำไรสุทธิ ÷ ค่าโฆษณา = <span class="num">${fmtP(m.netRoi)}</span>
     ${isFinite(m.breakEven)?`<br><b>ROI จุดคุ้มทุน</b> = 1 ÷ อัตรากำไรขั้นต้น = <span class="num">${fmtX(m.breakEven)}</span> เท่า`:''}`;
@@ -725,21 +1100,25 @@ function coll(){ return db.collection('data/users/'+uid); }
 
 function renderHistory(){
   const el=$('history');
+  try{ updatePullHint(); }catch(e){}
   $('exportCsv').hidden = !records.length;
   if(!records.length){ el.innerHTML='<div class="empty">ยังไม่มีรอบที่บันทึก กรอกตัวเลขแล้วกด “บันทึกรอบนี้” เพื่อเก็บไว้เทียบกัน</div>'; renderOverview(); return; }
-  const sorted=[...records].sort((a,b)=>(b.d2||b.savedAt||'').localeCompare(a.d2||a.savedAt||''));
-  let h='<div class="tablewrap" style="margin-top:0"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="เลือกทุกรอบ"></th><th>รอบ</th><th>ยอดขายที่ยืนยันแล้ว</th><th>Shopee Ads</th><th>นอกแพลตฟอร์ม</th><th>ค่าโฆษณารวม</th><th>ROI</th><th>ACOS</th><th></th></tr></thead><tbody>';
+  renderTypeSeg();
+  const sorted=records.filter(inType).sort((a,b)=>(b.d2||b.savedAt||'').localeCompare(a.d2||a.savedAt||''));
+  if(!sorted.length){ el.innerHTML=`<div class="empty">ยังไม่มีรอบ${PT[ptFilter]||''} เลือกประเภทอื่นที่ด้านบน หรือบันทึกรอบใหม่</div>`; renderOverview(); return; }
+  let h=`<div class="tablewrap" style="margin-top:0"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="เลือกทุกรอบ"></th><th>รอบ</th><th>${SL()}</th>${(SHOW_CONF&&SHOW_PAID)?'<th>ชำระแล้ว</th>':''}<th>Shopee Ads</th><th>นอกแพลตฟอร์ม</th><th>ค่าโฆษณารวม</th><th>ROI</th><th>ACOS</th><th></th></tr></thead><tbody>`;
   for(const r of sorted){
-    const m=calc(r);
+    const m=calc(V(r));
     const label = r.name || [r.d1,r.d2].filter(Boolean).join(' – ') || 'ไม่มีชื่อ';
     const dates = r.name && (r.d1||r.d2) ? `<br><span class="muted" style="font-size:.75rem">${esc([r.d1,r.d2].filter(Boolean).join(' – '))}</span>` : '';
-    h+=`<tr class="${editingId===r.id?'editing':''}"><td><input type="checkbox" data-sel="${esc(r.id)}" ${selected.has(r.id)?'checked':''} aria-label="รวม ${esc(label)} ในภาพรวม"></td><td>${esc(label)}${dates}</td><td class="num">${fmtB(r.sales)}</td><td class="num">${fmtB(m.shopee)}</td><td class="num">${fmtB(m.off)}</td><td class="num">${fmtB(m.spend)}</td>
+    const pt=ptypeOf(r);
+    h+=`<tr class="${editingId===r.id?'editing':''}"><td><input type="checkbox" data-sel="${esc(r.id)}" ${selected.has(r.id)?'checked':''} aria-label="รวม ${esc(label)} ในภาพรวม"></td><td>${esc(label)}<span class="ptb ${pt}">${PT[pt]}</span>${dates}</td><td class="num">${m.S?fmtB(m.S):'<span class="muted">–</span>'}</td>${(SHOW_CONF&&SHOW_PAID)?`<td class="num">${m.paid?`${fmtB(m.paid)}<br><span class="muted" style="font-size:.74rem">${fmtP(m.payRate)}</span>`:'<span class="muted">–</span>'}</td>`:''}<td class="num">${fmtB(m.shopee)}</td><td class="num">${fmtB(m.off)}</td><td class="num">${fmtB(m.spend)}</td>
       <td class="num" style="font-weight:600">${isFinite(m.roi)?fmtX(m.roi):'–'}</td><td class="num">${fmtP(m.acos)}</td>
       <td style="white-space:nowrap"><button data-load="${esc(r.id)}">${editingId===r.id?'กำลังแก้ไข':'แก้ไข'}</button><button data-del="${esc(r.id)}">ลบ</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table></div>';
-  const sa=$('selAll'); sa.checked = records.length>0 && records.every(r=>selected.has(r.id));
-  sa.indeterminate = !sa.checked && records.some(r=>selected.has(r.id));
+  const sa=$('selAll'); sa.checked = sorted.length>0 && sorted.every(r=>selected.has(r.id));
+  sa.indeterminate = !sa.checked && sorted.some(r=>selected.has(r.id));
   renderOverview();
 }
 $('history').addEventListener('click', async e=>{
@@ -775,7 +1154,14 @@ async function saveRecord(asNew){
   const id = updating ? editingId : ('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
   const old = records.find(x=>x.id===id);
   const rec = {...f, id, createdAt:(old&&old.createdAt)||(old&&old.savedAt)||new Date().toISOString(), savedAt:new Date().toISOString()};
-  const i = records.findIndex(x=>x.id===id); if(i>=0) records[i]=rec; else { records.push(rec); if(quick==='all'||quick==='manual'||inQuick(rec)) selected.add(id); }
+  if(!rec.ptype) rec.ptype=guessType(rec.d1,rec.d2);
+  const i = records.findIndex(x=>x.id===id); if(i>=0) records[i]=rec; else records.push(rec);
+  selected.add(id);
+  if(!inType(rec)){ ptFilter=rec.ptype; try{ localStorage.setItem('shopee-roi-ptfilter',ptFilter); }catch(e){} }
+  try{
+    const ok=await libStore([...(rec.top5||[]),...(rec.top5u||[])], rec.savedAt);
+    for(const k of ['top5','top5u']) rec[k]=(rec[k]||[]).map(x=>x&&x.img&&ok.has(prodKey(x)) && (LIB.get(prodKey(x))||{}).img===x.img ? {...x, img:''} : x);
+  }catch(e){}
   let msg = updating ? 'บันทึกการแก้ไขแล้ว' : 'บันทึกรอบใหม่แล้ว';
   if(db&&uid){ try{ await coll().doc(id).set(rec); }catch(err){ lsSave(); msg+=' (เก็บในเครื่องนี้ ระบบออนไลน์ไม่ตอบ)'; } }
   else lsSave();
@@ -785,14 +1171,14 @@ $('save').addEventListener('click', ()=>saveRecord(false));
 $('saveCopy').addEventListener('click', ()=>saveRecord(true));
 $('clear').addEventListener('click', ()=>{ fillForm({channels:{}}); setEditing(null); });
 
-const CSV_HEAD = ()=>['รอบ','จาก','ถึง','ยอดขายที่ยืนยันแล้ว',...CH.map(c=>'ค่าใช้จ่าย '+c.n),...CH.map(c=>'ยอดขาย '+c.n),'Shopee Ads รวม','นอกแพลตฟอร์มรวม','ค่าโฆษณารวม','ROI (เท่า)','ACOS %','ต้นทุนสินค้า','ค่าธรรมเนียม','กำไรสุทธิ','เป้า ROI','รหัสรอบ','สร้างเมื่อ',...TR.map(t=>'ยอดขายที่มา '+t.n),'ยอดขายจากโฆษณา Shopee Ads',...[1,2,3,4,5].flatMap(n=>['TOP '+n+' ชื่อ','TOP '+n+' ลิงก์','TOP '+n+' รูป']),...[1,2,3,4,5].map(n=>'TOP '+n+' ยอดขาย')];
+const CSV_HEAD = ()=>['รอบ','จาก','ถึง','ยอดขายที่ยืนยันแล้ว',...CH.map(c=>'ค่าใช้จ่าย '+c.n),...CH.map(c=>'ยอดขาย '+c.n),'Shopee Ads รวม','นอกแพลตฟอร์มรวม','ค่าโฆษณารวม','ROI (เท่า)','ACOS %','ต้นทุนสินค้า','ค่าธรรมเนียม','กำไรสุทธิ','เป้า ROI','รหัสรอบ','สร้างเมื่อ',...TR.map(t=>'ยอดขายที่มา '+t.n),'ยอดขายจากโฆษณา Shopee Ads',...[1,2,3,4,5].flatMap(n=>['TOP '+n+' ชื่อ','TOP '+n+' ลิงก์','TOP '+n+' รูป']),...[1,2,3,4,5].map(n=>'TOP '+n+' ยอดขาย'),'ประเภทรอบ','ยอดขายที่ชำระเงินแล้ว','ROI ชำระแล้ว (เท่า)',...CH.map(c=>'ยอดขายชำระแล้ว '+c.n),...TR.map(t=>'ยอดขายชำระแล้วที่มา '+t.n),'ยอดขายชำระแล้วจาก Shopee Ads',...[1,2,3,4,5].map(n=>'TOP '+n+' ยอดขายชำระแล้ว'),...[1,2,3,4,5].map(n=>'TOPชิ้น '+n+' จำนวนชำระแล้ว'),...[1,2,3,4,5].flatMap(n=>['TOPชิ้น '+n+' ชื่อ','TOPชิ้น '+n+' ลิงก์','TOPชิ้น '+n+' รูป','TOPชิ้น '+n+' จำนวน'])];
 $('exportCsv').addEventListener('click', async ()=>{
   const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
   const lines=[CSV_HEAD().map(q).join(',')];
   const sorted=[...records].sort((a,b)=>recStart(a).localeCompare(recStart(b)));
   for(const r of sorted){ const m=calc(r); const pr=r.sales-m.spend-(r.cogs||0)-(r.fees||0);
     lines.push([r.name,r.d1,r.d2,r.sales,...CH.map(c=>r.channels[c.k].spend),...CH.map(c=>r.channels[c.k].sales),m.shopee,m.off,m.spend,
-      isFinite(m.roi)?m.roi.toFixed(2):'',isFinite(m.acos)?m.acos.toFixed(2):'',r.cogs||'',r.fees||'',(r.cogs||r.fees)?pr.toFixed(2):'',r.target||'',r.id,r.createdAt||r.savedAt||'',...TR.map(t=>((r.traffic||{})[t.k])||''),r.adsSales||'',...[0,1,2,3,4].flatMap(i=>{ const x=(r.top5||[])[i]||{}; return [x.name||'',x.url||'',(x.img&&x.img.length<32000)?x.img:'']; }),...[0,1,2,3,4].map(i=>((r.top5||[])[i]||{}).sales||'')].map(q).join(',')); }
+      isFinite(m.roiC)?m.roiC.toFixed(2):'',isFinite(m.acosC)?m.acosC.toFixed(2):'',r.cogs||'',r.fees||'',(r.cogs||r.fees)?pr.toFixed(2):'',r.target||'',r.id,r.createdAt||r.savedAt||'',...TR.map(t=>((r.traffic||{})[t.k])||''),r.adsSales||'',...[0,1,2,3,4].flatMap(i=>{ const x=(r.top5||[])[i]||{}; return [x.name||'',x.url||'',(imgOf(x)&&imgOf(x).length<32000)?imgOf(x):'']; }),...[0,1,2,3,4].map(i=>((r.top5||[])[i]||{}).sales||''),PT[ptypeOf(r)],r.paid||'',isFinite(m.roiP)?m.roiP.toFixed(2):'',...CH.map(c=>{ const x=(r.channels||{})[c.k]||{}; return (c.g==='off'?x.sales:x.salesPaid)||''; }),...TR.map(t=>((r.trafficPaid||{})[t.k])||''),r.adsSalesPaid||'',...[0,1,2,3,4].map(i=>((r.top5||[])[i]||{}).salesPaid||''),...[0,1,2,3,4].map(i=>((r.top5u||[])[i]||{}).unitsPaid||''),...[0,1,2,3,4].flatMap(i=>{ const x=(r.top5u||[])[i]||{}; return [x.name||'',x.url||'',(imgOf(x)&&imgOf(x).length<32000)?imgOf(x):'',x.units||'']; })].map(q).join(',')); }
   const d=new Date(); const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const fname=`shopee-performance-backup-${stamp}.csv`, data='\uFEFF'+lines.join('\n');
   if(downloads){ try{ await downloads.save({filename:fname, data}); toast('ดาวน์โหลดไฟล์สำรองแล้ว'); }catch(e){ toast('ไม่ได้ดาวน์โหลดไฟล์'); } return; }
@@ -837,11 +1223,14 @@ $('importFile').addEventListener('change', async e=>{
   const get=(r,n)=>{ const i=col(n); return i>=0 ? r[i] : ''; };
   const incoming=[];
   for(const r of rows.slice(1)){
-    const channels={}; for(const c of CH) channels[c.k]={spend:pNum(get(r,'ค่าใช้จ่าย '+c.n)), sales:pNum(get(r,'ยอดขาย '+c.n))};
+    const channels={}; for(const c of CH) channels[c.k]={spend:pNum(get(r,'ค่าใช้จ่าย '+c.n)), sales:pNum(get(r,'ยอดขาย '+c.n)), salesPaid:pNum(get(r,'ยอดขายชำระแล้ว '+c.n))};
     const rec={name:String(get(r,'รอบ')).trim(), d1:pDate(get(r,'จาก')), d2:pDate(get(r,'ถึง')), sales:pNum(get(r,salesCol)),
       cogs:pNum(get(r,'ต้นทุนสินค้า')), fees:pNum(get(r,'ค่าธรรมเนียม')), target:pNum(get(r,'เป้า ROI')), channels,
-      traffic:Object.fromEntries(TR.map(t=>[t.k,pNum(get(r,'ยอดขายที่มา '+t.n))])), adsSales:pNum(get(r,'ยอดขายจากโฆษณา Shopee Ads')),
-      top5:[1,2,3,4,5].map(n=>{ const img=String(get(r,'TOP '+n+' รูป')||'').trim(); return {sales:pNum(get(r,'TOP '+n+' ยอดขาย')), name:String(get(r,'TOP '+n+' ชื่อ')||'').trim(), url:cleanUrl(get(r,'TOP '+n+' ลิงก์')), img:/^data:image\/(png|jpe?g|webp|gif);base64,/.test(img)?img:''}; })};
+      traffic:Object.fromEntries(TR.map(t=>[t.k,pNum(get(r,'ยอดขายที่มา '+t.n))])), adsSales:pNum(get(r,'ยอดขายจากโฆษณา Shopee Ads')), paid:pNum(get(r,'ยอดขายที่ชำระเงินแล้ว')),
+      trafficPaid:Object.fromEntries(TR.map(t=>[t.k,pNum(get(r,'ยอดขายชำระแล้วที่มา '+t.n))])), adsSalesPaid:pNum(get(r,'ยอดขายชำระแล้วจาก Shopee Ads')),
+      top5u:[1,2,3,4,5].map(n=>{ const img=String(get(r,'TOPชิ้น '+n+' รูป')||'').trim(); return {units:pNum(get(r,'TOPชิ้น '+n+' จำนวน')), unitsPaid:pNum(get(r,'TOPชิ้น '+n+' จำนวนชำระแล้ว')), name:String(get(r,'TOPชิ้น '+n+' ชื่อ')||'').trim(), url:cleanUrl(get(r,'TOPชิ้น '+n+' ลิงก์')), img:/^data:image\/(png|jpe?g|webp|gif);base64,/.test(img)?img:''}; }),
+      ptype:(Object.entries(PT).find(([k,v])=>v===String(get(r,'ประเภทรอบ')).trim()||k===String(get(r,'ประเภทรอบ')).trim())||[''])[0]||'',
+      top5:[1,2,3,4,5].map(n=>{ const img=String(get(r,'TOP '+n+' รูป')||'').trim(); return {sales:pNum(get(r,'TOP '+n+' ยอดขาย')), salesPaid:pNum(get(r,'TOP '+n+' ยอดขายชำระแล้ว')), name:String(get(r,'TOP '+n+' ชื่อ')||'').trim(), url:cleanUrl(get(r,'TOP '+n+' ลิงก์')), img:/^data:image\/(png|jpe?g|webp|gif);base64,/.test(img)?img:''}; })};
     if(!rec.sales && !CH.some(c=>channels[c.k].spend)) continue;
     let id=String(get(r,'รหัสรอบ')).trim();
     if(!id){ const same=records.find(x=>(x.name||'')===rec.name && (x.d1||'')===rec.d1 && (x.d2||'')===rec.d2); id = same ? same.id : ''; }
@@ -869,6 +1258,53 @@ $('importFile').addEventListener('change', async e=>{
 
 // ---------- overview ----------
 let selected = new Set(); let quick='all'; let selInit=false;
+const PT = {day:'รายวัน', week:'รายสัปดาห์', month:'รายเดือน', custom:'กำหนดเอง'};
+function dayCount(d1,d2){ if(!d1||!d2) return d1||d2?1:0; const a=new Date(d1+'T00:00:00'), b=new Date(d2+'T00:00:00'); return Math.round((b-a)/864e5)+1; }
+function guessType(d1,d2){ const n=dayCount(d1,d2); if(n===1) return 'day'; if(n>=6&&n<=8) return 'week'; if(n>=28&&n<=31) return 'month'; return 'custom'; }
+const ptypeOf = r => (r && PT[r.ptype]) ? r.ptype : guessType(r&&r.d1, r&&r.d2);
+let ptFilter = (()=>{ try{ return localStorage.getItem('shopee-roi-ptfilter')||''; }catch(e){ return ''; } })();
+let groupMode = (()=>{ try{ return localStorage.getItem('shopee-roi-group')||'none'; }catch(e){ return 'none'; } })();
+const inType = r => ptFilter==='all' || ptypeOf(r)===ptFilter;
+function pickDefaultType(){
+  if(ptFilter && (ptFilter==='all' || records.some(r=>ptypeOf(r)===ptFilter))) return;
+  const latest=[...records].sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0];
+  ptFilter = latest ? ptypeOf(latest) : 'week';
+}
+function renderTypeSeg(){
+  const cnt={day:0,week:0,month:0,custom:0}; for(const r of records) cnt[ptypeOf(r)]++;
+  const opts=['day','week','month'].concat(cnt.custom?['custom']:[]).concat(['all']);
+  $('typeSeg').innerHTML=opts.map(k=>`<button type="button" role="tab" data-t="${k}" aria-selected="${ptFilter===k}">${k==='all'?'ทุกประเภท':PT[k]}<span class="ct">${k==='all'?records.length:cnt[k]}</span></button>`).join('');
+  const g=$('groupSeg'); g.hidden = ptFilter!=='day';
+  g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.g===groupMode)));
+}
+$('typeSeg').addEventListener('click', e=>{ const b=e.target.closest('button[data-t]'); if(!b) return;
+  ptFilter=b.dataset.t; try{ localStorage.setItem('shopee-roi-ptfilter',ptFilter); }catch(err){}
+  applyQuick(quick==='manual'?'all':quick); });
+$('groupSeg').addEventListener('click', e=>{ const b=e.target.closest('button[data-g]'); if(!b) return;
+  groupMode=b.dataset.g; try{ localStorage.setItem('shopee-roi-group',groupMode); }catch(err){}
+  renderTypeSeg(); renderOverview(); });
+function weekStart(iso){ const d=new Date(iso+'T00:00:00'); const wd=(d.getDay()+6)%7; d.setDate(d.getDate()-wd); return d; }
+const isoD = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const ddmm = iso => iso ? iso.slice(8,10)+'/'+iso.slice(5,7) : '';
+const TH_M=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function groupDaily(list, mode){
+  const groups=new Map();
+  for(const r of list){ const day=recStart(r); if(!day) continue;
+    const key = mode==='week' ? isoD(weekStart(day)) : day.slice(0,7);
+    if(!groups.has(key)) groups.set(key,[]); groups.get(key).push(r); }
+  return [...groups.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([key,rs])=>{
+    const g=aggregate(rs); const days=rs.map(recStart).sort();
+    let name;
+    if(mode==='week'){ const ws=new Date(key+'T00:00:00'), we=new Date(ws); we.setDate(ws.getDate()+6); name=`${ddmm(key)}–${ddmm(isoD(we))}`; g.d1=key; g.d2=isoD(we); }
+    else { name=`${TH_M[+key.slice(5,7)-1]} ${+key.slice(0,4)+543}`; g.d1=days[0]; g.d2=days[days.length-1]; }
+    if(rs.every(x=>x._view)){ g._view=true; g._noPaid=rs.every(x=>x._noPaid); }
+    return Object.assign(g,{id:'g_'+key, name:`${name} (${rs.length} วัน)`, ptype:mode, _group:true, _lbl:name, _sub:`${rs.length} วัน`});
+  });
+}
+function hasOverlap(list){
+  const xs=list.filter(r=>r.d1||r.d2).map(r=>[r.d1||r.d2, r.d2||r.d1]).sort((a,b)=>a[0].localeCompare(b[0]));
+  for(let i=1;i<xs.length;i++) if(xs[i][0]<=xs[i-1][1]) return true; return false;
+}
 const recDate = r => r.d2 || r.d1 || (r.savedAt||'').slice(0,10);
 const recStart = r => r.d1 || r.d2 || (r.savedAt||'').slice(0,10);
 function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
@@ -880,7 +1316,7 @@ function quickRange(q){
   if(q==='custom') return [$('m1').value||'0000-00',$('m2').value||'9999-99'];
   return null;
 }
-function inQuick(r){ const rg=quickRange(quick); if(!rg) return true; const m=recDate(r).slice(0,7); return m>=rg[0] && m<=rg[1]; }
+function inQuick(r){ if(!inType(r)) return false; const rg=quickRange(quick); if(!rg) return true; const m=recDate(r).slice(0,7); return m>=rg[0] && m<=rg[1]; }
 function applyQuick(q){
   quick=q;
   document.querySelectorAll('#ovFilter .chip').forEach(c=>c.setAttribute('aria-pressed', c.dataset.q===q));
@@ -890,7 +1326,7 @@ function applyQuick(q){
 $('ovFilter').addEventListener('click', e=>{ const q=e.target.dataset && e.target.dataset.q; if(q){ $('m1').value=''; $('m2').value=''; applyQuick(q);} });
 ['m1','m2'].forEach(id=>$(id).addEventListener('change', ()=>applyQuick('custom')));
 $('history').addEventListener('change', e=>{
-  if(e.target.id==='selAll'){ selected = e.target.checked ? new Set(records.map(r=>r.id)) : new Set(); }
+  if(e.target.id==='selAll'){ const vis=records.filter(inType).map(r=>r.id); if(e.target.checked) vis.forEach(id=>selected.add(id)); else vis.forEach(id=>selected.delete(id)); }
   else if(e.target.dataset.sel){ e.target.checked ? selected.add(e.target.dataset.sel) : selected.delete(e.target.dataset.sel); }
   else return;
   quick='manual'; document.querySelectorAll('#ovFilter .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
@@ -898,13 +1334,15 @@ $('history').addEventListener('change', e=>{
 });
 
 function aggregate(list){
-  const agg={sales:0,cogs:0,fees:0,target:0,channels:{},traffic:Object.fromEntries(TR.map(t=>[t.k,0])),adsSales:0};
+  const agg={sales:0,paid:0,_paidSpend:0,_paidConf:0,_paidN:0,_n:0,cogs:0,fees:0,target:0,channels:{},traffic:Object.fromEntries(TR.map(t=>[t.k,0])),adsSales:0};
   for(const ch of CH) agg.channels[ch.k]={spend:0,sales:0};
   for(const r of list){
+    { const sp0=CH.reduce((a,c)=>a+(+((r.channels||{})[c.k]||{}).spend||0),0); agg._n=(agg._n||0)+1; if(+r.paid>0){ agg.paid=(agg.paid||0)+(+r.paid); agg._paidSpend=(agg._paidSpend||0)+sp0; agg._paidConf=(agg._paidConf||0)+(+r.sales||0); agg._paidN=(agg._paidN||0)+1; } }
     agg.sales+=+r.sales||0; agg.cogs+=+r.cogs||0; agg.fees+=+r.fees||0; agg.adsSales+=+r.adsSales||0;
     for(const t of TR) agg.traffic[t.k]+=+((r.traffic||{})[t.k])||0;
     for(const ch of CH){ const c=(r.channels||{})[ch.k]||{}; agg.channels[ch.k].spend+=+c.spend||0; agg.channels[ch.k].sales+=+c.sales||0; }
   }
+  if(list.length && list.every(x=>x._view)){ agg._view=true; agg._noPaid=list.every(x=>x._noPaid); agg.paid=0; agg._paidN=0; }
   const ts=list.map(r=>+r.target||0).filter(Boolean); if(ts.length) agg.target=ts[ts.length-1];
   return agg;
 }
@@ -912,12 +1350,12 @@ function aggregate(list){
 const fmtK = v => { const a=Math.abs(v); return (v<0?'-':'')+'฿'+(a>=1e6?(a/1e6).toFixed(a>=1e7?0:1)+'M':a>=1e3?(a/1e3).toFixed(a>=1e5?0:1)+'k':Math.round(a)); };
 
 function trendSvg(list, target){
-  const n=list.length; const gw=Math.max(84, 900/n);
+  const n=list.length; const gw=Math.max(n>14?50:84, 900/n); const dense=gw<72;
   const padL=58, padR=18, W=padL+padR+gw*n;
   const rTop=26, rH=96, gap=34, bTop=rTop+rH+gap, bH=190, bottom=40, H=bTop+bH+bottom;
   const data=list.map(r=>({r,m:calc(r)})); trendData=data;
-  const maxV=Math.max(1,...data.map(d=>Math.max(d.r.sales||0,d.m.spend)))*1.12;
-  const rois=data.map(d=>d.m.roi).filter(isFinite);
+  const maxV=Math.max(1,...data.map(d=>Math.max(d.m.S||0,d.m.secPaid?d.m.paid:0,d.m.spend)))*1.12;
+  const rois=data.map(d=>d.m.roi).concat(data.map(d=>d.m.secPaid?d.m.roiP:NaN)).filter(isFinite);
   const maxR=Math.max(1,target||0,...rois)*1.15;
   const y=v=>bTop+bH-(v/maxV)*bH, yr=v=>rTop+rH-(v/maxR)*rH;
   let g='';
@@ -929,29 +1367,38 @@ function trendSvg(list, target){
     g+=`<text x="${padL-6}" y="${ty+4}" text-anchor="end" font-size="11" style="fill:var(--warn)">เป้า ${fmtX(target)}</text>`; }
   const pts=[];
   data.forEach((d,i)=>{ if(isFinite(d.m.roi)) pts.push([padL+i*gw+gw/2, yr(d.m.roi), d.m.roi]); });
+  if(data.some(d=>d.m.secPaid)){
+    const pp=[]; data.forEach((d,i)=>{ if(d.m.secPaid && isFinite(d.m.roiP)) pp.push([padL+i*gw+gw/2, yr(d.m.roiP), d.m.roiP]); });
+    if(pp.length>1) g+=`<polyline points="${pp.map(p=>p[0]+','+p[1]).join(' ')}" fill="none" style="stroke:var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+    for(const p of pp){ g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" style="fill:var(--panel);stroke:var(--muted)" stroke-width="1.5"/>`;
+      if(!dense) g+=`<text x="${p[0]}" y="${p[1]+16}" text-anchor="middle" font-size="10.5" style="fill:var(--muted)">${fmtX(p[2])}</text>`; }
+  }
   if(pts.length>1) g+=`<polyline points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="none" style="stroke:var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>`;
   for(const p of pts){ const ok=!(target>0)||p[2]>=target;
     g+=`<circle cx="${p[0]}" cy="${p[1]}" r="6" style="fill:${ok?'var(--good)':'var(--bad)'};stroke:var(--panel)" stroke-width="2"/>`;
     g+=`<text x="${p[0]}" y="${p[1]-12}" text-anchor="middle" font-size="14" font-weight="700" style="fill:var(--ink)">${fmtX(p[2])}</text>`; }
   // money panel
-  g+=`<text x="4" y="${bTop-12}" font-size="12" font-weight="600" style="fill:var(--ink)">ยอดขายที่ยืนยันแล้ว เทียบค่าโฆษณา</text>`;
+  g+=`<text x="4" y="${bTop-12}" font-size="12" font-weight="600" style="fill:var(--ink)">${(data[0]&&data[0].m.SL)||'ยอดขาย'} เทียบค่าโฆษณา</text>`;
   for(let i=0;i<=4;i++){ const v=maxV/1.12*i/4, yy=y(v);
     g+=`<line x1="${padL}" x2="${W-padR}" y1="${yy}" y2="${yy}" style="stroke:var(--line)" ${i?'stroke-dasharray="2 4"':''}/>`;
     g+=`<text x="${padL-8}" y="${yy+4}" text-anchor="end" font-size="11" style="fill:var(--muted)">${fmtK(v)}</text>`; }
   data.forEach((d,i)=>{
     g+=`<rect class="hcol" data-col="${i}" x="${padL+i*gw+2}" y="${rTop-18}" width="${gw-4}" height="${bTop+bH-rTop+22}" rx="8"/>`;
     const cx=padL+i*gw+gw/2, bw=Math.min(40,(gw-20)/2);
-    const sv=d.r.sales||0, sy=y(sv);
-    g+=`<rect x="${cx-bw-3}" y="${sy}" width="${bw}" height="${bTop+bH-sy}" rx="3" style="fill:var(--good)"><title>ยอดขาย ${fmtB(sv)}</title></rect>`;
-    g+=`<text x="${cx-bw/2-3}" y="${sy-6}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--good)">${fmtK(sv)}</text>`;
+    const sv=d.m.S||0, sy=y(sv);
+    g+=`<rect x="${cx-bw-3}" y="${sy}" width="${bw}" height="${bTop+bH-sy}" rx="3" style="fill:var(--good)"><title>${d.m.SL} ${fmtB(sv)}</title></rect>`;
+    if(d.m.secPaid && d.m.paid>0){ const py=y(d.m.paid); g+=`<rect x="${cx-bw-3+bw*0.22}" y="${py}" width="${bw*0.56}" height="${bTop+bH-py}" rx="2" style="fill:var(--panel)" opacity=".45"></rect>`; }
+    if(!dense) g+=`<text x="${cx-bw/2-3}" y="${sy-6}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--good)">${fmtK(sv)}</text>`;
     const hs=(d.m.shopee/maxV)*bH, ho=(d.m.off/maxV)*bH, ax=cx+3;
     g+=`<rect x="${ax}" y="${bTop+bH-hs}" width="${bw}" height="${hs}" style="fill:var(--shopee)"><title>Shopee Ads ${fmtB(d.m.shopee)}</title></rect>`;
     g+=`<rect x="${ax}" y="${bTop+bH-hs-ho}" width="${bw}" height="${ho}" style="fill:var(--off)"><title>CPAS ${fmtB(d.m.off)}</title></rect>`;
-    g+=`<text x="${ax+bw/2}" y="${bTop+bH-hs-ho-6}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--shopee)">${fmtK(d.m.spend)}</text>`;
-    const lbl=String(d.r.name||recStart(d.r)||''); const short=lbl.length>14?lbl.slice(0,13)+'…':lbl;
+    if(!dense) g+=`<text x="${ax+bw/2}" y="${bTop+bH-hs-ho-6}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--shopee)">${fmtK(d.m.spend)}</text>`;
+    const lbl=String(d.r.name||recStart(d.r)||''); const isDay=ptypeOf(d.r)==='day' && !d.r._group;
+    const short = d.r._group ? d.r._lbl : isDay ? ddmm(recStart(d.r)) : dense ? (lbl.length>7?lbl.slice(0,6)+'…':lbl) : (lbl.length>14?lbl.slice(0,13)+'…':lbl);
     g+=`<text x="${cx}" y="${bTop+bH+18}" text-anchor="middle" font-size="12" style="fill:var(--ink)">${esc(short)}<title>${esc(lbl)}</title></text>`;
     const dt=[d.r.d1,d.r.d2].filter(Boolean).map(x=>x.slice(5).split('-').reverse().join('/')).join('–');
-    if(dt && d.r.name) g+=`<text x="${cx}" y="${bTop+bH+33}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${esc(dt)}</text>`;
+    if(d.r._group) g+=`<text x="${cx}" y="${bTop+bH+33}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${esc(d.r._sub)}</text>`;
+    else if(dt && d.r.name && !dense && !isDay) g+=`<text x="${cx}" y="${bTop+bH+33}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${esc(dt)}</text>`;
   });
   data.forEach((d,i)=>{ g+=`<rect class="hhit" data-hit="${i}" tabindex="0" aria-label="รายละเอียด ${esc(d.r.name||recStart(d.r))}" x="${padL+i*gw}" y="0" width="${gw}" height="${H}"/>`; });
   return `<svg viewBox="0 0 ${W} ${H}" style="min-width:${Math.max(560,n*78)}px" role="img" aria-label="กราฟ ROI ยอดขาย และค่าโฆษณาแต่ละรอบ">${g}</svg>`;
@@ -962,7 +1409,7 @@ function trafficSection(agg, list){
   if(!tsum && !agg.adsSales) return `<div class="tr-wrap"><div class="empty" style="grid-column:1/-1">ยังไม่มียอดขายแบ่งตามที่มาการเข้าชม กรอกในฟอร์มใต้ “ยอดขายที่ยืนยันแล้ว” แล้วบันทึกรอบ</div></div>`;
   // compare with the previous saved round when a single round is selected
   let prev=null;
-  if(list.length===1){ const cur=recStart(list[0]); prev=records.filter(x=>x.id!==list[0].id && recStart(x)<cur).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0]||null; }
+  if(list.length===1){ const cur=recStart(list[0]); prev=records.filter(x=>x.id!==list[0].id && recStart(x)<cur && ptypeOf(x)===ptypeOf(list[0])).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0]||null; if(prev) prev=V(prev); }
   const chg=(now,before)=>{ if(!prev || !before || !now) return ''; const d=(now-before)/before*100; if(!isFinite(d)) return '';
     return `<div class="chg ${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${fmtP(Math.abs(d))} <span class="muted" style="font-weight:400">เทียบรอบก่อน</span></div>`; };
   const pct=v=>agg.sales>0?fmtP(v/agg.sales*100):'–';
@@ -978,35 +1425,72 @@ function trafficSection(agg, list){
   return `<div class="tr-wrap"><div class="tr-box"><h4>ยอดขายแบ่งตามที่มาการเข้าชม</h4><div class="tr-row">${row}</div><div class="tr-bar">${bar}</div></div>${ads}</div>`;
 }
 
-function top5Section(list){
-  const src=[...list].reverse().find(hasTop5); top5TipData=src||null; if(!src) return '';
-  const lbl=src.name||[src.d1,src.d2].filter(Boolean).join(' – ')||recStart(src);
-  const cards=src.top5.map((x,i)=>{
-    if(!x||!(x.url||x.name||x.img||x.sales)) return `<div class="t5" style="opacity:.5"><span class="rk">${i+1}</span><div class="ph">–</div><div class="bd"><div class="nm muted">ยังไม่ได้ระบุ</div></div></div>`;
-    const url=cleanUrl(x.url); const nm=x.name||nameFromUrl(x.url)||'สินค้าอันดับ '+(i+1);
-    const ph = x.img ? `<img src="${esc(x.img)}" alt="">` : esc((nm.trim()[0]||'?').toUpperCase());
-    const tag = url ? 'a' : 'div';
-    return `<${tag} class="t5" data-t5="${i}" ${url?`href="${esc(url)}" target="_blank" rel="noopener noreferrer"`:'tabindex="0"'}><span class="rk">${i+1}</span><div class="ph">${ph}</div>
-      <div class="bd"><div class="nm">${esc(nm)}</div>${x.sales?`<div class="sl num">${fmtB0(x.sales)}</div>`:''}<div class="go ${url?'':'none'}">${url?'ดูสินค้าบน Shopee ↗':'ไม่มีลิงก์'}</div></div></${tag}>`;
-  }).join('');
-  return `<div class="card ov-card"><div class="card-h"><h3>TOP 5 สินค้าขายดี</h3><span class="muted small">รอบ ${esc(lbl)}${list.length>1?' (รอบล่าสุดที่เลือกซึ่งมีข้อมูล)':''}</span></div><div class="t5grid">${cards}</div></div>`;
+const topTip = {};
+// combine TOP 5 lists of several rounds: add up each product's numbers, then rank again
+function combineTop(rounds){
+  const out={_agg:true, _n:rounds.length, _rounds:rounds, id:'agg', name:`รวม ${rounds.length} รอบ`, sales:rounds.reduce((a,r)=>a+(+r.sales||0),0), _all:{}};
+  for(const key of ['top5','top5u']){
+    const F=TOPS[key].field, M=new Map();
+    rounds.forEach((r,ri)=>{ (r[key]||[]).forEach((x,i)=>{
+      if(!x||!(x.url||x.name)) return; const k=prodKey(x); if(!k) return;
+      const cur=M.get(k)||{url:'',name:'',img:'',[F]:0,_cnt:0,_best:99,_t:'',_in:[],_noval:[],_ranks:{}};
+      const t=recStart(r);
+      if(t>=cur._t){ cur.url=x.url||cur.url; cur.name=x.name||cur.name; cur._t=t; }
+      cur.img=cur.img||imgOf(x); cur[F]+= +x[F]||0; cur._cnt++; cur._best=Math.min(cur._best,i+1);
+      if(+x[F]>0) cur._in.push(ri); else cur._noval.push(ri);
+      cur._ranks[ri]={rank:i+1, v:+x[F]||0};
+      M.set(k,cur); }); });
+    const all=[...M.values()].sort((a,b)=>(b[F]-a[F]) || (a._best-b._best) || (b._cnt-a._cnt));
+    out._all[key]=all; out[key]=all.slice(0,5);
+  }
+  return out;
 }
+// rank TOP 5 by the numbers of the basis being shown (confirmed or paid)
+function sortTopList(L,F){
+  return (L||[]).map((x,i)=>({x,i})).sort((a,b)=>{ const va=+((a.x||{})[F])||0, vb=+((b.x||{})[F])||0;
+    if((va>0)!==(vb>0)) return va>0?-1:1; return (vb-va) || (a.i-b.i); }).map(o=>o.x);
+}
+const sortTopRec = r => r ? {...r, top5:sortTopList(r.top5,'sales'), top5u:sortTopList(r.top5u,'units')} : r;
+function topSection(key, list){
+  const T=TOPS[key], F=T.field, units=F==='units';
+  const withData=list.filter(r=>hasTopList(r,key));
+  let src = withData.length>1 ? combineTop(withData) : sortTopRec(withData[0]);
+  topTip[key]=src||null; if(!src) return '';
+  const lbl = src._agg ? `รวม ${src._n} รอบ · ${ddmm(recStart(withData[0]))}–${ddmm(recDate(withData[withData.length-1]))}` : 'รอบ '+(src.name||[src.d1,src.d2].filter(Boolean).join(' – ')||recStart(src));
+  const cards=src[key].map((x,i)=>{
+    if(!x||!(x.url||x.name||imgOf(x)||x[F])) return `<div class="t5" style="opacity:.5"><span class="rk">${i+1}</span><div class="ph">–</div><div class="bd"><div class="nm muted">ยังไม่ได้ระบุ</div></div></div>`;
+    const url=cleanUrl(x.url); const nm=x.name||nameFromUrl(x.url)||'สินค้าอันดับ '+(i+1);
+    const ph = imgOf(x) ? `<img src="${esc(imgOf(x))}" alt="">` : esc((nm.trim()[0]||'?').toUpperCase());
+    const tag = url ? 'a' : 'div';
+    const v = x[F] ? `<div class="sl num ${units?'u':''}">${units?fmtU(x[F]):fmtB0(x[F])}</div>` : '';
+    const part = src._agg && x._in && x._in.length<src._n ? `<span class="part" title="มีข้อมูล ${x._in.length} จาก ${src._n} รอบ">⚠ ${x._in.length}/${src._n} รอบ</span>` : '';
+    return `<${tag} class="t5" data-t5="${key}:${i}" ${url?`href="${esc(url)}" target="_blank" rel="noopener noreferrer"`:'tabindex="0"'}><span class="rk">${i+1}</span>${part}<div class="ph">${ph}</div>
+      <div class="bd"><div class="nm">${esc(nm)}</div>${v}<div class="go ${url?'':'none'}">${url?'ดูสินค้าบน Shopee ↗':'ไม่มีลิงก์'}</div></div></${tag}>`;
+  }).join('');
+  return `<div class="card ov-card"><div class="card-h"><h3>${T.title}</h3><span class="muted small">${esc(lbl)} · ${isPaidB()?'<b style="color:var(--off)">ชำระเงินแล้ว</b>':'ยืนยันแล้ว'}${src._agg?' · จัดอันดับจากยอดรวมทุกรอบที่เลือก':''}${isPaidB() && !src[key].some(x=>x&&+x[F]>0)?' · <span style="color:var(--warn)">ยังไม่ได้กรอกตัวเลขชุดชำระแล้ว</span>':''}</span></div><div class="t5grid">${cards}</div></div>`;
+}
+const top5Section = list => topSection('top5', list);
 
 function renderOverview(){
   const body=$('ovBody');
-  const list=records.filter(r=>selected.has(r.id)).sort((a,b)=>recStart(a).localeCompare(recStart(b)));
-  $('ovCount').textContent = records.length ? `รวม ${list.length} จาก ${records.length} รอบ` : '';
+  const list=records.filter(r=>selected.has(r.id) && inType(r)).sort((a,b)=>recStart(a).localeCompare(recStart(b))).map(V);
+  const nType=records.filter(inType).length;
+  $('ovCount').textContent = records.length ? `รวม ${list.length} จาก ${nType} รอบ${ptFilter==='all'?'':PT[ptFilter]}` : '';
   if(!records.length){ body.innerHTML='<div class="empty">ยังไม่มีข้อมูล กรอกตัวเลขด้านล่างแล้วกด “บันทึกรอบนี้” กราฟภาพรวมจะแสดงที่นี่</div>'; return; }
-  if(!list.length){ body.innerHTML='<div class="empty">ไม่มีรอบในช่วงที่เลือก ลองเลือก “ทุกรอบ” หรือติ๊กรอบในตารางประวัติ</div>'; return; }
-  const agg=aggregate(list), m=calc(agg);
+  if(!list.length){ body.innerHTML=`<div class="empty">${nType?'ไม่มีรอบในช่วงที่เลือก ลองเลือก “ทุกรอบ” หรือติ๊กรอบในตารางประวัติ':'ยังไม่มีข้อมูล'+(PT[ptFilter]||'')+' เลือกประเภทอื่นด้านบน หรือบันทึกรอบใหม่'}</div>`; return; }
+  const chartList = (ptFilter==='day' && groupMode!=='none') ? groupDaily(list, groupMode) : list;
+  const kList = isPaidB() ? list.filter(r=>!r._noPaid) : list;
+  const cov = isPaidB() && kList.length<list.length ? [kList.length, list.length] : null;
+  const agg=aggregate(kList.length?kList:list), m=calc(agg);
   const first=recStart(list[0]), last=recDate(list[list.length-1]);
-  const best=list.map(r=>({r,roi:calc(r).roi})).filter(x=>isFinite(x.roi)).sort((a,b)=>b.roi-a.roi);
-  const pv = m.hasCost ? m.profit : agg.sales-m.spend;
+  const best=chartList.map(r=>({r,roi:calc(r).roi})).filter(x=>isFinite(x.roi)).sort((a,b)=>b.roi-a.roi);
+  const pv = m.hasCost ? m.profit : m.S-m.spend;
   const target = agg.target || (isFinite(m.breakEven)?m.breakEven:0);
   const adSales = CH.reduce((t,c)=>t+agg.channels[c.k].sales,0);
-  let h=`<dl class="ov-kpis">
-    <div class="k main"><dt>ROI รวม</dt><dd class="num">${isFinite(m.roi)?fmtX(m.roi):'–'} <span style="font-size:.5em;font-weight:500">เท่า</span></dd></div>
-    <div class="k"><dt>ยอดขายที่ยืนยันแล้วรวม</dt><dd class="num">${fmtB0(agg.sales)}</dd>${adSales?`<p class="ksub num">จากแอด ${fmtB0(adSales)}</p>`:''}</div>
+  let h = (ptFilter==='all' && hasOverlap(list)) ? `<div class="warnbox">⚠️ กำลังรวมรอบต่างประเภทที่มีช่วงวันที่ทับกัน (เช่น รายวันซ้อนอยู่ในรายสัปดาห์) ตัวเลขรวมอาจนับซ้ำ เลือกประเภทเดียวด้านบนเพื่อเปรียบเทียบแบบเดียวกัน</div>` : '';
+  h+=`<dl class="ov-kpis">
+    <div class="k main"><dt>ROI รวม${m.usePaid?' (ชำระแล้ว)':''}</dt><dd class="num">${isFinite(m.roi)?fmtX(m.roi):'–'} <span style="font-size:.5em;font-weight:500">เท่า</span></dd>${m.secPaid&&m.paid>0?`<p class="ksub num">ชำระแล้ว ${fmtX(m.roiP)} เท่า</p>`:''}${cov?`<p class="ksub">มีข้อมูลชำระแล้ว ${cov[0]}/${cov[1]} รอบ</p>`:''}</div>
+    <div class="k"><dt>${m.SL}รวม</dt><dd class="num">${fmtB0(m.S)}</dd>${m.secPaid&&m.paid>0?`<p class="ksub num">ชำระแล้ว ${fmtB0(m.paid)} · ${fmtP(m.payRate)}${m.paidCov&&m.paidCov[0]<m.paidCov[1]?` (${m.paidCov[0]}/${m.paidCov[1]} รอบ)`:''}</p>`:''}${adSales&&!m.usePaid?`<p class="ksub num">จากแอด ${fmtB0(adSales)}</p>`:''}</div>
     <div class="k"><dt>ค่าโฆษณารวม</dt><dd class="num">${fmtB0(m.spend)}</dd><p class="ksub num">Shopee ${fmtB0(m.shopee)} · CPAS ${fmtB0(m.off)}</p></div>
     <div class="k"><dt>ACOS</dt><dd class="num">${fmtP(m.acos)}</dd><p class="ksub">ค่าแอดต่อยอดขาย</p></div>
     <div class="k"><dt>${m.hasCost?'กำไรสุทธิรวม':'ยอดขายหลังหักค่าแอด'}</dt><dd class="num" style="color:${pv>=0?'var(--good)':'var(--bad)'}">${fmtB0(pv)}</dd></div>
@@ -1017,14 +1501,15 @@ function renderOverview(){
   // trend
   h+=`<div class="card ov-card"><div class="card-h"><h3>แนวโน้มแต่ละรอบ</h3>
       <div class="lg">
-        <span><i style="background:var(--good)"></i>ยอดขายที่ยืนยันแล้ว</span>
+        <span><i style="background:var(--good)"></i>${m.SL}</span>${m.secPaid?`<span><i style="background:var(--good);opacity:.45"></i>ชำระแล้ว</span><span><i class="dash" style="border-color:var(--muted)"></i>ROI ชำระแล้ว</span>`:''}
         <span><i style="background:var(--shopee)"></i>Shopee Ads</span>
         <span><i style="background:var(--off)"></i>CPAS</span>
         ${target>0?`<span><i class="dash"></i>${agg.target?'เป้า ROI':'ROI จุดคุ้มทุน'}</span>`:''}
       </div></div>
-      <div class="chartwrap">${trendSvg(list, target)}</div></div>`;
+      <div class="chartwrap">${trendSvg(chartList, target)}</div></div>`;
 
   if(SHOW_TOP5) h+=top5Section(list);
+  if(SHOW_TOP5U) h+=topSection('top5u', list);
   // channels
   const pill = roi => { if(!isFinite(roi)) return `<span class="pill">ROAS –</span>`;
     const cls = target>0 ? (roi>=target?'good':'bad') : ''; return `<span class="pill ${cls} num">ROAS ${fmtX(roi)}</span>`; };
@@ -1064,7 +1549,9 @@ function tipHtml(d){
   const line=(c)=>{ const x=r.channels[c.k]; return `<div class="r ind"><span><i style="background:${c.c}"></i>${c.n}</span><span>${fmtB(x.spend)}${x.sales?` / ${fmtB(x.sales)}`:''}</span></div>`; };
   let h=`<h5>${esc(r.name||recStart(r)||'รอบนี้')}</h5><div class="dt">${esc(dt||'ไม่ระบุวันที่')}</div>
     <div class="big"><div><small>ROI</small><b>${isFinite(m.roi)?fmtX(m.roi)+' เท่า':'–'}</b></div><div><small>ACOS</small><b>${fmtP(m.acos)}</b></div></div>
-    <hr><div class="r"><span>ยอดขายที่ยืนยันแล้ว</span><span style="color:var(--good);font-weight:700">${fmtB(r.sales)}</span></div>
+    <hr><div class="r"><span>${m.SL}</span><span style="color:var(--good);font-weight:700">${fmtB(m.S)}</span></div>
+    ${m.secPaid&&m.paid>0?`<div class="r ind"><span>ชำระแล้ว · อัตราชำระ ${fmtP(m.payRate)}</span><span>${fmtB(m.paid)}</span></div><div class="r ind"><span>ROI ชำระแล้ว</span><span>${fmtX(m.roiP)} เท่า</span></div>`:''}
+    ${m.usePaid&&m.conf>0?`<div class="r ind"><span>ยอดขายที่ยืนยันแล้ว</span><span>${fmtB(m.conf)}</span></div>`:''}
     ${adSales?`<div class="r ind"><span>ยอดขายจากแอด</span><span>${fmtB(adSales)}</span></div>`:''}
     <div class="r"><span>ค่าแอดรวม</span><span style="font-weight:700">${fmtB(m.spend)}</span></div>
     <div class="muted" style="font-size:.72rem;text-align:right">ค่าแอด / ยอดขายจากแอด</div>
@@ -1102,25 +1589,56 @@ function trkHtml(k){
   h+=TR.map(x=>`<div class="r ind" style="${x.k===k?'color:var(--ink);font-weight:600':''}"><span><i style="background:${x.c}"></i>${x.n}</span><span>${fmtB0(agg.traffic[x.k])} · ${pc(agg.traffic[x.k])}</span></div>`).join('');
   return h;
 }
-let top5TipData=null;
-function t5Html(i){
-  const r=top5TipData; if(!r) return ''; const x=(r.top5||[])[i]; if(!x) return '';
+const sameItem = (a,b) => a && b && ((a.url && a.url===b.url) || (a.name && a.name===b.name));
+function t5Html(ref){
+  const [key, si]=String(ref).split(':'); const i=+si; const T=TOPS[key]; if(!T) return '';
+  const F=T.field, units=F==='units', fv=v=>units?fmtU(v):fmtB(v);
+  const r=topTip[key]; if(!r) return ''; const L=r[key]||[]; const x=L[i]; if(!x) return '';
   const nm=x.name||nameFromUrl(x.url)||'สินค้าอันดับ '+(i+1);
-  const all=(r.top5||[]).reduce((a,y)=>a+(+((y||{}).sales)||0),0);
-  const pcShop = r.sales>0 && x.sales ? fmtP(x.sales/r.sales*100) : '–';
-  const pcTop = all>0 && x.sales ? fmtP(x.sales/all*100) : '–';
-  let h=`<div style="display:flex;gap:10px;align-items:flex-start">${x.img?`<img src="${esc(x.img)}" alt="" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex:none">`:''}
-    <div style="min-width:0"><div class="dt" style="margin:0">อันดับ ${i+1} · ${esc(r.name||recStart(r))}</div><h5 style="line-height:1.35">${esc(nm)}</h5></div></div><hr>`;
-  if(x.sales){
-    h+=`<div class="big"><div><small>ยอดขาย</small><b class="num">${fmtB(x.sales)}</b></div><div><small>% ของยอดขายร้าน</small><b class="num">${pcShop}</b></div></div>
-      <div class="r" style="margin-top:8px"><span>สัดส่วนใน TOP 5</span><span>${pcTop}</span></div>
-      <div class="r"><span>ยอดขายรวม TOP 5</span><span>${fmtB(all)}</span></div>`;
-    // same product in the previous saved round
-    const prev=records.filter(y=>y.id!==r.id && recStart(y)<recStart(r) && hasTop5(y)).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0];
-    const key=x.url||x.name; const px=prev && (prev.top5||[]).find(y=>y&&key&&(y.url===x.url&&x.url || y.name===x.name&&x.name));
-    if(px && px.sales){ const d=(x.sales-px.sales)/px.sales*100; const pr=(prev.top5||[]).indexOf(px)+1;
+  const all=L.reduce((a,y)=>a+(+((y||{})[F])||0),0);
+  const pcTop = all>0 && x[F] ? fmtP(x[F]/all*100) : '–';
+  let h=`<div style="display:flex;gap:10px;align-items:flex-start">${imgOf(x)?`<img src="${esc(imgOf(x))}" alt="" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex:none">`:''}
+    <div style="min-width:0"><div class="dt" style="margin:0">${T.short} · อันดับ ${i+1} · ${esc(r._agg?r.name:(r.name||recStart(r)))}</div><h5 style="line-height:1.35">${esc(nm)}</h5></div></div><hr>`;
+  if(x[F]){
+    const second = units
+      ? `<div><small>สัดส่วนใน TOP 5</small><b class="num">${pcTop}</b></div>`
+      : `<div><small>% ของยอดขายร้าน</small><b class="num">${r.sales>0?fmtP(x[F]/r.sales*100):'–'}</b></div>`;
+    h+=`<div class="big"><div><small>${units?'จำนวนที่ขายได้':'ยอดขาย'}</small><b class="num">${fv(x[F])}</b></div>${second}</div>`;
+    if(!units) h+=`<div class="r" style="margin-top:8px"><span>สัดส่วนใน TOP 5</span><span>${pcTop}</span></div>`;
+    h+=`<div class="r" ${units?'style="margin-top:8px"':''}><span>${units?'จำนวนรวม TOP 5':'ยอดขายรวม TOP 5'}</span><span>${fv(all)}</span></div>`;
+    // cross-reference the other list in the same round
+    const otherKey = units ? 'top5' : 'top5u', OF=TOPS[otherKey].field;
+    const OL=(r._all&&r._all[otherKey])||r[otherKey]||[];
+    const ox=OL.find(y=>sameItem(y,x));
+    if(ox && ox[OF]){
+      const oi=OL.indexOf(ox)+1;
+      const salesV = units ? ox.sales : x.sales, unitsV = units ? x.units : ox.units;
+      h+=`<hr><div class="r"><span>${units?'ยอดขาย':'จำนวนที่ขายได้'} (${oi<=5?`อันดับ ${oi} ใน ${TOPS[otherKey].short}`:`จาก${TOPS[otherKey].short}`})</span><span>${units?fmtB(ox[OF]):fmtU(ox[OF])}</span></div>`;
+      if(salesV && unitsV) h+=`<div class="r"><span>ราคาเฉลี่ยต่อชิ้น</span><span>${fmtB(salesV/unitsV)}</span></div>`;
+    }
+    if(r._agg){
+      const lab = rr => ptypeOf(rr)==='day' ? ddmm(recStart(rr)) : (rr.name || [ddmm(rr.d1),ddmm(rr.d2)].filter(Boolean).join('–') || recStart(rr));
+      const list = (ids, max=8) => { const L=ids.map(ri=>lab(r._rounds[ri])); return esc(L.slice(0,max).join(', ')) + (L.length>max?` และอีก ${L.length-max} รอบ`:''); };
+      h+=`<div class="r" style="margin-top:4px"><span>อันดับรวม ${r._n} รอบ</span><span style="font-weight:700">อันดับ ${i+1}</span></div>
+        <div class="muted" style="font-size:.72rem;margin:2px 0 4px">จัดจาก${units?'จำนวนชิ้น':'ยอดขาย'}รวมทุกรอบ จึงอาจต่างจากอันดับในแต่ละรอบ</div>
+        <div class="r hd" style="margin-top:4px"><span>อันดับในแต่ละรอบ</span><span>${units?'จำนวน':'ยอดขาย'}</span></div>`;
+      const shown=r._rounds.map((rr,ri)=>({rr,ri})).slice(-10);
+      for(const {rr,ri} of shown){ const k=x._ranks[ri];
+        h+=`<div class="r ind"><span>${esc(lab(rr))}</span><span>${k?`อันดับ ${k.rank} · ${k.v?fv(k.v):'ไม่ได้กรอก'}`:'<span style="color:var(--warn)">ไม่ติด TOP 5</span>'}</span></div>`; }
+      if(r._rounds.length>10) h+=`<div class="muted" style="font-size:.72rem">แสดง 10 รอบล่าสุดจาก ${r._rounds.length} รอบ</div>`;
+      const miss = r._rounds.map((_,ri)=>ri).filter(ri=>!x._in.includes(ri) && !x._noval.includes(ri));
+      if(miss.length || x._noval.length){
+        h+=`<div class="remark"><b>⚠️ ข้อมูลไม่ครบ ${miss.length+x._noval.length} จาก ${r._n} รอบ</b>`;
+        if(miss.length) h+=`<div>ไม่ติด ${T.short}: ${list(miss)}</div>`;
+        if(x._noval.length) h+=`<div>ติดอันดับแต่ไม่ได้กรอก${units?'จำนวนชิ้น':'ยอดขาย'}: ${list(x._noval)}</div>`;
+        h+=`<div class="muted">รอบเหล่านี้นับเป็น 0 ${units?'จำนวนรวม':'ยอดรวม'}จึงอาจต่ำกว่าจริง</div></div>`;
+      } else h+=`<div class="remark ok">✓ มีข้อมูลครบทุกรอบที่เลือก</div>`;
+    }
+    let prev=r._agg?null:records.filter(y=>y.id!==r.id && recStart(y)<recStart(r) && hasTopList(y,key) && ptypeOf(y)===ptypeOf(r)).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0]; if(prev) prev=sortTopRec(V(prev));
+    const px=prev && (prev[key]||[]).find(y=>sameItem(y,x));
+    if(px && px[F]){ const d=(x[F]-px[F])/px[F]*100; const pr=(prev[key]||[]).indexOf(px)+1;
       h+=`<div class="r" style="margin-top:4px"><span>เทียบรอบก่อน (อันดับ ${pr})</span><span style="color:${d>=0?'var(--good)':'var(--bad)'};font-weight:600">${d>=0?'▲':'▼'} ${fmtP(Math.abs(d))}</span></div>`; }
-  } else h+=`<div class="muted">ยังไม่ได้กรอกยอดขาย</div>`;
+  } else h+=`<div class="muted">ยังไม่ได้กรอก${units?'จำนวนชิ้น':'ยอดขาย'}</div>`;
   if(cleanUrl(x.url)) h+=`<div class="muted" style="font-size:.74rem;margin-top:8px">กดเพื่อเปิดหน้าสินค้าบน Shopee</div>`;
   return h;
 }
@@ -1152,13 +1670,51 @@ function showTip(i, x, y){
   t.style.left=left+'px'; t.style.top=top+'px';
 }
 function hideTip(){ $('tip').hidden=true; document.querySelectorAll('#ovBody .seg.on').forEach(e=>e.classList.remove('on')); document.querySelectorAll('#ovBody .hcol.on').forEach(el=>el.classList.remove('on')); }
-$('ovBody').addEventListener('pointermove', e=>{ const c=e.target.closest; if(!c){hideTip();return;} const h=e.target.closest('[data-hit]'); if(h) return showTip(+h.dataset.hit, e.clientX, e.clientY); const k=e.target.closest('[data-trk]'); if(k) return showTrk(k.dataset.trk, e.clientX, e.clientY, k); const q=e.target.closest('[data-t5]'); if(q) return showT5(+q.dataset.t5, e.clientX, e.clientY); hideTip(); });
+$('ovBody').addEventListener('pointermove', e=>{ const c=e.target.closest; if(!c){hideTip();return;} const h=e.target.closest('[data-hit]'); if(h) return showTip(+h.dataset.hit, e.clientX, e.clientY); const k=e.target.closest('[data-trk]'); if(k) return showTrk(k.dataset.trk, e.clientX, e.clientY, k); const q=e.target.closest('[data-t5]'); if(q) return showT5(q.dataset.t5, e.clientX, e.clientY); hideTip(); });
 $('ovBody').addEventListener('pointerdown', e=>{ if(!e.target.closest) return; const h=e.target.closest('[data-hit]'); if(h) return showTip(+h.dataset.hit, e.clientX, e.clientY); const k=e.target.closest('[data-trk]'); if(k) showTrk(k.dataset.trk, e.clientX, e.clientY, k); });
 $('ovBody').addEventListener('pointerleave', hideTip);
-$('ovBody').addEventListener('focusin', e=>{ const q=e.target.closest&&e.target.closest('[data-t5]'); if(q){ const b=q.getBoundingClientRect(); return showT5(+q.dataset.t5, b.right-20, b.top+20); } const h=e.target.dataset && e.target.dataset.hit; if(h!==undefined){ const b=e.target.getBoundingClientRect(); showTip(+h, b.right-10, b.top+40); } });
+$('ovBody').addEventListener('focusin', e=>{ const q=e.target.closest&&e.target.closest('[data-t5]'); if(q){ const b=q.getBoundingClientRect(); return showT5(q.dataset.t5, b.right-20, b.top+20); } const h=e.target.dataset && e.target.dataset.hit; if(h!==undefined){ const b=e.target.getBoundingClientRect(); showTip(+h, b.right-10, b.top+40); } });
 $('ovBody').addEventListener('focusout', hideTip);
 document.addEventListener('pointerdown', e=>{ if(!(e.target.closest && e.target.closest('[data-hit],[data-trk]'))) hideTip(); });
 addEventListener('scroll', hideTip, {passive:true});
+
+// ---------- live results follow what is being typed ----------
+let focusKey=null;
+function focusTarget(id){
+  if(!id) return null;
+  let m=id.match(/^[sr]_(\w+)$/); if(m && CH.some(c=>c.k===m[1])) return {type:'ch', k:m[1]};
+  if(id==='sales'||id.startsWith('t_')||id==='adsSales') return {type:'kpi', el:'kSales'};
+  if(id==='cogs'||id==='fees') return {type:'kpi', el:'kProfit'};
+  if(id==='target') return {type:'kpi', el:'verdict'};
+  return null;
+}
+function liveHighlight(){
+  document.querySelectorAll('#livePanel .hl').forEach(e=>e.classList.remove('hl'));
+  const t=focusKey; if(!t) return;
+  let el=null;
+  if(t.type==='ch') el=document.querySelector(`#tbody tr[data-ch="${t.k}"]`);
+  else { const x=$(t.el); el = x && (x.closest('.kpi') || x); }
+  if(!el) return;
+  el.classList.add('hl');
+  const panel=$('livePanel');
+  if(getComputedStyle(panel).position==='sticky' && panel.scrollHeight>panel.clientHeight){
+    const pr=panel.getBoundingClientRect(), er=el.getBoundingClientRect();
+    if(er.top<pr.top+40 || er.bottom>pr.bottom-20) panel.scrollTop += (er.top-pr.top) - panel.clientHeight/2 + er.height/2;
+  }
+}
+function miniUpdate(r,m){
+  $('mbRoi').textContent = isFinite(m.roi)?fmtX(m.roi)+' เท่า':'–';
+  $('mbSales').textContent = fmtB0(m.S); $('mbSalesLbl').textContent = m.SL; $('mbSpend').textContent = fmtB0(m.spend); $('mbAcos').textContent = fmtP(m.acos);
+  const f=$('mbFocus'), t=focusKey;
+  if(t && t.type==='ch'){ const c=r.channels[t.k], ch=CH.find(x=>x.k===t.k);
+    f.innerHTML=`<span>${ch.n}:</span><b class="num">ค่าแอด ${fmtB(c.spend)}</b><span>·</span><b class="num">ยอดขาย ${c.sales?fmtB(c.sales):'–'}</b><span>·</span><b class="num">ROAS ${c.spend>0&&c.sales>0?fmtX(c.sales/c.spend):'–'}</b>`; f.hidden=false; }
+  else f.hidden=true;
+}
+$('formPanel').addEventListener('focusin', e=>{ focusKey=focusTarget(e.target.id); liveHighlight(); const r=liveRec(); miniUpdate(r,calc(r)); });
+$('formPanel').addEventListener('focusout', ()=>setTimeout(()=>{ if(!$('formPanel').contains(document.activeElement)){ focusKey=null; liveHighlight(); const r=liveRec(); miniUpdate(r,calc(r)); } },50));
+if('IntersectionObserver' in window){
+  new IntersectionObserver(es=>{ for(const e of es) document.body.classList.toggle('formvis', e.isIntersecting); },{rootMargin:'0px 0px -30% 0px'}).observe($('formPanel'));
+}
 
 // ---------- settings ----------
 function applySettings(){
@@ -1166,6 +1722,8 @@ function applySettings(){
   $('optProfit').checked = SHOW_PROFIT;
   $('optTraffic').checked = SHOW_TRAFFIC;
   $('optTop5').checked = SHOW_TOP5;
+  $('optConf').checked = SHOW_CONF; $('optPaid').checked = SHOW_PAID;
+  $('optTop5u').checked = SHOW_TOP5U;
 }
 $('gearBtn').addEventListener('click', e=>{ e.stopPropagation(); const m=$('setMenu'); m.hidden=!m.hidden; $('gearBtn').setAttribute('aria-expanded', String(!m.hidden)); });
 document.addEventListener('click', e=>{ const m=$('setMenu'); if(!m.hidden && !m.contains(e.target)){ m.hidden=true; $('gearBtn').setAttribute('aria-expanded','false'); } });
@@ -1176,6 +1734,21 @@ $('optProfit').addEventListener('change', e=>{
   applySettings(); render(); renderOverview();
   toast(SHOW_PROFIT ? 'แสดงข้อมูลกำไรสุทธิแล้ว' : 'ซ่อนข้อมูลกำไรสุทธิแล้ว');
 });
+$('optTop5u').addEventListener('change', e=>{
+  SHOW_TOP5U = e.target.checked;
+  try{ localStorage.setItem('shopee-roi-show-top5u', SHOW_TOP5U?'1':'0'); }catch(err){}
+  applySettings(); hideTip(); renderOverview();
+  toast(SHOW_TOP5U ? 'แสดง TOP 5 สินค้าจำนวนขายได้บน Dashboard แล้ว' : 'ซ่อน TOP 5 สินค้าจำนวนขายได้บน Dashboard แล้ว');
+});
+function onSalesBasis(e){
+  const c=$('optConf').checked, p=$('optPaid').checked;
+  if(!c && !p){ e.target.checked=true; toast('ต้องเลือกอย่างน้อย 1 รายการ'); return; }
+  SHOW_CONF=c; SHOW_PAID=p;
+  try{ localStorage.setItem('shopee-roi-show-conf', c?'1':'0'); localStorage.setItem('shopee-roi-show-paid', p?'1':'0'); }catch(err){}
+  applySettings(); hideTip(); render(); renderHistory();
+  toast(c&&p ? 'ใช้ยอดยืนยันแล้วเป็นหลัก และแสดงยอดชำระแล้วเป็นข้อมูลรอง' : c ? 'แสดงเฉพาะยอดขายที่ยืนยันแล้ว' : 'ใช้ยอดขายที่ชำระเงินแล้วเป็นตัวเลขหลัก');
+}
+$('optConf').addEventListener('change', onSalesBasis); $('optPaid').addEventListener('change', onSalesBasis);
 $('optTop5').addEventListener('change', e=>{
   SHOW_TOP5 = e.target.checked;
   try{ localStorage.setItem('shopee-roi-show-top5', SHOW_TOP5?'1':'0'); }catch(err){}
@@ -1273,7 +1846,7 @@ applyBrand();
 
 // init
 render();
-records = lsLoad(); selected=new Set(records.map(r=>r.id)); renderHistory();
+records = lsLoad(); libLoadLocal(); libSeedFromRecords(); pickDefaultType(); selected=new Set(records.filter(inType).map(r=>r.id)); renderHistory();
 $('storeNote').textContent='ข้อมูลที่บันทึกเก็บไว้ในเบราว์เซอร์นี้';
 (async ()=>{
   try{
@@ -1284,11 +1857,12 @@ $('storeNote').textContent='ข้อมูลที่บันทึกเก�
       const sdoc=snap.docs.find(x=>x.id==='_settings');
       if(sdoc && sdoc.data() && sdoc.data().brand){ BRAND=Object.assign({name:'',logo:'',url:''}, structuredClone(sdoc.data().brand)); try{localStorage.setItem('shopee-roi-brand',JSON.stringify(BRAND));}catch(e){} applyBrand(); }
       else if(BRAND.name||BRAND.logo||BRAND.url){ try{ await coll().doc('_settings').set({brand:BRAND}); }catch(e){} }
+      for(const d of snap.docs){ const v=d.data(); if(v && v.kind==='product' && v.key) LIB.set(v.key,{...structuredClone(v),saved:true}); }
       const remote=snap.docs.filter(x=>x.id!=='_settings').map(x=>x.data()).filter(x=>x&&x.channels).map(x=>structuredClone(x));
       // merge any local-only records up to the account
       const ids=new Set(remote.map(x=>x.id));
       for(const r of records){ if(!ids.has(r.id)){ try{ await coll().doc(r.id).set(r); remote.push(r);}catch(e){} } }
-      records=remote; selected=new Set(records.filter(inQuick).map(r=>r.id)); try{localStorage.removeItem(LSKEY);}catch(e){}
+      records=remote; libSeedFromRecords(); ptFilter=(()=>{ try{ return localStorage.getItem('shopee-roi-ptfilter')||''; }catch(e){ return ''; } })(); pickDefaultType(); selected=new Set(records.filter(inQuick).map(r=>r.id)); try{localStorage.removeItem(LSKEY);}catch(e){}
       $('storeNote').textContent='ประวัติบันทึกในบัญชีของคุณ เห็นเฉพาะคุณ เปิดจากเครื่องไหนก็ได้';
     }}
   }catch(e){}
