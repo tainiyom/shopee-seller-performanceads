@@ -248,6 +248,7 @@ a.brandlink:focus-visible{outline:2px solid var(--shopee);outline-offset:3px}
 .btn.sm{padding:5px 10px;font-size:.84rem}
 .settings{margin-left:auto;position:relative}
 .gear{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:500}
+.gear[hidden]{display:none}
 .gear:hover{border-color:var(--ink)}
 .gear svg{width:18px;height:18px}
 .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;width:min(310px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 10px 30px color-mix(in srgb,var(--ink) 16%,transparent)}
@@ -255,6 +256,43 @@ a.brandlink:focus-visible{outline:2px solid var(--shopee);outline-offset:3px}
 .menu h4{margin:0 0 10px;font-size:.92rem}
 .opt{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
 .opt input{width:18px;height:18px;margin-top:2px;accent-color:var(--shopee);flex:none}
+.settings{display:flex;gap:8px;align-items:center}
+.shopsw{position:relative}
+#shopBtn{max-width:240px}
+#shopBtnName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;display:inline-block;vertical-align:bottom}
+#shopMenu{width:min(320px,calc(100vw - 32px))}
+.shopit{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid transparent;background:none;border-radius:9px;padding:7px 8px;cursor:pointer;color:inherit;font:inherit}
+.shopit:hover{background:var(--field)}
+.shopit[aria-selected="true"]{border-color:var(--shopee);background:var(--shopee-soft)}
+.shopit .lg{width:34px;height:34px;border-radius:8px;background:var(--field);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none;font-weight:700;color:var(--muted)}
+.shopit .lg img{width:100%;height:100%;object-fit:contain}
+.shopit .tx{min-width:0;flex:1}
+.shopit .tx b{display:block;font-weight:600;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shopit .tx small{color:var(--muted);font-size:.74rem}
+.shopact{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;border-top:1px solid var(--line);padding-top:10px}
+#shopDel{color:var(--bad)}
+.modal{position:fixed;inset:0;z-index:80;background:color-mix(in srgb,#000 45%,transparent);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal[hidden]{display:none}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(440px,100%);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.mbox h3{margin:0 0 6px;font-size:1.05rem}
+.mlbl{display:block;font-size:.8rem;color:var(--muted);margin:12px 0 4px}
+.mbox select,.mbox input[type=text]{width:100%;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;color:inherit}
+.mbox input[type=text]{margin-top:8px}
+.mbox .warnbox{margin:12px 0 0}
+.mact{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.viewbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--off-soft);border:1px solid color-mix(in srgb,var(--off) 35%,transparent);border-radius:12px;padding:10px 14px;margin:0 0 14px}
+.viewbar[hidden]{display:none}
+.vb-ico{font-size:1.2rem}
+.vb-tx{flex:1;min-width:200px;display:flex;flex-direction:column}
+.vb-tx b{font-size:.92rem}
+.vb-tx span{font-size:.78rem;color:var(--muted)}
+body.viewmode .grid, body.viewmode .history, body.viewmode #gearBtn, body.viewmode .minibar, body.viewmode #setMenu{display:none!important}
+body.viewmode .overview > .hint{display:none}
+#shareBtn.stale::after{content:" •";color:var(--warn);font-weight:700}
+.fbrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+#fbCfg{width:100%;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px;color:inherit;resize:vertical}
+.sharelink{margin-top:12px}
+#shareUrl{flex:1;min-width:0;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:12px ui-monospace,Menlo,Consolas,monospace;color:inherit}
 .optgrp{border:1px solid var(--line);border-radius:10px;padding:2px 10px;margin-bottom:6px}
 .optgrp-h{font-size:.74rem;color:var(--muted);padding-top:8px}
 .menu{max-height:calc(100vh - 90px);overflow:auto}
@@ -401,6 +439,19 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
       </div>
     </div>
     <div class="settings">
+      <button class="gear" id="teamBtn" hidden title="ดูรายงานที่แชร์ในทีม">📊 รายงานทีม</button>
+      <div class="shopsw">
+        <button class="gear" id="shopBtn" aria-haspopup="true" aria-expanded="false" aria-controls="shopMenu" title="สลับร้านค้า">🏪 <span id="shopBtnName">ร้านที่ 1</span> <span aria-hidden="true">▾</span></button>
+        <div class="menu" id="shopMenu" hidden role="dialog" aria-label="สลับร้านค้า">
+          <h4>ร้านค้า</h4>
+          <div id="shopList" role="listbox"></div>
+          <div class="shopact">
+            <button type="button" class="btn sm" id="shopAdd">+ เพิ่มร้านใหม่</button>
+            <button type="button" class="btn sm" id="shopDel">ลบร้านนี้</button>
+          </div>
+          <p class="hint" style="margin-top:8px">แต่ละร้านแยกประวัติ Dashboard คลังสินค้า และโลโก้กันทั้งหมด · ตั้งชื่อ โลโก้ และลิงก์ของร้านที่เลือกได้ใน ⚙ ตั้งค่า</p>
+        </div>
+      </div>
       <button class="gear" id="gearBtn" aria-haspopup="true" aria-expanded="false" aria-controls="setMenu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         ตั้งค่า
@@ -419,6 +470,17 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
           </div>
           <p class="hint" style="margin-top:6px">รองรับ JPG, PNG, WEBP, SVG · PNG พื้นหลังโปร่งใสจะดูดีที่สุด ถ้าไม่ใส่ จะไม่แสดง</p>
         </div>
+        <div class="sec" id="fbSec" hidden>
+          <h4>ลิงก์สาธารณะ + ซิงก์ออนไลน์ (Firebase)</h4>
+          <p class="hint" id="fbStatus">ยังไม่ได้ตั้งค่า</p>
+          <div id="fbSetup">
+            <label for="fbCfg" class="mlbl" style="margin-top:6px">วางค่า firebaseConfig จาก Firebase Console</label>
+            <textarea id="fbCfg" rows="5" spellcheck="false" placeholder="{ apiKey: &quot;…&quot;, authDomain: &quot;…&quot;, projectId: &quot;…&quot;, appId: &quot;…&quot; }"></textarea>
+            <div class="fbrow"><button type="button" class="btn sm" id="fbSaveCfg">บันทึกค่า</button></div>
+          </div>
+          <div class="fbrow"><button type="button" class="btn sm" id="fbLogin" hidden>เข้าสู่ระบบด้วย Google</button><button type="button" class="btn sm" id="fbLogout" hidden>ออกจากระบบ</button></div>
+          <div class="fbrow" id="fbTools" hidden><button type="button" class="btn sm" id="fbDlCfg">ดาวน์โหลด firebase-config.json</button><button type="button" class="btn sm" id="fbRules">คัดลอกกฎความปลอดภัย</button><button type="button" class="btn sm" id="fbClear">ล้างค่า</button></div>
+        </div>
         <div class="sec"><h4>ตั้งค่าการแสดงผล</h4></div>
         <div class="optgrp"><div class="optgrp-h">ยอดขายที่ใช้คำนวณ ROI</div>
           <label class="opt"><input type="checkbox" id="optConf"><div><b>แสดงยอดขายที่ยืนยันแล้ว</b><span>ถ้าเลือกไว้ จะเป็นตัวเลขหลักของ ROI, ACOS และกราฟ</span></div></label>
@@ -431,6 +493,11 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
       </div>
     </div>
   </header>
+  <div class="viewbar" id="viewBar" hidden>
+    <span class="vb-ico" aria-hidden="true">👁</span>
+    <div class="vb-tx"><b id="vbTitle">รายงานที่แชร์ในทีม</b><span id="vbSub"></span></div>
+    <button type="button" class="btn sm" id="vbExit" hidden>กลับไปหน้ากรอกข้อมูลของฉัน</button>
+  </div>
 
       <section class="panel overview" aria-label="ภาพรวม">
         <h2 style="font-size:1.15rem">ภาพรวมผลลัพธ์จากรอบที่บันทึก</h2>
@@ -597,6 +664,8 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
             <button type="button" class="btn" id="importBtn">นำเข้าไฟล์ CSV</button>
             <input type="file" id="importFile" class="vh" tabindex="-1" aria-hidden="true" accept=".csv,text/csv">
             <button class="btn" id="exportCsv" hidden>ดาวน์โหลดไฟล์สำรอง (CSV)</button>
+            <button class="btn" id="exportAll" hidden>ดาวน์โหลดทุกร้าน</button>
+            <button class="btn" id="shareBtn" hidden>👥 แชร์ให้ทีม</button>
           </div>
         </div>
         <div id="history"></div>
@@ -609,6 +678,37 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
   <div><small>ค่าแอดรวม</small><b class="num" id="mbSpend">฿0</b></div>
   <div><small>ACOS</small><b class="num" id="mbAcos">–</b></div>
   <div class="focus" id="mbFocus" hidden></div>
+</div>
+<div class="modal" id="impModal" hidden role="dialog" aria-modal="true" aria-labelledby="impTitle">
+  <div class="mbox">
+    <h3 id="impTitle">นำเข้าไฟล์ CSV</h3>
+    <p id="impSum" class="hint" style="font-size:.86rem"></p>
+    <label for="impTarget" class="mlbl">นำเข้าไปที่ร้าน</label>
+    <select id="impTarget"></select>
+    <input type="text" id="impNewName" maxlength="80" placeholder="ชื่อร้านใหม่" hidden>
+    <div class="warnbox" id="impWarn" hidden></div>
+    <div class="mact"><button type="button" class="btn" id="impCancel">ยกเลิก</button><button type="button" class="btn primary" id="impGo">นำเข้า</button></div>
+  </div>
+</div>
+<div class="modal" id="shareModal" hidden role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+  <div class="mbox">
+    <h3 id="shareTitle">แชร์รายงานให้ทีม</h3>
+    <p class="hint" id="shareSum" style="font-size:.86rem"></p>
+    <label class="opt"><input type="checkbox" id="shProfit"><div><b>รวมต้นทุนและกำไร</b><span>ไม่ติ๊ก = ทีมไม่เห็นต้นทุนสินค้า ค่าธรรมเนียม และกำไรสุทธิ</span></div></label>
+    <p class="hint" style="margin:6px 0 0">ทีมจะเห็นรูปแบบเดียวกับการตั้งค่าการแสดงผลของคุณตอนนี้ (ยืนยันแล้ว/ชำระแล้ว, TOP 5, ที่มาการเข้าชม) และเห็นได้อย่างเดียว ไม่เห็นช่องกรอก</p>
+    <div class="sharelink" id="shareLinkBox" hidden>
+      <label class="mlbl" for="shareUrl">ลิงก์สาธารณะสำหรับส่งให้คนดู (ไม่ต้องล็อกอิน · อัปเดตอัตโนมัติ)</label>
+      <div class="fbrow" style="margin-top:0"><input type="text" id="shareUrl" readonly><button type="button" class="btn sm" id="shareCopy">คัดลอก</button></div>
+      <p class="hint" id="shareLinkNote" style="margin-top:4px"></p>
+    </div>
+    <div class="warnbox" id="shareStatus" style="margin-top:12px" hidden></div>
+    <div class="mact" style="flex-wrap:wrap">
+      <button type="button" class="btn" id="shareStop" hidden>หยุดแชร์</button>
+      <button type="button" class="btn" id="sharePreview" hidden>ดูตัวอย่างที่ทีมเห็น</button>
+      <button type="button" class="btn" id="shareClose">ปิด</button>
+      <button type="button" class="btn primary" id="shareGo">เผยแพร่ให้ทีม</button>
+    </div>
+  </div>
 </div>
 <div class="tip" id="tip" hidden role="tooltip"></div>
 <div class="sug" id="sug" hidden role="listbox" aria-label="สินค้าที่เคยกรอก"></div>
@@ -672,7 +772,10 @@ function onDates(){
 }
 $('d1').addEventListener('change', onDates); $('d2').addEventListener('change', onDates);
 // ---------- product library (remembers link, name and picture of products used before) ----------
-const LIB = new Map();      // key -> {key,url,name,img,t,saved}
+let LIB = new Map();      // key -> {key,url,name,img,t,saved}  (current shop)
+const LIBS = {};
+function libFor(id){ return LIBS[id] || (LIBS[id]=new Map()); }
+const libKeyLocal = () => (typeof curShop==='undefined' || curShop==='s1') ? LIBKEY : LIBKEY+'-'+curShop;
 const LIBKEY='shopee-roi-products-v1';
 function prodKey(x){
   const u=cleanUrl(x&&x.url);
@@ -690,10 +793,10 @@ function libPut(x, t, saved){
   LIB.set(k,next); return next;
 }
 function libSeedFromRecords(){
-  for(const r of records) for(const key of ['top5','top5u']) for(const x of (r[key]||[])) if(x) libPut(x, r.savedAt||recStart(r));
+  for(const r of records.filter(inShop)) for(const key of ['top5','top5u']) for(const x of (r[key]||[])) if(x) libPut(x, r.savedAt||recStart(r));
 }
-function libLoadLocal(){ try{ for(const p of JSON.parse(localStorage.getItem(LIBKEY)||'[]')) if(p&&p.key) LIB.set(p.key,{...p,saved:true}); }catch(e){} }
-function libSaveLocal(){ try{ localStorage.setItem(LIBKEY, JSON.stringify([...LIB.values()].map(({saved,...p})=>p))); return true; }catch(e){ return false; } }
+function libLoadLocal(){ try{ for(const p of JSON.parse(localStorage.getItem(libKeyLocal())||'[]')) if(p&&p.key) LIB.set(p.key,{...p,saved:true}); }catch(e){} }
+function libSaveLocal(){ try{ localStorage.setItem(libKeyLocal(), JSON.stringify([...LIB.values()].map(({saved,...p})=>p))); return true; }catch(e){ return false; } }
 // store products used in a record; returns keys whose picture is safely stored in the library
 async function libStore(list, t){
   const touched=new Set();
@@ -702,7 +805,7 @@ async function libStore(list, t){
   if(db&&uid){
     for(const k of touched){ const p=LIB.get(k); if(!p||!p.img) continue;
       if(p.saved){ ok.add(k); continue; }
-      try{ const {saved,...doc}=p; await coll().doc(hashKey(k)).set({...doc, kind:'product'}); p.saved=true; ok.add(k); }catch(e){} }
+      try{ const {saved,...doc}=p; await coll().doc(curShop==='s1'?hashKey(k):hashKey(curShop+'|'+k)).set({...doc, kind:'product', shop:curShop}); p.saved=true; ok.add(k); }catch(e){} }
   } else if(libSaveLocal()){ for(const k of touched){ const p=LIB.get(k); if(p&&p.img){ p.saved=true; ok.add(k); } } }
   return ok;
 }
@@ -855,7 +958,7 @@ const hasTop5 = r => hasTopList(r,'top5');
 function prevRoundForForm(){
   const pt = formPt || guessType($('d1').value,$('d2').value);
   const start = $('d1').value || $('d2').value || '9999-12-31';
-  const cands = records.filter(r=>r.id!==editingId && (hasTopList(r,'top5')||hasTopList(r,'top5u')) && recStart(r) < start);
+  const cands = records.filter(r=>inShop(r) && r.id!==editingId && (hasTopList(r,'top5')||hasTopList(r,'top5u')) && recStart(r) < start);
   const same = cands.filter(r=>ptypeOf(r)===pt);
   const pick = L => L.sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0];
   return pick(same) || pick(cands) || null;
@@ -1101,8 +1204,8 @@ function coll(){ return db.collection('data/users/'+uid); }
 function renderHistory(){
   const el=$('history');
   try{ updatePullHint(); }catch(e){}
-  $('exportCsv').hidden = !records.length;
-  if(!records.length){ el.innerHTML='<div class="empty">ยังไม่มีรอบที่บันทึก กรอกตัวเลขแล้วกด “บันทึกรอบนี้” เพื่อเก็บไว้เทียบกัน</div>'; renderOverview(); return; }
+  $('exportCsv').hidden = !shopRecords().length; $('exportAll').hidden = !(SHOPS.length>1 && records.length);
+  if(!shopRecords().length){ el.innerHTML='<div class="empty">ยังไม่มีรอบที่บันทึกของร้านนี้ กรอกตัวเลขแล้วกด “บันทึกรอบนี้” เพื่อเก็บไว้เทียบกัน</div>'; renderOverview(); return; }
   renderTypeSeg();
   const sorted=records.filter(inType).sort((a,b)=>(b.d2||b.savedAt||'').localeCompare(a.d2||a.savedAt||''));
   if(!sorted.length){ el.innerHTML=`<div class="empty">ยังไม่มีรอบ${PT[ptFilter]||''} เลือกประเภทอื่นที่ด้านบน หรือบันทึกรอบใหม่</div>`; renderOverview(); return; }
@@ -1133,7 +1236,7 @@ $('history').addEventListener('click', async e=>{
     records=records.filter(x=>x.id!==d); selected.delete(d);
     if(db&&uid){ try{ await coll().doc(d).delete(); }catch(err){ toast('ลบบนระบบไม่สำเร็จ ลองอีกครั้ง'); } } else lsSave();
     if(editingId===d) setEditing(null);
-    renderHistory(); toast('ลบรอบแล้ว'); }
+    renderHistory(); toast('ลบรอบแล้ว'); autoPublish(); }
 });
 let editingId=null;
 function setEditing(id){
@@ -1153,7 +1256,7 @@ async function saveRecord(asNew){
   const updating = !!editingId && !asNew;
   const id = updating ? editingId : ('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
   const old = records.find(x=>x.id===id);
-  const rec = {...f, id, createdAt:(old&&old.createdAt)||(old&&old.savedAt)||new Date().toISOString(), savedAt:new Date().toISOString()};
+  const rec = {...f, id, shop:(old&&old.shop)||curShop, createdAt:(old&&old.createdAt)||(old&&old.savedAt)||new Date().toISOString(), savedAt:new Date().toISOString()};
   if(!rec.ptype) rec.ptype=guessType(rec.d1,rec.d2);
   const i = records.findIndex(x=>x.id===id); if(i>=0) records[i]=rec; else records.push(rec);
   selected.add(id);
@@ -1162,31 +1265,34 @@ async function saveRecord(asNew){
     const ok=await libStore([...(rec.top5||[]),...(rec.top5u||[])], rec.savedAt);
     for(const k of ['top5','top5u']) rec[k]=(rec[k]||[]).map(x=>x&&x.img&&ok.has(prodKey(x)) && (LIB.get(prodKey(x))||{}).img===x.img ? {...x, img:''} : x);
   }catch(e){}
-  let msg = updating ? 'บันทึกการแก้ไขแล้ว' : 'บันทึกรอบใหม่แล้ว';
+  let msg = (updating ? 'บันทึกการแก้ไขแล้ว' : 'บันทึกรอบใหม่แล้ว') + (SHOPS.length>1 ? ` · ${shopLabel(shopOf(rec.shop))}` : '');
   if(db&&uid){ try{ await coll().doc(id).set(rec); }catch(err){ lsSave(); msg+=' (เก็บในเครื่องนี้ ระบบออนไลน์ไม่ตอบ)'; } }
   else lsSave();
-  fillForm({channels:{}}); setEditing(null); toast(msg);
+  fillForm({channels:{}}); setEditing(null); toast(msg); autoPublish();
 }
 $('save').addEventListener('click', ()=>saveRecord(false));
 $('saveCopy').addEventListener('click', ()=>saveRecord(true));
 $('clear').addEventListener('click', ()=>{ fillForm({channels:{}}); setEditing(null); });
 
 const CSV_HEAD = ()=>['รอบ','จาก','ถึง','ยอดขายที่ยืนยันแล้ว',...CH.map(c=>'ค่าใช้จ่าย '+c.n),...CH.map(c=>'ยอดขาย '+c.n),'Shopee Ads รวม','นอกแพลตฟอร์มรวม','ค่าโฆษณารวม','ROI (เท่า)','ACOS %','ต้นทุนสินค้า','ค่าธรรมเนียม','กำไรสุทธิ','เป้า ROI','รหัสรอบ','สร้างเมื่อ',...TR.map(t=>'ยอดขายที่มา '+t.n),'ยอดขายจากโฆษณา Shopee Ads',...[1,2,3,4,5].flatMap(n=>['TOP '+n+' ชื่อ','TOP '+n+' ลิงก์','TOP '+n+' รูป']),...[1,2,3,4,5].map(n=>'TOP '+n+' ยอดขาย'),'ประเภทรอบ','ยอดขายที่ชำระเงินแล้ว','ROI ชำระแล้ว (เท่า)',...CH.map(c=>'ยอดขายชำระแล้ว '+c.n),...TR.map(t=>'ยอดขายชำระแล้วที่มา '+t.n),'ยอดขายชำระแล้วจาก Shopee Ads',...[1,2,3,4,5].map(n=>'TOP '+n+' ยอดขายชำระแล้ว'),...[1,2,3,4,5].map(n=>'TOPชิ้น '+n+' จำนวนชำระแล้ว'),...[1,2,3,4,5].flatMap(n=>['TOPชิ้น '+n+' ชื่อ','TOPชิ้น '+n+' ลิงก์','TOPชิ้น '+n+' รูป','TOPชิ้น '+n+' จำนวน'])];
-$('exportCsv').addEventListener('click', async ()=>{
+async function exportCsv(all){
   const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-  const lines=[CSV_HEAD().map(q).join(',')];
-  const sorted=[...records].sort((a,b)=>recStart(a).localeCompare(recStart(b)));
+  const lines=[[...CSV_HEAD(),'ร้านค้า','รหัสร้าน'].map(q).join(',')];
+  const sorted=(all?[...records]:shopRecords()).sort((a,b)=>((a.shop||'s1').localeCompare(b.shop||'s1'))||recStart(a).localeCompare(recStart(b)));
   for(const r of sorted){ const m=calc(r); const pr=r.sales-m.spend-(r.cogs||0)-(r.fees||0);
     lines.push([r.name,r.d1,r.d2,r.sales,...CH.map(c=>r.channels[c.k].spend),...CH.map(c=>r.channels[c.k].sales),m.shopee,m.off,m.spend,
-      isFinite(m.roiC)?m.roiC.toFixed(2):'',isFinite(m.acosC)?m.acosC.toFixed(2):'',r.cogs||'',r.fees||'',(r.cogs||r.fees)?pr.toFixed(2):'',r.target||'',r.id,r.createdAt||r.savedAt||'',...TR.map(t=>((r.traffic||{})[t.k])||''),r.adsSales||'',...[0,1,2,3,4].flatMap(i=>{ const x=(r.top5||[])[i]||{}; return [x.name||'',x.url||'',(imgOf(x)&&imgOf(x).length<32000)?imgOf(x):'']; }),...[0,1,2,3,4].map(i=>((r.top5||[])[i]||{}).sales||''),PT[ptypeOf(r)],r.paid||'',isFinite(m.roiP)?m.roiP.toFixed(2):'',...CH.map(c=>{ const x=(r.channels||{})[c.k]||{}; return (c.g==='off'?x.sales:x.salesPaid)||''; }),...TR.map(t=>((r.trafficPaid||{})[t.k])||''),r.adsSalesPaid||'',...[0,1,2,3,4].map(i=>((r.top5||[])[i]||{}).salesPaid||''),...[0,1,2,3,4].map(i=>((r.top5u||[])[i]||{}).unitsPaid||''),...[0,1,2,3,4].flatMap(i=>{ const x=(r.top5u||[])[i]||{}; return [x.name||'',x.url||'',(imgOf(x)&&imgOf(x).length<32000)?imgOf(x):'',x.units||'']; })].map(q).join(',')); }
+      isFinite(m.roiC)?m.roiC.toFixed(2):'',isFinite(m.acosC)?m.acosC.toFixed(2):'',r.cogs||'',r.fees||'',(r.cogs||r.fees)?pr.toFixed(2):'',r.target||'',r.id,r.createdAt||r.savedAt||'',...TR.map(t=>((r.traffic||{})[t.k])||''),r.adsSales||'',...[0,1,2,3,4].flatMap(i=>{ const x=(r.top5||[])[i]||{}; return [x.name||'',x.url||'',(imgOf(x)&&imgOf(x).length<32000)?imgOf(x):'']; }),...[0,1,2,3,4].map(i=>((r.top5||[])[i]||{}).sales||''),PT[ptypeOf(r)],r.paid||'',isFinite(m.roiP)?m.roiP.toFixed(2):'',...CH.map(c=>{ const x=(r.channels||{})[c.k]||{}; return (c.g==='off'?x.sales:x.salesPaid)||''; }),...TR.map(t=>((r.trafficPaid||{})[t.k])||''),r.adsSalesPaid||'',...[0,1,2,3,4].map(i=>((r.top5||[])[i]||{}).salesPaid||''),...[0,1,2,3,4].map(i=>((r.top5u||[])[i]||{}).unitsPaid||''),...[0,1,2,3,4].flatMap(i=>{ const x=(r.top5u||[])[i]||{}; return [x.name||'',x.url||'',(imgOf(x)&&imgOf(x).length<32000)?imgOf(x):'',x.units||'']; }),shopLabel(shopOf(r.shop||'s1')),r.shop||'s1'].map(q).join(',')); }
   const d=new Date(); const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  const fname=`shopee-performance-backup-${stamp}.csv`, data='\uFEFF'+lines.join('\n');
+  const safe=t=>String(t).replace(/[\\/:*?"<>|\s]+/g,'-').slice(0,40);
+  const fname=`${all?'all-shops':safe(shopLabel(BRAND))}-backup-${stamp}.csv`, data='\uFEFF'+lines.join('\n');
   if(downloads){ try{ await downloads.save({filename:fname, data}); toast('ดาวน์โหลดไฟล์สำรองแล้ว'); }catch(e){ toast('ไม่ได้ดาวน์โหลดไฟล์'); } return; }
   // standalone hosting (e.g. GitHub Pages): plain browser download
   const url=URL.createObjectURL(new Blob([data],{type:'text/csv;charset=utf-8'}));
   const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url), 1500); toast('ดาวน์โหลดไฟล์สำรองแล้ว');
-});
+}
+$('exportCsv').addEventListener('click', ()=>exportCsv(false));
+$('exportAll').addEventListener('click', ()=>exportCsv(true));
 
 // ---------- import ----------
 function parseCSV(text){
@@ -1213,6 +1319,33 @@ function pDate(v){
   let y=+m[1]; if(y>2400) y-=543;
   return y+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[3]).padStart(2,'0');
 }
+function askImportTarget(incoming, fname){
+  return new Promise(res=>{
+    const names=[...new Set(incoming.map(r=>r._fShopName).filter(Boolean))];
+    const ds=incoming.map(recStart).filter(Boolean).sort();
+    const sel=$('impTarget'); const one=names.length===1?names[0]:'';
+    const match = one && SHOPS.find(x=>shopLabel(x)===one || (x.name||'')===one);
+    sel.innerHTML = SHOPS.map(sh=>`<option value="${esc(sh.id)}">${esc(shopLabel(sh))}${sh.id===curShop?' (ร้านที่เปิดอยู่)':''}</option>`).join('')
+      + (names.length>1 ? `<option value="__auto">แยกตามร้านในไฟล์ (${names.length} ร้าน: ${esc(names.join(', '))})</option>` : '')
+      + `<option value="__new">+ สร้างร้านใหม่</option>`;
+    sel.value = names.length>1 ? '__auto' : match ? match.id : (one ? '__new' : curShop);
+    $('impNewName').value = one || fname.replace(/\.csv$/i,'').replace(/-backup-.*$/,'');
+    $('impSum').textContent = `ไฟล์ ${fname} · ${incoming.length} รอบ${ds.length?` · ${ddmm(ds[0])}/${ds[0].slice(0,4)} – ${ddmm(ds[ds.length-1])}/${ds[ds.length-1].slice(0,4)}`:''}${one?` · ไฟล์นี้มาจากร้าน “${one}”`:''}`;
+    const upd=()=>{ const v=sel.value; $('impNewName').hidden = v!=='__new';
+      const w=$('impWarn'); let msg='';
+      if(one && v!=='__new' && v!=='__auto'){ const t=shopOf(v); if(t && shopLabel(t)!==one && (t.name||'')!==one) msg=`⚠️ ไฟล์นี้มาจากร้าน “${esc(one)}” แต่กำลังจะนำเข้าไปที่ “${esc(shopLabel(t))}” ตรวจสอบให้แน่ใจก่อนกดนำเข้า`; }
+      if(v!=='__new' && v!=='__auto'){ const n=incoming.filter(r=>r._rawId && records.some(x=>x.id===r._rawId && (x.shop||'s1')===v)).length; if(n) msg+=(msg?'<br>':'')+`มี ${n} รอบที่มีอยู่แล้วในร้านนี้ ระบบจะถามก่อนเขียนทับ`; }
+      w.innerHTML=msg; w.hidden=!msg; };
+    sel.onchange=upd; upd();
+    const m=$('impModal'); m.hidden=false; sel.focus();
+    const done=v=>{ m.hidden=true; document.removeEventListener('keydown',esc_); res(v); };
+    const esc_=e=>{ if(e.key==='Escape') done(null); };
+    document.addEventListener('keydown',esc_);
+    $('impCancel').onclick=()=>done(null);
+    m.onclick=e=>{ if(e.target===m) done(null); };
+    $('impGo').onclick=()=>{ if(sel.value==='__new' && !$('impNewName').value.trim()){ $('impNewName').focus(); return; } done({target:sel.value, newName:$('impNewName').value.trim()}); };
+  });
+}
 $('importFile').addEventListener('change', async e=>{
   const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
   let rows; try{ rows=parseCSV(await file.text()); }catch(err){ toast('อ่านไฟล์ไม่ได้ ใช้ไฟล์ CSV ที่ดาวน์โหลดจากหน้านี้'); return; }
@@ -1232,13 +1365,26 @@ $('importFile').addEventListener('change', async e=>{
       ptype:(Object.entries(PT).find(([k,v])=>v===String(get(r,'ประเภทรอบ')).trim()||k===String(get(r,'ประเภทรอบ')).trim())||[''])[0]||'',
       top5:[1,2,3,4,5].map(n=>{ const img=String(get(r,'TOP '+n+' รูป')||'').trim(); return {sales:pNum(get(r,'TOP '+n+' ยอดขาย')), salesPaid:pNum(get(r,'TOP '+n+' ยอดขายชำระแล้ว')), name:String(get(r,'TOP '+n+' ชื่อ')||'').trim(), url:cleanUrl(get(r,'TOP '+n+' ลิงก์')), img:/^data:image\/(png|jpe?g|webp|gif);base64,/.test(img)?img:''}; })};
     if(!rec.sales && !CH.some(c=>channels[c.k].spend)) continue;
-    let id=String(get(r,'รหัสรอบ')).trim();
-    if(!id){ const same=records.find(x=>(x.name||'')===rec.name && (x.d1||'')===rec.d1 && (x.d2||'')===rec.d2); id = same ? same.id : ''; }
-    if(!/^[A-Za-z0-9_-]{1,60}$/.test(id)) id='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
-    rec.id=id; rec.createdAt=String(get(r,'สร้างเมื่อ')).trim()||new Date().toISOString(); rec.savedAt=new Date().toISOString();
+    rec._rawId=String(get(r,'รหัสรอบ')).trim(); rec._fShopName=String(get(r,'ร้านค้า')||'').trim(); rec._fShopId=String(get(r,'รหัสร้าน')||'').trim(); rec.createdAt=String(get(r,'สร้างเมื่อ')).trim()||new Date().toISOString(); rec.savedAt=new Date().toISOString();
     incoming.push(rec);
   }
   if(!incoming.length){ toast('ไม่พบรอบที่มีตัวเลขในไฟล์นี้'); return; }
+  const choice=await askImportTarget(incoming, file.name); if(!choice) return;
+  // decide the shop of each round
+  const byName=new Map();
+  async function shopForName(n){ const key=(n||'').trim(); if(byName.has(key)) return byName.get(key);
+    let sh=SHOPS.find(x=>shopLabel(x)===key || (x.name||'')===key); if(!sh) sh=await addShop(key||('ร้านที่ '+(SHOPS.length+1)), true); byName.set(key,sh.id); return sh.id; }
+  let target=choice.target;
+  if(target==='__new'){ target=(await addShop(choice.newName||'ร้านใหม่', true)).id; }
+  for(const rec of incoming){
+    rec.shop = target==='__auto' ? await shopForName(rec._fShopName) : target;
+    let id=rec._rawId;
+    if(!id){ const same=records.find(x=>(x.shop||'s1')===rec.shop && (x.name||'')===rec.name && (x.d1||'')===rec.d1 && (x.d2||'')===rec.d2); id = same ? same.id : ''; }
+    // the same round id may belong to another shop: give it a fresh id instead of moving it
+    const owner=id && records.find(x=>x.id===id);
+    if(!/^[A-Za-z0-9_-]{1,60}$/.test(id) || (owner && (owner.shop||'s1')!==rec.shop)) id='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+    rec.id=id; delete rec._rawId; delete rec._fShopName; delete rec._fShopId;
+  }
   const dup=incoming.filter(r=>records.some(x=>x.id===r.id));
   let overwrite=true;
   if(dup.length) overwrite=confirm(`ในไฟล์มี ${incoming.length} รอบ ซ้ำกับที่มีอยู่แล้ว ${dup.length} รอบ\n\nกด OK = เขียนทับรอบที่ซ้ำด้วยข้อมูลจากไฟล์\nกด Cancel = ข้ามรอบที่ซ้ำ นำเข้าเฉพาะรอบใหม่`);
@@ -1251,8 +1397,10 @@ $('importFile').addEventListener('change', async e=>{
     selected.add(rec.id);
   }
   if(!(db&&uid)) lsSave();
-  if(editingId && !records.some(x=>x.id===editingId)) setEditing(null); else renderHistory();
-  toast(`นำเข้าแล้ว: ใหม่ ${added} รอบ${updated?`, อัปเดต ${updated} รอบ`:''}${failed?`, ไม่สำเร็จ ${failed} รอบ`:''}`);
+  const goShop = target==='__auto' ? curShop : target;
+  if(goShop!==curShop) switchShop(goShop, true); else { if(editingId && !records.some(x=>x.id===editingId)) setEditing(null); for(const k in LIBS) LIBS[k]._loaded=false; switchShop(curShop, true); }
+  renderShopUI(); autoPublish();
+  toast(`${target==='__auto'?'':shopLabel(shopOf(goShop))+' · '}นำเข้าแล้ว: ใหม่ ${added} รอบ${updated?`, อัปเดต ${updated} รอบ`:''}${failed?`, ไม่สำเร็จ ${failed} รอบ`:''}`);
 });
 
 
@@ -1264,16 +1412,16 @@ function guessType(d1,d2){ const n=dayCount(d1,d2); if(n===1) return 'day'; if(n
 const ptypeOf = r => (r && PT[r.ptype]) ? r.ptype : guessType(r&&r.d1, r&&r.d2);
 let ptFilter = (()=>{ try{ return localStorage.getItem('shopee-roi-ptfilter')||''; }catch(e){ return ''; } })();
 let groupMode = (()=>{ try{ return localStorage.getItem('shopee-roi-group')||'none'; }catch(e){ return 'none'; } })();
-const inType = r => ptFilter==='all' || ptypeOf(r)===ptFilter;
+const inType = r => inShop(r) && (ptFilter==='all' || ptypeOf(r)===ptFilter);
 function pickDefaultType(){
-  if(ptFilter && (ptFilter==='all' || records.some(r=>ptypeOf(r)===ptFilter))) return;
-  const latest=[...records].sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0];
+  if(ptFilter && (ptFilter==='all' || shopRecords().some(r=>ptypeOf(r)===ptFilter))) return;
+  const latest=shopRecords().sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0];
   ptFilter = latest ? ptypeOf(latest) : 'week';
 }
 function renderTypeSeg(){
-  const cnt={day:0,week:0,month:0,custom:0}; for(const r of records) cnt[ptypeOf(r)]++;
+  const SR=shopRecords(); const cnt={day:0,week:0,month:0,custom:0}; for(const r of SR) cnt[ptypeOf(r)]++;
   const opts=['day','week','month'].concat(cnt.custom?['custom']:[]).concat(['all']);
-  $('typeSeg').innerHTML=opts.map(k=>`<button type="button" role="tab" data-t="${k}" aria-selected="${ptFilter===k}">${k==='all'?'ทุกประเภท':PT[k]}<span class="ct">${k==='all'?records.length:cnt[k]}</span></button>`).join('');
+  $('typeSeg').innerHTML=opts.map(k=>`<button type="button" role="tab" data-t="${k}" aria-selected="${ptFilter===k}">${k==='all'?'ทุกประเภท':PT[k]}<span class="ct">${k==='all'?SR.length:cnt[k]}</span></button>`).join('');
   const g=$('groupSeg'); g.hidden = ptFilter!=='day';
   g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.g===groupMode)));
 }
@@ -1406,10 +1554,10 @@ function trendSvg(list, target){
 
 function trafficSection(agg, list){
   const tsum=TR.reduce((a,t)=>a+agg.traffic[t.k],0);
-  if(!tsum && !agg.adsSales) return `<div class="tr-wrap"><div class="empty" style="grid-column:1/-1">ยังไม่มียอดขายแบ่งตามที่มาการเข้าชม กรอกในฟอร์มใต้ “ยอดขายที่ยืนยันแล้ว” แล้วบันทึกรอบ</div></div>`;
+  if(!tsum && !agg.adsSales) return VIEW ? '' : `<div class="tr-wrap"><div class="empty" style="grid-column:1/-1">ยังไม่มียอดขายแบ่งตามที่มาการเข้าชม กรอกในฟอร์มใต้ “ยอดขายที่ยืนยันแล้ว” แล้วบันทึกรอบ</div></div>`;
   // compare with the previous saved round when a single round is selected
   let prev=null;
-  if(list.length===1){ const cur=recStart(list[0]); prev=records.filter(x=>x.id!==list[0].id && recStart(x)<cur && ptypeOf(x)===ptypeOf(list[0])).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0]||null; if(prev) prev=V(prev); }
+  if(list.length===1){ const cur=recStart(list[0]); prev=records.filter(x=>inShop(x) && x.id!==list[0].id && recStart(x)<cur && ptypeOf(x)===ptypeOf(list[0])).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0]||null; if(prev) prev=V(prev); }
   const chg=(now,before)=>{ if(!prev || !before || !now) return ''; const d=(now-before)/before*100; if(!isFinite(d)) return '';
     return `<div class="chg ${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${fmtP(Math.abs(d))} <span class="muted" style="font-weight:400">เทียบรอบก่อน</span></div>`; };
   const pct=v=>agg.sales>0?fmtP(v/agg.sales*100):'–';
@@ -1475,8 +1623,8 @@ function renderOverview(){
   const body=$('ovBody');
   const list=records.filter(r=>selected.has(r.id) && inType(r)).sort((a,b)=>recStart(a).localeCompare(recStart(b))).map(V);
   const nType=records.filter(inType).length;
-  $('ovCount').textContent = records.length ? `รวม ${list.length} จาก ${nType} รอบ${ptFilter==='all'?'':PT[ptFilter]}` : '';
-  if(!records.length){ body.innerHTML='<div class="empty">ยังไม่มีข้อมูล กรอกตัวเลขด้านล่างแล้วกด “บันทึกรอบนี้” กราฟภาพรวมจะแสดงที่นี่</div>'; return; }
+  $('ovCount').textContent = shopRecords().length ? `รวม ${list.length} จาก ${nType} รอบ${ptFilter==='all'?'':PT[ptFilter]}` : '';
+  if(!shopRecords().length){ body.innerHTML='<div class="empty">ยังไม่มีข้อมูล กรอกตัวเลขด้านล่างแล้วกด “บันทึกรอบนี้” กราฟภาพรวมจะแสดงที่นี่</div>'; return; }
   if(!list.length){ body.innerHTML=`<div class="empty">${nType?'ไม่มีรอบในช่วงที่เลือก ลองเลือก “ทุกรอบ” หรือติ๊กรอบในตารางประวัติ':'ยังไม่มีข้อมูล'+(PT[ptFilter]||'')+' เลือกประเภทอื่นด้านบน หรือบันทึกรอบใหม่'}</div>`; return; }
   const chartList = (ptFilter==='day' && groupMode!=='none') ? groupDaily(list, groupMode) : list;
   const kList = isPaidB() ? list.filter(r=>!r._noPaid) : list;
@@ -1501,7 +1649,7 @@ function renderOverview(){
   // trend
   h+=`<div class="card ov-card"><div class="card-h"><h3>แนวโน้มแต่ละรอบ</h3>
       <div class="lg">
-        <span><i style="background:var(--good)"></i>${m.SL}</span>${m.secPaid?`<span><i style="background:var(--good);opacity:.45"></i>ชำระแล้ว</span><span><i class="dash" style="border-color:var(--muted)"></i>ROI ชำระแล้ว</span>`:''}
+        <span><i style="background:var(--good)"></i>${m.SL}</span>${m.secPaid&&m.paid>0?`<span><i style="background:var(--good);opacity:.45"></i>ชำระแล้ว</span><span><i class="dash" style="border-color:var(--muted)"></i>ROI ชำระแล้ว</span>`:''}
         <span><i style="background:var(--shopee)"></i>Shopee Ads</span>
         <span><i style="background:var(--off)"></i>CPAS</span>
         ${target>0?`<span><i class="dash"></i>${agg.target?'เป้า ROI':'ROI จุดคุ้มทุน'}</span>`:''}
@@ -1634,7 +1782,7 @@ function t5Html(ref){
         h+=`<div class="muted">รอบเหล่านี้นับเป็น 0 ${units?'จำนวนรวม':'ยอดรวม'}จึงอาจต่ำกว่าจริง</div></div>`;
       } else h+=`<div class="remark ok">✓ มีข้อมูลครบทุกรอบที่เลือก</div>`;
     }
-    let prev=r._agg?null:records.filter(y=>y.id!==r.id && recStart(y)<recStart(r) && hasTopList(y,key) && ptypeOf(y)===ptypeOf(r)).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0]; if(prev) prev=sortTopRec(V(prev));
+    let prev=r._agg?null:records.filter(y=>inShop(y) && y.id!==r.id && recStart(y)<recStart(r) && hasTopList(y,key) && ptypeOf(y)===ptypeOf(r)).sort((a,b)=>recStart(b).localeCompare(recStart(a)))[0]; if(prev) prev=sortTopRec(V(prev));
     const px=prev && (prev[key]||[]).find(y=>sameItem(y,x));
     if(px && px[F]){ const d=(x[F]-px[F])/px[F]*100; const pr=(prev[key]||[]).indexOf(px)+1;
       h+=`<div class="r" style="margin-top:4px"><span>เทียบรอบก่อน (อันดับ ${pr})</span><span style="color:${d>=0?'var(--good)':'var(--bad)'};font-weight:600">${d>=0?'▲':'▼'} ${fmtP(Math.abs(d))}</span></div>`; }
@@ -1763,9 +1911,26 @@ $('optTraffic').addEventListener('change', e=>{
 });
 applySettings();
 
-// ---------- brand ----------
-let BRAND={name:'',logo:'',url:''};
-try{ BRAND=Object.assign(BRAND, JSON.parse(localStorage.getItem('shopee-roi-brand')||'{}')); }catch(e){}
+// ---------- shops (each shop keeps its own rounds, product library, name, logo, link) ----------
+const SHOPKEY='shopee-roi-shops-v1', CURKEY='shopee-roi-shop';
+let SHOPS=[], curShop='s1';
+function loadShopsLocal(){
+  try{ SHOPS=JSON.parse(localStorage.getItem(SHOPKEY)||'[]'); }catch(e){ SHOPS=[]; }
+  if(!Array.isArray(SHOPS) || !SHOPS.length){ let b={}; try{ b=JSON.parse(localStorage.getItem('shopee-roi-brand')||'{}'); }catch(e){}
+    SHOPS=[{id:'s1', name:b.name||'', logo:b.logo||'', url:b.url||''}]; }
+  try{ curShop=localStorage.getItem(CURKEY)||SHOPS[0].id; }catch(e){ curShop=SHOPS[0].id; }
+  if(!SHOPS.some(x=>x.id===curShop)) curShop=SHOPS[0].id;
+}
+function saveShopsLocal(){ try{ localStorage.setItem(SHOPKEY, JSON.stringify(SHOPS)); localStorage.setItem(CURKEY, curShop); return true; }catch(e){ return false; } }
+const shopOf = id => SHOPS.find(x=>x.id===id);
+const shopLabel = s => (s && s.name) || ('ร้านที่ '+(Math.max(0,SHOPS.indexOf(s))+1));
+const inShop = r => ((r && r.shop) || 's1')===curShop;
+const shopRecords = () => records.filter(inShop);
+async function saveShopRemote(sh){ if(!(db&&uid)) return true; try{ await coll().doc('shop_'+sh.id).set({kind:'shop', id:sh.id, name:sh.name||'', logo:sh.logo||'', url:sh.url||''}); return true; }catch(e){ return false; } }
+loadShopsLocal();
+
+// ---------- brand (= the current shop) ----------
+let BRAND=shopOf(curShop);
 function applyBrand(){
   const img=$('brandLogo'), nm=$('brandName');
   if(BRAND.logo){ img.src=BRAND.logo; img.alt=BRAND.name?('โลโก้ '+BRAND.name):'โลโก้ร้าน'; img.hidden=false; } else { img.hidden=true; img.removeAttribute('src'); }
@@ -1787,8 +1952,8 @@ function cleanUrl(u){
   try{ const x=new URL(u); return (x.protocol==='https:'||x.protocol==='http:') && x.hostname.includes('.') ? x.href : ''; }catch(e){ return ''; }
 }
 async function saveBrand(msg){
-  try{ localStorage.setItem('shopee-roi-brand', JSON.stringify(BRAND)); }catch(e){}
-  if(db&&uid){ try{ await coll().doc('_settings').set({brand:BRAND}); }catch(e){ toast('บันทึกการตั้งค่าออนไลน์ไม่สำเร็จ ใช้ได้ในเครื่องนี้'); return; } }
+  saveShopsLocal(); renderShopUI();
+  if(!(await saveShopRemote(BRAND))){ toast('บันทึกการตั้งค่าออนไลน์ไม่สำเร็จ ใช้ได้ในเครื่องนี้'); return; }
   if(msg) toast(msg);
 }
 let urlT;
@@ -1844,29 +2009,351 @@ $('logoFile').addEventListener('change', async e=>{
 $('logoDel').addEventListener('click', ()=>{ BRAND.logo=''; applyBrand(); saveBrand('ลบโลโก้แล้ว'); });
 applyBrand();
 
+// ---------- team reports: owner publishes a read-only copy, team members only view ----------
+let dbR=null, userCap=null, isOwnerV=false, REPORTS=[], VIEW=null, VIEW_STASH=null, PUBLIC_VIEW=false;
+let FBCFG=null, FBUSER=null, FB_FROM_FILE=false, FS_=null;
+const repDoc = id => dbR.collection('reports').doc(id);
+const repSub = (id, sub) => dbR.collection(`reports/${id}/${sub}`);
+async function loadReports(){
+  if(!dbR) return [];
+  try{ const snap=await dbR.collection('reports').get(); REPORTS=snap.docs.map(d=>({id:d.id, ...structuredClone(d.data())})).filter(x=>x && x.kind==='report'); }catch(e){ REPORTS=[]; }
+  REPORTS.sort((a,b)=>(b.publishedAt||'').localeCompare(a.publishedAt||''));
+  return REPORTS;
+}
+const fmtWhen = iso => { if(!iso) return ''; const d=new Date(iso); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+async function pool(items, n, fn){ let i=0, fail=0; await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{ while(i<items.length){ const it=items[i++]; try{ await fn(it); }catch(e){ fail++; } } })); return fail; }
+function myReport(){ return REPORTS.find(r=>r.id===curShop); }
+function updateShareBtn(){
+  const b=$('shareBtn'); b.hidden = !(dbR && isOwnerV && !VIEW);
+  const rep=myReport(); const last=shopRecords().reduce((a,r)=>(r.savedAt||'')>a?(r.savedAt||''):a,'');
+  b.textContent = rep ? '👥 แชร์ให้ทีม (แชร์อยู่)' : '👥 แชร์ให้ทีม';
+  b.classList.toggle('stale', !!(rep && last && last>rep.publishedAt));
+  $('teamBtn').hidden = !(dbR && REPORTS.length && !VIEW);
+}
+async function publishReport(withProfit){
+  const rid=curShop, mine=shopRecords();
+  const used=new Map();
+  const strip=r=>{ const x=structuredClone(r); delete x.shop; if(!withProfit){ delete x.cogs; delete x.fees; }
+    for(const k of ['top5','top5u']) x[k]=(x[k]||[]).map(y=>{ if(!y) return y; const img=imgOf(y), pk=prodKey(y); if(pk && img && !used.has(pk)) used.set(pk,{key:pk,url:y.url||'',name:y.name||'',img}); return {...y, img:''}; });
+    return x; };
+  const rounds=mine.map(strip);
+  let fail=0, existing=new Map();
+  try{ (await repSub(rid,'rounds').get()).docs.forEach(d=>{ const v=d.data(); existing.set(d.id, v && (v.savedAt||'')+'|'+('cogs' in v)); }); }catch(e){}
+  const changed=rounds.filter(r=>existing.get(r.id)!==(r.savedAt||'')+'|'+('cogs' in r));
+  fail+=await pool(changed, 6, r=>repSub(rid,'rounds').doc(r.id).set(r));
+  fail+=await pool([...used.values()], 6, p=>repSub(rid,'products').doc(hashKey(p.key)).set(p));
+  // remove rounds/products that are no longer there
+  try{ const ex=await repSub(rid,'rounds').get(); const keep=new Set(rounds.map(r=>r.id)); await pool(ex.docs.filter(d=>!keep.has(d.id)), 6, d=>repSub(rid,'rounds').doc(d.id).delete()); }catch(e){}
+  try{ const ex=await repSub(rid,'products').get(); const keep=new Set([...used.values()].map(p=>hashKey(p.key))); await pool(ex.docs.filter(d=>!keep.has(d.id)), 6, d=>repSub(rid,'products').doc(d.id).delete()); }catch(e){}
+  const meta={kind:'report', owner:uid||'', shopName:shopLabel(BRAND), logo:BRAND.logo||'', url:BRAND.url||'', publishedAt:new Date().toISOString(), n:rounds.length,
+    settings:{conf:SHOW_CONF, paid:SHOW_PAID, profit:!!withProfit && SHOW_PROFIT, traffic:SHOW_TRAFFIC, top5:SHOW_TOP5, top5u:SHOW_TOP5U}};
+  await repDoc(rid).set(meta);
+  await loadReports();
+  return fail;
+}
+async function stopReport(){
+  const rid=curShop;
+  for(const sub of ['rounds','products']){ try{ const ex=await repSub(rid,sub).get(); await pool(ex.docs, 6, d=>repSub(rid,sub).doc(d.id).delete()); }catch(e){} }
+  try{ await repDoc(rid).delete(); }catch(e){}
+  await loadReports();
+}
+let autoPubT=null;
+function autoPublish(){
+  const rep=myReport(); if(!rep || !isOwnerV || VIEW) return;
+  clearTimeout(autoPubT);
+  autoPubT=setTimeout(async ()=>{ try{ const f=await publishReport(!!(rep.settings&&rep.settings.profit)); updateShareBtn(); toast(f?'อัปเดตรายงานทีมไม่ครบ ลองกดอัปเดตอีกครั้ง':'อัปเดตรายงานที่แชร์แล้ว'); }catch(e){} }, 1500);
+}
+function openShare(){
+  const rep=myReport(), n=shopRecords().length;
+  $('shareSum').textContent = `${shopLabel(BRAND)} · ${n} รอบ` + (rep ? ` · แชร์ล่าสุด ${fmtWhen(rep.publishedAt)}` : ' · ยังไม่ได้แชร์');
+  $('shProfit').checked = !!(rep && rep.settings && rep.settings.profit);
+  $('shareStop').hidden = !rep; $('sharePreview').hidden = !rep;
+  const fbMode = !!FS_ && typeof window.claude==='undefined';
+  $('shareLinkBox').hidden = !(fbMode && rep);
+  if(fbMode && rep){ $('shareUrl').value = location.origin + location.pathname + '?r=' + encodeURIComponent(rep.id);
+    $('shareLinkNote').textContent = FB_FROM_FILE ? 'ใครมีลิงก์นี้ก็เปิดดูได้ ส่งให้เฉพาะคนที่ต้องการ' : '⚠️ ต้องอัปโหลด firebase-config.json ขึ้น GitHub ก่อน คนอื่นจึงจะเปิดลิงก์นี้ได้ (⚙ ตั้งค่า → ดาวน์โหลด firebase-config.json)'; }
+  $('shareGo').textContent = rep ? 'อัปเดตรายงานให้ทีม' : 'เผยแพร่ให้ทีม';
+  const st=$('shareStatus');
+  const last=shopRecords().reduce((a,r)=>(r.savedAt||'')>a?(r.savedAt||''):a,'');
+  st.innerHTML = rep && last>rep.publishedAt ? 'มีข้อมูลใหม่หลังแชร์ล่าสุด กด “อัปเดตรายงานให้ทีม” เพื่อให้ทีมเห็นข้อมูลล่าสุด' : '';
+  st.hidden = !st.innerHTML;
+  $('shareModal').hidden=false;
+}
+$('shareBtn').addEventListener('click', openShare);
+$('shareCopy').addEventListener('click', async ()=>{ const v=$('shareUrl').value; try{ await navigator.clipboard.writeText(v); toast('คัดลอกลิงก์แล้ว'); }catch(e){ $('shareUrl').select(); toast('เลือกลิงก์ไว้แล้ว กด Ctrl+C เพื่อคัดลอก'); } });
+$('shareClose').addEventListener('click', ()=>$('shareModal').hidden=true);
+$('shareModal').addEventListener('click', e=>{ if(e.target===$('shareModal')) $('shareModal').hidden=true; });
+$('shareGo').addEventListener('click', async ()=>{
+  if(!shopRecords().length){ toast('ร้านนี้ยังไม่มีรอบที่บันทึก'); return; }
+  const b=$('shareGo'); b.disabled=true; const t=b.textContent; b.textContent='กำลังเผยแพร่…';
+  try{ const fail=await publishReport($('shProfit').checked);
+    updateShareBtn(); if(FS_ && typeof window.claude==='undefined'){ openShare(); } else $('shareModal').hidden=true;
+    toast(fail ? `เผยแพร่แล้ว แต่มี ${fail} รายการที่ส่งไม่สำเร็จ ลองกดอัปเดตอีกครั้ง` : 'เผยแพร่รายงานให้ทีมแล้ว · ส่งลิงก์นี้ให้ทีมได้เลย');
+  }catch(e){ toast('เผยแพร่ไม่สำเร็จ ลองใหม่อีกครั้ง'); }
+  finally{ b.disabled=false; b.textContent=t; }
+});
+$('shareStop').addEventListener('click', async ()=>{
+  if(!confirm('หยุดแชร์รายงานของร้านนี้? ทีมจะไม่เห็นรายงานนี้อีก (ข้อมูลของคุณไม่หาย)')) return;
+  await stopReport(); $('shareModal').hidden=true; updateShareBtn(); toast('หยุดแชร์แล้ว');
+});
+$('sharePreview').addEventListener('click', ()=>{ $('shareModal').hidden=true; const rep=myReport(); if(rep) enterView(rep.id); });
+$('teamBtn').addEventListener('click', ()=>{ const rep=myReport()||REPORTS[0]; if(rep) enterView(rep.id); });
+
+let viewUnsubs=[], viewT=null;
+function stopLive(){ viewUnsubs.forEach(f=>{ try{ f(); }catch(e){} }); viewUnsubs=[]; }
+function startLive(rid){
+  stopLive();
+  const bump=()=>{ clearTimeout(viewT); viewT=setTimeout(()=>refreshView(rid), 600); };
+  let first=0;
+  const sub=(ref)=>{ try{ if(ref && ref.onSnapshot){ const u=ref.onSnapshot(()=>{ if(first<3){ first++; return; } bump(); }, ()=>{}); if(typeof u==='function') viewUnsubs.push(u); } }catch(e){} };
+  sub(repDoc(rid)); sub(repSub(rid,'rounds')); sub(repSub(rid,'products'));
+}
+async function refreshView(rid){
+  if(!VIEW || VIEW.rid!==rid) return;
+  try{ const m=await repDoc(rid).get(); const meta = m && (m.exists===false ? null : (typeof m.data==='function' ? m.data() : null));
+    if(!meta){ toast('รายงานนี้ถูกหยุดแชร์แล้ว'); return; }
+    const i=REPORTS.findIndex(r=>r.id===rid); const full={id:rid, ...structuredClone(meta)}; if(i>=0) REPORTS[i]=full; else REPORTS.push(full);
+  }catch(e){}
+  await enterView(rid, true);
+}
+async function enterView(rid, keep){
+  const meta=REPORTS.find(r=>r.id===rid); if(!meta) return;
+  let rounds=[], prods=[];
+  try{ rounds=(await repSub(rid,'rounds').get()).docs.map(d=>structuredClone(d.data())).filter(x=>x&&x.channels);
+       prods=(await repSub(rid,'products').get()).docs.map(d=>structuredClone(d.data())).filter(x=>x&&x.key); }catch(e){ toast('เปิดรายงานไม่สำเร็จ ลองรีเฟรชหน้า'); return; }
+  keep = keep && VIEW && VIEW.rid===rid;
+  if(!VIEW_STASH) VIEW_STASH={records, curShop, BRAND, LIB, flags:{SHOW_CONF,SHOW_PAID,SHOW_PROFIT,SHOW_TRAFFIC,SHOW_TOP5,SHOW_TOP5U}};
+  VIEW={rid, meta};
+  records=rounds.map(r=>({...r, shop:'__view'})); curShop='__view';
+  BRAND={name:meta.shopName||'', logo:meta.logo||'', url:meta.url||''};
+  LIB=new Map(prods.map(p=>[p.key,{...p,saved:true}])); LIB._loaded=true;
+  const st=meta.settings||{}; SHOW_CONF=st.conf!==false; SHOW_PAID=!!st.paid; if(!SHOW_CONF&&!SHOW_PAID) SHOW_CONF=true;
+  SHOW_PROFIT=!!st.profit; SHOW_TRAFFIC=st.traffic!==false; SHOW_TOP5=st.top5!==false; SHOW_TOP5U=st.top5u!==false;
+  document.body.classList.add('viewmode');
+  $('viewBar').hidden=false;
+  $("vbTitle").textContent = `รายงาน: ${meta.shopName||"ร้าน"}`;
+  $('vbSub').textContent = `อัปเดตล่าสุด ${fmtWhen(meta.publishedAt)} · ${meta.n||rounds.length} รอบ · ดูได้อย่างเดียว`;
+  $('vbExit').hidden = PUBLIC_VIEW || !(isOwnerV || (VIEW_STASH.records||[]).length);
+  if(keep){ if(quick==='manual') quick='all'; pickDefaultType(); }
+  else { quick='all'; ptFilter=''; pickDefaultType(); }
+  selected=new Set(shopRecords().filter(inQuick).map(r=>r.id));
+  if(keep) $('vbSub').textContent += ' · อัปเดตอัตโนมัติ';
+  if(!keep) startLive(rid);
+  applySettings(); hideTip(); closeShopMenu(); applyBrand(); renderShopUI(); updateShareBtn(); renderHistory();
+  if(!keep) window.scrollTo({top:0});
+}
+function exitView(){
+  if(!VIEW_STASH) return;
+  stopLive();
+  ({records, curShop, BRAND, LIB} = VIEW_STASH);
+  ({SHOW_CONF,SHOW_PAID,SHOW_PROFIT,SHOW_TRAFFIC,SHOW_TOP5,SHOW_TOP5U} = VIEW_STASH.flags);
+  VIEW=null; VIEW_STASH=null;
+  document.body.classList.remove('viewmode'); $('viewBar').hidden=true;
+  applySettings(); switchShop(curShop, true); updateShareBtn();
+}
+$('vbExit').addEventListener('click', exitView);
+
+// ---------- Firebase (own hosting such as GitHub Pages): public read-only link + online sync ----------
+const FB_VER='10.12.2';
+function fbSay(t){ $('fbStatus').textContent=t; }
+function parseFbCfg(t){
+  const m=String(t||'').match(/\{[\s\S]*\}/); if(!m) return null;
+  const j=m[0].replace(/\/\/.*$/gm,'').replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g,'$1"$2":').replace(/'/g,'"').replace(/,\s*}/g,'}');
+  try{ const o=JSON.parse(j); return o && o.apiKey && o.projectId && o.appId ? o : null; }catch(e){ return null; }
+}
+function loadScript(src){ return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=res; sc.onerror=()=>rej(new Error('load')); document.head.appendChild(sc); }); }
+async function fbLoad(){
+  if(window.firebase && window.firebase.firestore && window.firebase.auth) return;
+  const base=`https://www.gstatic.com/firebasejs/${FB_VER}/`;
+  await loadScript(base+'firebase-app-compat.js'); await loadScript(base+'firebase-auth-compat.js'); await loadScript(base+'firebase-firestore-compat.js');
+}
+function fbUI(){
+  $('fbSetup').hidden = !!FBCFG;
+  $('fbTools').hidden = !FBCFG;
+  $('fbLogin').hidden = !FBCFG || !!FBUSER; $('fbLogout').hidden = !FBUSER;
+  $('fbClear').hidden = FB_FROM_FILE;
+  fbSay(!FBCFG ? 'ยังไม่ได้ตั้งค่า · วางค่าจาก Firebase Console เพื่อเปิดลิงก์สาธารณะและซิงก์ข้อมูลข้ามเครื่อง'
+    : FBUSER ? `เชื่อมต่อแล้ว: ${FBUSER.email||'บัญชี Google'} · ข้อมูลซิงก์ออนไลน์`
+    : `ตั้งค่าแล้ว (${FBCFG.projectId}) · เข้าสู่ระบบเพื่อซิงก์ข้อมูลและแชร์ลิงก์${FB_FROM_FILE?' · อ่านค่าจาก firebase-config.json':''}`);
+}
+function fbRulesText(){
+  const id = FBUSER ? FBUSER.uid : 'ใส่_UID_ของคุณ_ที่นี่';
+  return `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ข้อมูลส่วนตัว: เจ้าของบัญชีอ่าน/เขียนได้คนเดียว
+    match /data/users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    // รายงานที่แชร์: ทุกคนอ่านได้ เฉพาะคุณเขียนได้
+    match /reports/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == "${id}";
+    }
+  }
+}`;
+}
+function plainDownload(name, text, type){
+  const url=URL.createObjectURL(new Blob([text],{type})); const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+$('fbSaveCfg').addEventListener('click', ()=>{
+  const c=parseFbCfg($('fbCfg').value);
+  if(!c){ fbSay('อ่านค่าไม่ได้ ต้องมี apiKey, projectId และ appId · คัดลอกทั้งก้อน { … } จาก Firebase Console'); return; }
+  try{ localStorage.setItem('shopee-roi-fbcfg', JSON.stringify(c)); }catch(e){}
+  toast('บันทึกค่า Firebase แล้ว กำลังเชื่อมต่อ…'); setTimeout(()=>location.reload(), 600);
+});
+$('fbLogin').addEventListener('click', async ()=>{
+  try{ await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+  catch(e){ const c=e&&e.code||'';
+    fbSay(c==='auth/unauthorized-domain' ? `ยังไม่ได้เพิ่มโดเมน ${location.hostname} ใน Firebase → Authentication → Settings → Authorized domains`
+      : c==='auth/operation-not-allowed' ? 'ยังไม่ได้เปิด Google ใน Firebase → Authentication → Sign-in method'
+      : c==='auth/popup-blocked' ? 'เบราว์เซอร์บล็อกหน้าต่างล็อกอิน อนุญาตป๊อปอัปแล้วลองใหม่'
+      : 'เข้าสู่ระบบไม่สำเร็จ ['+(c||'error')+']'); }
+});
+$('fbLogout').addEventListener('click', async ()=>{ if(!confirm('ออกจากระบบ? ข้อมูลยังอยู่ใน Firebase เข้าสู่ระบบอีกครั้งเมื่อไรก็กลับมาครบ')) return; try{ await firebase.auth().signOut(); }catch(e){} location.reload(); });
+$('fbDlCfg').addEventListener('click', ()=>{ plainDownload('firebase-config.json', JSON.stringify(FBCFG,null,2), 'application/json'); toast('อัปโหลดไฟล์นี้ขึ้น GitHub ไว้ข้าง index.html'); });
+$('fbRules').addEventListener('click', async ()=>{ const t=fbRulesText(); try{ await navigator.clipboard.writeText(t); toast(FBUSER?'คัดลอกกฎแล้ว วางใน Firestore → Rules แล้วกด Publish':'คัดลอกแล้ว · ควรเข้าสู่ระบบก่อน กฎจะใส่ UID ของคุณให้อัตโนมัติ'); }catch(e){ prompt('คัดลอกกฎนี้ไปวางใน Firestore → Rules', t); } });
+$('fbClear').addEventListener('click', ()=>{ if(!confirm('ล้างค่า Firebase ในเบราว์เซอร์นี้?')) return; try{ localStorage.removeItem('shopee-roi-fbcfg'); }catch(e){} location.reload(); });
+async function fbBoot(){
+  $('fbSec').hidden=false;
+  const rid=new URLSearchParams(location.search).get('r');
+  if(rid){ PUBLIC_VIEW=true; document.body.classList.add('viewmode'); $('viewBar').hidden=false; $('vbTitle').textContent='กำลังโหลดรายงาน…'; $('vbSub').textContent=''; }
+  let cfg=null;
+  try{ const r=await fetch('firebase-config.json',{cache:'no-store'}); if(r.ok){ cfg=await r.json(); FB_FROM_FILE=!!(cfg&&cfg.apiKey); } }catch(e){}
+  if(!(cfg&&cfg.apiKey)){ cfg=null; try{ cfg=JSON.parse(localStorage.getItem('shopee-roi-fbcfg')||'null'); }catch(e){} }
+  FBCFG=cfg; fbUI();
+  const fail=(t,sub)=>{ if(rid){ $('vbTitle').textContent=t; $('vbSub').textContent=sub; } };
+  if(!cfg){ fail('เปิดรายงานไม่ได้','เว็บนี้ยังไม่มีไฟล์ firebase-config.json'); return; }
+  try{ await fbLoad(); }catch(e){ fbSay('โหลด Firebase ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ต'); fail('เปิดรายงานไม่ได้','โหลดระบบไม่สำเร็จ ลองรีเฟรชหน้า'); return; }
+  try{ if(!firebase.apps.length) firebase.initializeApp(cfg); FS_=firebase.firestore(); try{ FS_.settings({ignoreUndefinedProperties:true, merge:true}); }catch(e){} }
+  catch(e){ fbSay('ค่า Firebase ไม่ถูกต้อง ลองวางใหม่'); fail('เปิดรายงานไม่ได้','ค่า Firebase ไม่ถูกต้อง'); return; }
+  const adapter={collection:p=>FS_.collection(p)};
+  dbR=adapter;
+  if(rid){
+    await loadReports(); REPORTS=REPORTS.filter(r=>r.id===rid);
+    if(!REPORTS.length){ fail('ไม่พบรายงานนี้','ลิงก์อาจไม่ถูกต้อง หรือเจ้าของหยุดแชร์แล้ว'); return; }
+    await enterView(rid); return;
+  }
+  firebase.auth().onAuthStateChanged(async user=>{
+    FBUSER=user; fbUI();
+    if(user && !db){
+      try{ await attachDb(adapter, user.uid, `ซิงก์กับ Firebase แล้ว (${user.email||'บัญชี Google'}) · เปิดจากเครื่องไหนก็ได้`); renderHistory(); await initReports(true); }
+      catch(e){ db=null; uid=null; fbSay('อ่าน/เขียน Firebase ไม่ได้ ตรวจสอบกฎความปลอดภัย (⚙ → คัดลอกกฎความปลอดภัย แล้ววางใน Firestore → Rules)'); }
+    }
+  });
+}
+
+// ---------- shop switcher ----------
+function renderShopUI(){
+  if(VIEW){
+    $('shopBtnName').textContent = VIEW.meta.shopName || 'รายงาน';
+    $('shopList').innerHTML = REPORTS.map(r=>`<button type="button" class="shopit" role="option" data-rep="${esc(r.id)}" aria-selected="${r.id===VIEW.rid}">
+      <span class="lg">${r.logo?`<img src="${esc(r.logo)}" alt="">`:esc(((r.shopName||'?').trim()[0]||'?').toUpperCase())}</span>
+      <span class="tx"><b>${esc(r.shopName||'ร้าน')}</b><small>อัปเดต ${fmtWhen(r.publishedAt)}</small></span>${r.id===VIEW.rid?'<span aria-hidden="true">✓</span>':''}</button>`).join('');
+    document.querySelector('.shopact').hidden=true;
+    $('shopBtn').parentElement.style.display = REPORTS.length>1 ? '' : 'none';
+    return;
+  }
+  document.querySelector('.shopact').hidden=false; $('shopBtn').parentElement.style.display='';
+  $('shopBtnName').textContent = shopLabel(BRAND);
+  $('shopList').innerHTML = SHOPS.map(sh=>{ const n=records.filter(r=>(r.shop||'s1')===sh.id).length;
+    return `<button type="button" class="shopit" role="option" data-shop="${esc(sh.id)}" aria-selected="${sh.id===curShop}">
+      <span class="lg">${sh.logo?`<img src="${esc(sh.logo)}" alt="">`:esc((shopLabel(sh).trim()[0]||'?').toUpperCase())}</span>
+      <span class="tx"><b>${esc(shopLabel(sh))}</b><small>${n} รอบที่บันทึก</small></span>${sh.id===curShop?'<span aria-hidden="true">✓</span>':''}</button>`; }).join('');
+  $('shopDel').hidden = SHOPS.length<2;
+  $('shopBtn').style.display = '';
+}
+function switchShop(id, quiet){
+  if(!shopOf(id)) return;
+  if(id!==curShop){
+    if(editingId){ fillForm({channels:{}}); setEditing(null); }
+    curShop=id; saveShopsLocal();
+  }
+  BRAND=shopOf(curShop); LIB=libFor(curShop);
+  if(!LIB._loaded){ libLoadLocal(); libSeedFromRecords(); LIB._loaded=true; }
+  quick='all'; ptFilter=''; pickDefaultType();
+  selected=new Set(shopRecords().filter(inQuick).map(r=>r.id));
+  hideTip(); applyBrand(); renderShopUI(); renderHistory(); render(); try{ updateShareBtn(); }catch(e){}
+  if(!quiet) toast('สลับไป '+shopLabel(BRAND)+' แล้ว');
+}
+function closeShopMenu(){ $('shopMenu').hidden=true; $('shopBtn').setAttribute('aria-expanded','false'); }
+$('shopBtn').addEventListener('click', e=>{ e.stopPropagation(); const m=$('shopMenu'); m.hidden=!m.hidden; $('shopBtn').setAttribute('aria-expanded', String(!m.hidden)); if(!m.hidden){ $('setMenu').hidden=true; renderShopUI(); } });
+document.addEventListener('click', e=>{ const m=$('shopMenu'); if(!m.hidden && !m.contains(e.target) && e.target!==$('shopBtn') && !$('shopBtn').contains(e.target)) closeShopMenu(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('shopMenu').hidden){ closeShopMenu(); $('shopBtn').focus(); } });
+$('gearBtn').addEventListener('click', ()=>closeShopMenu());
+$('shopList').addEventListener('click', e=>{ const rp=e.target.closest('[data-rep]'); if(rp){ closeShopMenu(); enterView(rp.dataset.rep); return; } const b=e.target.closest('[data-shop]'); if(!b) return; closeShopMenu(); switchShop(b.dataset.shop); });
+function newShopId(){ return 's'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+async function addShop(name, reuseEmpty){
+  // reuse a blank, unused shop (e.g. the default one on a fresh browser) instead of piling up empty shops
+  const blank = reuseEmpty && SHOPS.find(x=>!x.name && !x.logo && !x.url && !records.some(r=>(r.shop||'s1')===x.id));
+  if(blank){ blank.name=(name||'').trim().slice(0,80); saveShopsLocal(); await saveShopRemote(blank); return blank; }
+  const sh={id:newShopId(), name:(name||'').trim().slice(0,80), logo:'', url:''};
+  SHOPS.push(sh); saveShopsLocal(); await saveShopRemote(sh); return sh;
+}
+$('shopAdd').addEventListener('click', async ()=>{
+  const name=prompt('ชื่อร้านใหม่', ''); if(name===null) return;
+  const sh=await addShop(name||('ร้านที่ '+(SHOPS.length+1)));
+  closeShopMenu(); switchShop(sh.id, true); toast(`เพิ่ม ${shopLabel(sh)} แล้ว · ตั้งโลโก้และลิงก์ได้ใน ⚙ ตั้งค่า`);
+});
+$('shopDel').addEventListener('click', async ()=>{
+  if(SHOPS.length<2) return;
+  const sh=BRAND, mine=shopRecords();
+  if(!confirm(`ลบ “${shopLabel(sh)}” และรอบที่บันทึกไว้ ${mine.length} รอบ?\n\nแนะนำให้กด “ดาวน์โหลดไฟล์สำรอง (CSV)” ก่อน เพราะลบแล้วกู้คืนไม่ได้`)) return;
+  if(db&&uid){
+    for(const r of mine){ try{ await coll().doc(r.id).delete(); }catch(e){} }
+    for(const [k] of libFor(sh.id)){ try{ await coll().doc(sh.id==='s1'?hashKey(k):hashKey(sh.id+'|'+k)).delete(); }catch(e){} }
+    try{ await coll().doc('shop_'+sh.id).delete(); }catch(e){}
+  }
+  records=records.filter(r=>!inShop(r)); try{ localStorage.removeItem(libKeyLocal()); }catch(e){}
+  delete LIBS[sh.id]; SHOPS=SHOPS.filter(x=>x.id!==sh.id);
+  if(!(db&&uid)) lsSave();
+  curShop=SHOPS[0].id; saveShopsLocal(); closeShopMenu(); switchShop(curShop, true); toast('ลบร้านแล้ว');
+});
+
 // init
 render();
-records = lsLoad(); libLoadLocal(); libSeedFromRecords(); pickDefaultType(); selected=new Set(records.filter(inType).map(r=>r.id)); renderHistory();
+records = lsLoad(); switchShop(curShop, true);
 $('storeNote').textContent='ข้อมูลที่บันทึกเก็บไว้ในเบราว์เซอร์นี้';
+// attach an online store (claude.ai db, or Firebase on own hosting) for this owner's data
+async function attachDb(d, id, note){
+  db=d; uid=id;
+  const snap=await coll().get();
+  // shops: account copy wins; older accounts only have one brand in _settings
+  const shopDocs=snap.docs.map(x=>x.data()).filter(v=>v&&v.kind==='shop'&&v.id).map(v=>structuredClone(v));
+  if(shopDocs.length){
+    for(const sh of SHOPS) if(!shopDocs.some(x=>x.id===sh.id)){ shopDocs.push(sh); await saveShopRemote(sh); }
+    SHOPS=shopDocs.map(({kind,...x})=>x).sort((a,b)=>a.id==='s1'?-1:b.id==='s1'?1:a.id.localeCompare(b.id));
+  } else {
+    const sdoc=snap.docs.find(x=>x.id==='_settings'); const b=sdoc&&sdoc.data()&&sdoc.data().brand;
+    const s1=SHOPS.find(x=>x.id==='s1')||SHOPS[0]; if(b && s1 && !s1.name && !s1.logo){ Object.assign(s1, structuredClone(b)); }
+    for(const sh of SHOPS) await saveShopRemote(sh);
+  }
+  if(!SHOPS.some(x=>x.id===curShop)) curShop=SHOPS[0].id; saveShopsLocal();
+  for(const k in LIBS) delete LIBS[k];
+  for(const x of snap.docs){ const v=x.data(); if(v && v.kind==='product' && v.key) libFor(v.shop||'s1').set(v.key,{...structuredClone(v),saved:true}); }
+  const remote=snap.docs.filter(x=>x.id!=='_settings').map(x=>x.data()).filter(x=>x&&x.channels).map(x=>structuredClone(x));
+  // merge any local-only records up to the account
+  const ids=new Set(remote.map(x=>x.id));
+  for(const r of records){ if(!ids.has(r.id)){ try{ await coll().doc(r.id).set(r); remote.push(r);}catch(e){} } }
+  records=remote; for(const k in LIBS) LIBS[k]._loaded=false; switchShop(curShop, true); try{localStorage.removeItem(LSKEY);}catch(e){}
+  $('storeNote').textContent=note;
+}
+async function initReports(owner){
+  isOwnerV = owner;
+  await loadReports();
+  // team members (not the owner) with no data of their own go straight to the read-only report
+  if(!isOwnerV && REPORTS.length && !records.length && !VIEW) await enterView(REPORTS[0].id);
+  updateShareBtn();
+}
 (async ()=>{
+  if(typeof window.claude==='undefined'){ fbBoot(); return; }   // own hosting (GitHub): optional Firebase
   try{
     const [d,u,dl] = await Promise.all([claude.use('db'), claude.use('user'), claude.use('downloads')]);
-    downloads=dl;
-    if(d && u){ const id=await u.id(); if(id){ db=d; uid=id;
-      const snap=await coll().get();
-      const sdoc=snap.docs.find(x=>x.id==='_settings');
-      if(sdoc && sdoc.data() && sdoc.data().brand){ BRAND=Object.assign({name:'',logo:'',url:''}, structuredClone(sdoc.data().brand)); try{localStorage.setItem('shopee-roi-brand',JSON.stringify(BRAND));}catch(e){} applyBrand(); }
-      else if(BRAND.name||BRAND.logo||BRAND.url){ try{ await coll().doc('_settings').set({brand:BRAND}); }catch(e){} }
-      for(const d of snap.docs){ const v=d.data(); if(v && v.kind==='product' && v.key) LIB.set(v.key,{...structuredClone(v),saved:true}); }
-      const remote=snap.docs.filter(x=>x.id!=='_settings').map(x=>x.data()).filter(x=>x&&x.channels).map(x=>structuredClone(x));
-      // merge any local-only records up to the account
-      const ids=new Set(remote.map(x=>x.id));
-      for(const r of records){ if(!ids.has(r.id)){ try{ await coll().doc(r.id).set(r); remote.push(r);}catch(e){} } }
-      records=remote; libSeedFromRecords(); ptFilter=(()=>{ try{ return localStorage.getItem('shopee-roi-ptfilter')||''; }catch(e){ return ''; } })(); pickDefaultType(); selected=new Set(records.filter(inQuick).map(r=>r.id)); try{localStorage.removeItem(LSKEY);}catch(e){}
-      $('storeNote').textContent='ประวัติบันทึกในบัญชีของคุณ เห็นเฉพาะคุณ เปิดจากเครื่องไหนก็ได้';
-    }}
+    downloads=dl; dbR=d; userCap=u;
+    if(d && u){ const id=await u.id(); if(id) await attachDb(d, id, 'ประวัติบันทึกในบัญชีของคุณ เห็นเฉพาะคุณ เปิดจากเครื่องไหนก็ได้'); }
   }catch(e){}
   renderHistory();
+  try{ if(dbR) await initReports(userCap ? await userCap.isOwner() : false); }catch(e){}
 })();
 </script>
 </body>
