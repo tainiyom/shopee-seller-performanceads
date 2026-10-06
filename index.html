@@ -13,7 +13,7 @@
   --shopee:#EE4D2D; --shopee-soft:#FDEDE9; --off:#3551C4; --off-soft:#ECEFFB;
   --good:#12805C; --good-soft:#E6F4EE; --bad:#C0342B; --bad-soft:#FBEAE8; --warn:#B26A00;
   --field:#F8F9FB;
-  --ch-product:#EE4D2D;--ch-search:#F7894F;--ch-brand:#B8321A;--ch-live:#F2A57E;--ch-cpasShop:#3551C4;--ch-cpasMeta:#1F2F7A;
+  --ch-product:#EE4D2D;--ch-search:#F7894F;--ch-brand:#B8321A;--ch-live:#F2A57E;--ch-cpasShop:#3551C4;--ch-cpasMeta:#1F2F7A;--ch-brandMax:#C2255C;--ch-autoBid:#E67700;--ch-gmvShop:#9C36B5;--ch-otherAds:#868E96;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -23,7 +23,7 @@
     --shopee:#FF6A4A; --shopee-soft:#3A221D; --off:#7D93F0; --off-soft:#232A45;
     --good:#3CC48F; --good-soft:#18342A; --bad:#FF7066; --bad-soft:#3C1F1D; --warn:#E8A33A;
     --field:#232830;
-    --ch-product:#FF6A4A;--ch-search:#FFA273;--ch-brand:#E4583C;--ch-live:#FFC6A6;--ch-cpasShop:#6F88F0;--ch-cpasMeta:#B3C1FF;
+    --ch-product:#FF6A4A;--ch-search:#FFA273;--ch-brand:#E4583C;--ch-live:#FFC6A6;--ch-cpasShop:#6F88F0;--ch-cpasMeta:#B3C1FF;--ch-brandMax:#F783AC;--ch-autoBid:#FFA94D;--ch-gmvShop:#DA77F2;--ch-otherAds:#ADB5BD;
   }
 }
 :root[data-theme="dark"]{
@@ -31,7 +31,7 @@
   --shopee:#FF6A4A; --shopee-soft:#3A221D; --off:#7D93F0; --off-soft:#232A45;
   --good:#3CC48F; --good-soft:#18342A; --bad:#FF7066; --bad-soft:#3C1F1D; --warn:#E8A33A;
   --field:#232830;
-  --ch-product:#FF6A4A;--ch-search:#FFA273;--ch-brand:#E4583C;--ch-live:#FFC6A6;--ch-cpasShop:#6F88F0;--ch-cpasMeta:#B3C1FF;
+  --ch-product:#FF6A4A;--ch-search:#FFA273;--ch-brand:#E4583C;--ch-live:#FFC6A6;--ch-cpasShop:#6F88F0;--ch-cpasMeta:#B3C1FF;--ch-brandMax:#F783AC;--ch-autoBid:#FFA94D;--ch-gmvShop:#DA77F2;--ch-otherAds:#ADB5BD;
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
@@ -50,6 +50,7 @@ input[type=date],input[type=text]{background:var(--panel);border:1px solid var(-
 .grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:18px;align-items:start}
 .rescol{align-self:stretch}
 #livePanel th,#livePanel td{padding:8px 7px}
+#tbody td:first-child,.ovtable td:first-child{white-space:normal;min-width:130px}
 @media (min-width:901px){
   #livePanel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;overscroll-behavior:contain;scroll-behavior:smooth}
 }
@@ -86,6 +87,10 @@ input[type=date],input[type=text]{background:var(--panel);border:1px solid var(-
 .group p{margin:2px 0 10px}
 .chrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
 .chrow:last-child{border-bottom:0}
+.chrow[hidden]{display:none}
+.offtag{display:none;margin-left:6px;font-size:.68rem;font-weight:600;color:var(--warn);border:1px solid currentColor;border-radius:999px;padding:0 6px;vertical-align:1px}
+.chrow.isoff .offtag{display:inline-block}
+.chrow.isoff{opacity:.75}
 .chrow .nm{font-size:.88rem;line-height:1.3}
 .chrow .nm a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
 .chrow .money input{padding:6px 8px;font-size:.92rem}
@@ -294,6 +299,10 @@ body.viewmode .overview > .hint{display:none}
 #fbCfg{width:100%;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px;color:inherit;resize:vertical}
 .sharelink{margin-top:12px}
 #shareUrl{flex:1;min-width:0;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:12px ui-monospace,Menlo,Consolas,monospace;color:inherit}
+.adsopts{display:grid;grid-template-columns:1fr;gap:2px}
+.adsopts label{display:flex;align-items:center;gap:8px;font-size:.84rem;padding:4px 2px;cursor:pointer}
+.adsopts input{width:16px;height:16px;accent-color:var(--shopee);flex:none}
+.adsopts .dot{margin:0}
 .optgrp{border:1px solid var(--line);border-radius:10px;padding:2px 10px;margin-bottom:6px}
 .optgrp-h{font-size:.74rem;color:var(--muted);padding-top:8px}
 .menu{max-height:calc(100vh - 90px);overflow:auto}
@@ -482,6 +491,10 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
           <div class="fbrow"><button type="button" class="btn sm" id="fbLogin" hidden>เข้าสู่ระบบด้วย Google</button><button type="button" class="btn sm" id="fbLogout" hidden>ออกจากระบบ</button></div>
           <div class="fbrow" id="fbTools" hidden><button type="button" class="btn sm" id="fbDlCfg">ดาวน์โหลด firebase-config.json</button><button type="button" class="btn sm" id="fbRules">คัดลอกกฎความปลอดภัย</button><button type="button" class="btn sm" id="fbClear">ล้างค่า</button></div>
         </div>
+        <div class="sec"><h4>ช่องโฆษณา Shopee Ads ที่ใช้</h4>
+          <p class="hint" style="margin:-4px 0 6px">ตั้งแยกตามร้าน · ช่องที่ไม่ติ๊กจะไม่แสดงในฟอร์มและรายงาน (ข้อมูลเดิมยังอยู่และนับรวมตามปกติ)</p>
+          <div class="adsopts" id="adsOpts"></div>
+        </div>
         <div class="sec"><h4>ตั้งค่าการแสดงผล</h4></div>
         <div class="optgrp"><div class="optgrp-h">ยอดขายที่ใช้คำนวณ ROI</div>
           <label class="opt"><input type="checkbox" id="optConf"><div><b>แสดงยอดขายที่ยืนยันแล้ว</b><span>ถ้าเลือกไว้ จะเป็นตัวเลขหลักของ ROI, ACOS และกราฟ</span></div></label>
@@ -568,7 +581,7 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
 
       <div class="group shopee">
         <h3>Shopee Ads (ภายใน Seller Centre)</h3>
-        <p class="hint">4 ประเภทโฆษณาในหน้า Shopee Ads</p>
+        <p class="hint">ประเภทโฆษณาในหน้า Shopee Ads · ช่องที่ไม่ได้ใช้เว้นว่างไว้ได้</p>
         <div id="grp-shopee"></div>
       </div>
 
@@ -634,7 +647,7 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
           </div>
           <dl class="kpis">
             <div class="kpi"><dt id="kSalesLbl">ยอดขายที่ยืนยันแล้ว</dt><dd class="num" id="kSales">฿0</dd><p class="ksub2" id="kSalesSub" hidden></p></div>
-            <div class="kpi"><dt>ค่าโฆษณารวม 6 ช่องทาง</dt><dd class="num" id="kSpend">฿0</dd></div>
+            <div class="kpi"><dt>ค่าโฆษณารวมทุกช่องทาง</dt><dd class="num" id="kSpend">฿0</dd></div>
             <div class="kpi"><dt>ACOS (ค่าโฆษณา ÷ ยอดขาย)</dt><dd class="num" id="kAcos">–</dd></div>
             <div class="kpi"><dt id="kProfitLbl">ยอดขายหลังหักค่าโฆษณา</dt><dd class="num" id="kProfit">฿0</dd></div>
           </dl>
@@ -736,10 +749,14 @@ const TR = [
 ];
 try{ SHOW_PROFIT = localStorage.getItem('shopee-roi-show-profit') !== '0'; }catch(e){}
 const CH = [
-  {k:'product', g:'shopee', n:'โฆษณาสินค้า', c:'var(--ch-product)'},
-  {k:'search',  g:'shopee', n:'โฆษณาคำค้นหา', c:'var(--ch-search)'},
-  {k:'brand',   g:'shopee', n:'Brand Ads', c:'var(--ch-brand)'},
-  {k:'live',    g:'shopee', n:'Live Ads', c:'var(--ch-live)'},
+  {k:'product', g:'shopee', n:'โฆษณาเพิ่มยอดขายแบบกำหนด ROAS เอง', old:'โฆษณาสินค้า', c:'var(--ch-product)'},
+  {k:'search',  g:'shopee', n:'โฆษณา Shop Ads', old:'โฆษณาคำค้นหา', c:'var(--ch-search)'},
+  {k:'brand',   g:'shopee', n:'Search Brand Ads', old:'Brand Ads', c:'var(--ch-brand)'},
+  {k:'live',    g:'shopee', n:'โฆษณา Live Ads', old:'Live Ads', c:'var(--ch-live)'},
+  {k:'brandMax', g:'shopee', n:'Brand Max Ads', c:'var(--ch-brandMax)'},
+  {k:'autoBid',  g:'shopee', n:'โฆษณาเพิ่มยอดขายแบบตั้งราคาอัตโนมัติ', c:'var(--ch-autoBid)'},
+  {k:'gmvShop',  g:'shopee', n:'Product Ads (GMV Max-Shop)', c:'var(--ch-gmvShop)'},
+  {k:'otherAds', g:'shopee', n:'อื่นๆ', c:'var(--ch-otherAds)'},
   {k:'cpasShop',g:'off', n:'CPAS in shop', c:'var(--ch-cpasShop)'},
   {k:'cpasMeta',g:'off', n:'CPAS in Meta', c:'var(--ch-cpasMeta)'},
 ];
@@ -998,12 +1015,22 @@ $('copyTop').addEventListener('click', ()=>{
 // Build channel rows
 for (const ch of CH){
   const row = document.createElement('div');
-  row.className = 'chrow';
+  row.className = 'chrow'; row.id = 'row_'+ch.k;
   const name = ch.link ? `<a href="${ch.link}" target="_blank" rel="noopener">${ch.n}</a>` : ch.n;
-  row.innerHTML = `<div class="nm"><span class="dot" style="background:${ch.c}"></span>${name}</div>
+  row.innerHTML = `<div class="nm"><span class="dot" style="background:${ch.c}"></span>${name}<span class="offtag">ปิดในตั้งค่า</span></div>
     <div class="money"><span>฿</span><input class="num" inputmode="decimal" placeholder="0" id="s_${ch.k}" aria-label="ค่าใช้จ่าย ${ch.n}"></div>
     <div class="money"><span>฿</span><input class="num" inputmode="decimal" placeholder="–" id="r_${ch.k}" aria-label="ยอดขายจาก ${ch.n}"></div>`;
   $(ch.g==='shopee'?'grp-shopee':'grp-off').appendChild(row);
+}
+
+// which Shopee Ads channels this shop uses (set per shop in Settings)
+function adsOn(k){ const ch=CH.find(c=>c.k===k); if(!ch || ch.g!=='shopee') return true; const L=(typeof BRAND!=='undefined' && BRAND) ? BRAND.adsOn : null; return !Array.isArray(L) || L.includes(k); }
+const showCh = (ch, c) => adsOn(ch.k) || (+((c||{}).spend)||0)>0 || (+((c||{}).sales)||0)>0 || (+((c||{}).salesPaid)||0)>0;
+function applyAdsRows(){
+  for(const ch of CH){ if(ch.g!=='shopee') continue;
+    const on=adsOn(ch.k);
+    const hasVal = num($('s_'+ch.k))>0 || fn('r_'+ch.k,'conf')>0 || fn('r_'+ch.k,'paid')>0;
+    const row=$('row_'+ch.k); row.hidden = !on && !hasVal; row.classList.toggle('isoff', !on && hasVal); }
 }
 
 // ---------- two sets of sales numbers: confirmed / paid (ad spend is shared) ----------
@@ -1110,7 +1137,7 @@ function tableRows(r,m){
     const s = CH.filter(c=>c.g===g).reduce((a,c)=>a+r.channels[c.k].sales,0);
     return `<tr class="sub"><td>${label}</td><td class="num">${fmtB(total)}</td><td class="num">${fmtP(m.spend>0?total/m.spend*100:0)}</td><td class="num">${s?fmtB(s):'–'}</td><td class="num">${total>0&&s>0?fmtX(s/total)+' เท่า':'–'}</td></tr>`;
   };
-  let h = sub('Shopee Ads รวม','shopee',m.shopee) + CH.filter(c=>c.g==='shopee').map(row).join('');
+  let h = sub('Shopee Ads รวม','shopee',m.shopee) + CH.filter(c=>c.g==='shopee' && showCh(c, r.channels[c.k])).map(row).join('');
   h += sub('นอกแพลตฟอร์มรวม','off',m.off) + CH.filter(c=>c.g==='off').map(row).join('');
   h += `<tr class="total"><td>รวมทั้งหมด → ROI ร้าน</td><td class="num">${fmtB(m.spend)}</td><td class="num">100%</td><td class="num">${fmtB(m.S)} <span class="muted" style="font-weight:400">(${m.SL})</span></td><td class="num">${isFinite(m.roi)?'ROI '+fmtX(m.roi)+' เท่า':'–'}</td></tr>`;
   return h;
@@ -1139,6 +1166,7 @@ function render(){
     pr.textContent = c>0 && p>0 ? `ยืนยันแล้ว ${fmtB(c)} · ชำระแล้ว ${fmtB(p)} · อัตราชำระ ${fmtP(p/c*100)}` + (p>c*1.001 ? ' — ชำระแล้วมากกว่ายืนยันแล้ว ตรวจสอบอีกครั้ง' : '') : (formMode==='paid' && c>0 ? `ยอดขายที่ยืนยันแล้ว ${fmtB(c)}` : (formMode==='conf' && p>0 ? `ยอดขายที่ชำระเงินแล้ว ${fmtB(p)}` : ''));
     if(p>c*1.001 && c>0) pr.className='sumline warn'; }
   try{ updateModeUI(); }catch(e){}
+  try{ applyAdsRows(); }catch(e){}
   $('kSpend').textContent = fmtB(m.spend);
   $('kAcos').textContent = fmtP(m.acos);
   const pv = m.hasCost ? m.profit : m.S - m.spend;
@@ -1183,7 +1211,7 @@ function render(){
   if(typeof liveHighlight==='function' && focusKey) liveHighlight();
   if(typeof miniUpdate==='function') try{ miniUpdate(r,m); }catch(e){}
 
-  let f = `<b>ROI</b> = ${m.SL} ÷ (โฆษณาสินค้า + โฆษณาคำค้นหา + Brand Ads + Live Ads + CPAS in shop + CPAS in Meta)<br>
+  let f = `<b>ROI</b> = ${m.SL} ÷ (${CH.map(c=>c.n).join(' + ')})<br>
     <b>ROAS ช่องทาง</b> = ยอดขายจากแอดของช่องทางนั้น ÷ ค่าแอดของช่องทางนั้น<br>
     <b>ACOS</b> = ค่าโฆษณารวม ÷ ยอดขาย × 100`;
   if (m.secPaid) f += `<br><b>ROI ชำระแล้ว</b> = ยอดขายที่ชำระเงินแล้ว ÷ ค่าโฆษณารวม &nbsp;·&nbsp; <b>อัตราการชำระเงิน</b> = ชำระแล้ว ÷ ยืนยันแล้ว`;
@@ -1199,7 +1227,8 @@ let records = [];  // {id, ...form, savedAt}
 let db=null, uid=null, downloads=null;
 const LSKEY='shopee-roi-records-v1';
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2200); }
-function lsLoad(){ try{ return JSON.parse(localStorage.getItem(LSKEY)||'[]'); }catch(e){ return []; } }
+function normRec(r){ if(!r) return r; r.channels=r.channels||{}; for(const c of CH) if(!r.channels[c.k]) r.channels[c.k]={spend:0,sales:0}; return r; }
+function lsLoad(){ try{ return JSON.parse(localStorage.getItem(LSKEY)||'[]').map(normRec); }catch(e){ return []; } }
 function lsSave(){ try{ localStorage.setItem(LSKEY, JSON.stringify(records)); }catch(e){} }
 function coll(){ return db.collection('data/users/'+uid); }
 
@@ -1354,8 +1383,9 @@ $('importFile').addEventListener('change', async e=>{
   if(rows.length<2){ toast('ไฟล์นี้ไม่มีข้อมูลรอบ'); return; }
   const head=rows[0].map(h=>String(h).trim()); const col=n=>head.indexOf(n);
   const salesCol = col('ยอดขายที่ยืนยันแล้ว')>=0 ? 'ยอดขายที่ยืนยันแล้ว' : 'ยอดขายชำระแล้ว';
-  if(col(salesCol)<0 || !CH.some(c=>col('ค่าใช้จ่าย '+c.n)>=0)){ toast('รูปแบบไฟล์ไม่ตรง ใช้ไฟล์ CSV ที่ดาวน์โหลดจากหน้านี้'); return; }
-  const get=(r,n)=>{ const i=col(n); return i>=0 ? r[i] : ''; };
+  if(col(salesCol)<0 || !CH.some(c=>col('ค่าใช้จ่าย '+c.n)>=0 || (c.old && col('ค่าใช้จ่าย '+c.old)>=0))){ toast('รูปแบบไฟล์ไม่ตรง ใช้ไฟล์ CSV ที่ดาวน์โหลดจากหน้านี้'); return; }
+  const OLDN=CH.filter(c=>c.old).map(c=>[c.n,c.old]);
+  const get=(r,n)=>{ let i=col(n); if(i<0){ for(const [nw,od] of OLDN) if(n.endsWith(nw)){ i=col(n.slice(0,n.length-nw.length)+od); break; } } return i>=0 ? r[i] : ''; };
   const incoming=[];
   for(const r of rows.slice(1)){
     const channels={}; for(const c of CH) channels[c.k]={spend:pNum(get(r,'ค่าใช้จ่าย '+c.n)), sales:pNum(get(r,'ยอดขาย '+c.n)), salesPaid:pNum(get(r,'ยอดขายชำระแล้ว '+c.n))};
@@ -1669,7 +1699,7 @@ function renderOverview(){
       <div class="muted small">${fmtP(m.spend?total/m.spend*100:NaN)} ของงบทั้งหมด</div></div>`; };
   const maxS=Math.max(1,...CH.map(c=>agg.channels[c.k].spend));
   let items='';
-  for(const ch of [...CH].sort((a,b)=>agg.channels[b.k].spend-agg.channels[a.k].spend)){
+  for(const ch of [...CH].filter(c=>showCh(c, agg.channels[c.k])).sort((a,b)=>agg.channels[b.k].spend-agg.channels[a.k].spend)){
     const c=agg.channels[ch.k]; const sh=m.spend?c.spend/m.spend*100:0;
     items+=`<div class="chi">
       <div class="chi-h"><span class="dot" style="background:${ch.c}"></span><b>${ch.n}</b>${pill(c.spend>0&&c.sales>0?c.sales/c.spend:NaN)}</div>
@@ -1706,7 +1736,7 @@ function tipHtml(d){
     <div class="r"><span>ค่าแอดรวม</span><span style="font-weight:700">${fmtB(m.spend)}</span></div>
     <div class="muted" style="font-size:.72rem;text-align:right">ค่าแอด / ยอดขายจากแอด</div>
     <div class="r hd"><span style="color:var(--shopee)">Shopee Ads</span><span>${fmtB(m.shopee)}</span></div>
-    ${CH.filter(c=>c.g==='shopee').map(line).join('')}
+    ${CH.filter(c=>c.g==='shopee' && showCh(c, r.channels[c.k])).map(line).join('')}
     <div class="r hd"><span style="color:var(--off)">นอกแพลตฟอร์ม</span><span>${fmtB(m.off)}</span></div>
     ${CH.filter(c=>c.g==='off').map(line).join('')}`;
   const tr=r.traffic||{}; const tsum=TR.reduce((a,t)=>a+(+tr[t.k]||0),0);
@@ -1928,7 +1958,7 @@ const shopOf = id => SHOPS.find(x=>x.id===id);
 const shopLabel = s => (s && s.name) || ('ร้านที่ '+(Math.max(0,SHOPS.indexOf(s))+1));
 const inShop = r => ((r && r.shop) || 's1')===curShop;
 const shopRecords = () => records.filter(inShop);
-async function saveShopRemote(sh){ if(!(db&&uid)) return true; try{ await coll().doc('shop_'+sh.id).set({kind:'shop', id:sh.id, name:sh.name||'', logo:sh.logo||'', url:sh.url||''}); return true; }catch(e){ return false; } }
+async function saveShopRemote(sh){ if(!(db&&uid)) return true; try{ await coll().doc('shop_'+sh.id).set({kind:'shop', id:sh.id, name:sh.name||'', logo:sh.logo||'', url:sh.url||'', ...(Array.isArray(sh.adsOn)?{adsOn:sh.adsOn}:{})}); return true; }catch(e){ return false; } }
 loadShopsLocal();
 
 // ---------- brand (= the current shop) ----------
@@ -2048,7 +2078,7 @@ async function publishReport(withProfit){
   try{ const ex=await repSub(rid,'rounds').get(); const keep=new Set(rounds.map(r=>r.id)); await pool(ex.docs.filter(d=>!keep.has(d.id)), 6, d=>repSub(rid,'rounds').doc(d.id).delete()); }catch(e){}
   try{ const ex=await repSub(rid,'products').get(); const keep=new Set([...used.values()].map(p=>hashKey(p.key))); await pool(ex.docs.filter(d=>!keep.has(d.id)), 6, d=>repSub(rid,'products').doc(d.id).delete()); }catch(e){}
   const meta={kind:'report', owner:uid||'', shopName:shopLabel(BRAND), logo:BRAND.logo||'', url:BRAND.url||'', publishedAt:new Date().toISOString(), n:rounds.length,
-    settings:{conf:SHOW_CONF, paid:SHOW_PAID, profit:!!withProfit && SHOW_PROFIT, traffic:SHOW_TRAFFIC, top5:SHOW_TOP5, top5u:SHOW_TOP5U}};
+    settings:{adsOn:Array.isArray(BRAND.adsOn)?BRAND.adsOn:null, conf:SHOW_CONF, paid:SHOW_PAID, profit:!!withProfit && SHOW_PROFIT, traffic:SHOW_TRAFFIC, top5:SHOW_TOP5, top5u:SHOW_TOP5U}};
   await repDoc(rid).set(meta);
   await loadReports();
   return fail;
@@ -2121,13 +2151,13 @@ async function refreshView(rid){
 async function enterView(rid, keep){
   const meta=REPORTS.find(r=>r.id===rid); if(!meta) return;
   let rounds=[], prods=[];
-  try{ rounds=(await repSub(rid,'rounds').get()).docs.map(d=>structuredClone(d.data())).filter(x=>x&&x.channels);
+  try{ rounds=(await repSub(rid,'rounds').get()).docs.map(d=>structuredClone(d.data())).filter(x=>x&&x.channels).map(normRec);
        prods=(await repSub(rid,'products').get()).docs.map(d=>structuredClone(d.data())).filter(x=>x&&x.key); }catch(e){ toast('เปิดรายงานไม่สำเร็จ ลองรีเฟรชหน้า'); return; }
   keep = keep && VIEW && VIEW.rid===rid;
   if(!VIEW_STASH) VIEW_STASH={records, curShop, BRAND, LIB, flags:{SHOW_CONF,SHOW_PAID,SHOW_PROFIT,SHOW_TRAFFIC,SHOW_TOP5,SHOW_TOP5U}};
   VIEW={rid, meta};
   records=rounds.map(r=>({...r, shop:'__view'})); curShop='__view';
-  BRAND={name:meta.shopName||'', logo:meta.logo||'', url:meta.url||''};
+  BRAND={name:meta.shopName||'', logo:meta.logo||'', url:meta.url||'', adsOn:(meta.settings&&meta.settings.adsOn)||null};
   LIB=new Map(prods.map(p=>[p.key,{...p,saved:true}])); LIB._loaded=true;
   const st=meta.settings||{}; SHOW_CONF=st.conf!==false; SHOW_PAID=!!st.paid; if(!SHOW_CONF&&!SHOW_PAID) SHOW_CONF=true;
   SHOW_PROFIT=!!st.profit; SHOW_TRAFFIC=st.traffic!==false; SHOW_TOP5=st.top5!==false; SHOW_TOP5U=st.top5u!==false;
@@ -2247,6 +2277,21 @@ async function fbBoot(){
   });
 }
 
+// ---------- Shopee Ads channels on/off (per shop) ----------
+function renderAdsOpts(){
+  $('adsOpts').innerHTML = CH.filter(c=>c.g==='shopee').map(c=>`<label><input type="checkbox" data-ad="${c.k}" ${adsOn(c.k)?'checked':''}><span class="dot" style="background:${c.c}"></span>${c.n}</label>`).join('');
+}
+$('adsOpts').addEventListener('change', e=>{
+  const k=e.target.dataset && e.target.dataset.ad; if(!k) return;
+  const all=CH.filter(c=>c.g==='shopee').map(c=>c.k);
+  const cur=Array.isArray(BRAND.adsOn) ? BRAND.adsOn.slice() : all.slice();
+  const next = e.target.checked ? [...new Set([...cur,k])] : cur.filter(x=>x!==k);
+  BRAND.adsOn = all.filter(x=>next.includes(x));
+  saveBrand(); render(); renderHistory();
+  const n=CH.find(c=>c.k===k).n; toast(e.target.checked ? `เปิดช่อง ${n} แล้ว` : `ปิดช่อง ${n} แล้ว`);
+});
+$('gearBtn').addEventListener('click', ()=>renderAdsOpts());
+
 // ---------- shop switcher ----------
 function renderShopUI(){
   if(VIEW){
@@ -2277,7 +2322,7 @@ function switchShop(id, quiet){
   if(!LIB._loaded){ libLoadLocal(); libSeedFromRecords(); LIB._loaded=true; }
   quick='all'; ptFilter=''; pickDefaultType();
   selected=new Set(shopRecords().filter(inQuick).map(r=>r.id));
-  hideTip(); applyBrand(); renderShopUI(); renderHistory(); render(); try{ updateShareBtn(); }catch(e){}
+  hideTip(); applyBrand(); renderShopUI(); renderHistory(); render(); try{ updateShareBtn(); renderAdsOpts(); }catch(e){}
   if(!quiet) toast('สลับไป '+shopLabel(BRAND)+' แล้ว');
 }
 function closeShopMenu(){ $('shopMenu').hidden=true; $('shopBtn').setAttribute('aria-expanded','false'); }
@@ -2335,7 +2380,7 @@ async function attachDb(d, id, note){
   if(!SHOPS.some(x=>x.id===curShop)) curShop=SHOPS[0].id; saveShopsLocal();
   for(const k in LIBS) delete LIBS[k];
   for(const x of snap.docs){ const v=x.data(); if(v && v.kind==='product' && v.key) libFor(v.shop||'s1').set(v.key,{...structuredClone(v),saved:true}); }
-  const remote=snap.docs.filter(x=>x.id!=='_settings').map(x=>x.data()).filter(x=>x&&x.channels).map(x=>structuredClone(x));
+  const remote=snap.docs.filter(x=>x.id!=='_settings').map(x=>x.data()).filter(x=>x&&x.channels).map(x=>normRec(structuredClone(x)));
   // merge any local-only records up to the account
   const ids=new Set(remote.map(x=>x.id));
   for(const r of records){ if(!ids.has(r.id)){ try{ await coll().doc(r.id).set(r); remote.push(r);}catch(e){} } }
