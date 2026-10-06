@@ -290,6 +290,7 @@ body.viewmode .grid, body.viewmode .history, body.viewmode #gearBtn, body.viewmo
 body.viewmode .overview > .hint{display:none}
 #shareBtn.stale::after{content:" •";color:var(--warn);font-weight:700}
 .fbrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.fbrow[hidden],#fbSetup[hidden]{display:none}
 #fbCfg{width:100%;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px;color:inherit;resize:vertical}
 .sharelink{margin-top:12px}
 #shareUrl{flex:1;min-width:0;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:12px ui-monospace,Menlo,Consolas,monospace;color:inherit}
@@ -563,6 +564,22 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
         </div>
       </div>
 
+      <div class="colhead"><span>ช่องทาง</span><span>ค่าใช้จ่าย</span><span>ยอดขายจากโฆษณา*</span></div>
+
+      <div class="group shopee">
+        <h3>Shopee Ads (ภายใน Seller Centre)</h3>
+        <p class="hint">4 ประเภทโฆษณาในหน้า Shopee Ads</p>
+        <div id="grp-shopee"></div>
+      </div>
+
+      <div class="group off">
+        <h3><a href="https://seller.shopee.co.th/portal/web-shopping-ads" target="_blank" rel="noopener" style="color:inherit;text-underline-offset:3px">โฆษณานอกแพลตฟอร์ม</a></h3>
+        <p class="hint">CPAS in shop และ CPAS in Meta</p>
+        <p class="hint offnote">ยอดขายจากโฆษณานอกแพลตฟอร์มใช้ข้อมูลชุดเดียวกันทั้ง “ยืนยันแล้ว” และ “ชำระเงินแล้ว” กรอกครั้งเดียวพอ</p>
+        <div id="grp-off"></div>
+      </div>
+      <p class="hint" style="margin-top:8px">* ไม่บังคับ ใส่เมื่ออยากดู ROAS แยกรายช่องทาง</p>
+
       <div class="pullbar">
         <button type="button" class="btn sm" id="pullPrev">⟲ ดึง TOP 5 จากรอบก่อน</button>
         <span class="hint" id="pullHint">ดึงลิงก์ ชื่อ และรูปของทั้ง 2 รายการจากรอบก่อนประเภทเดียวกัน แล้วกรอกเฉพาะตัวเลข</span>
@@ -582,21 +599,6 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
         <div id="topURows"></div>
       </div>
 
-      <div class="colhead"><span>ช่องทาง</span><span>ค่าใช้จ่าย</span><span>ยอดขายจากโฆษณา*</span></div>
-
-      <div class="group shopee">
-        <h3>Shopee Ads (ภายใน Seller Centre)</h3>
-        <p class="hint">4 ประเภทโฆษณาในหน้า Shopee Ads</p>
-        <div id="grp-shopee"></div>
-      </div>
-
-      <div class="group off">
-        <h3><a href="https://seller.shopee.co.th/portal/web-shopping-ads" target="_blank" rel="noopener" style="color:inherit;text-underline-offset:3px">โฆษณานอกแพลตฟอร์ม</a></h3>
-        <p class="hint">CPAS in shop และ CPAS in Meta</p>
-        <p class="hint offnote">ยอดขายจากโฆษณานอกแพลตฟอร์มใช้ข้อมูลชุดเดียวกันทั้ง “ยืนยันแล้ว” และ “ชำระเงินแล้ว” กรอกครั้งเดียวพอ</p>
-        <div id="grp-off"></div>
-      </div>
-      <p class="hint" style="margin-top:8px">* ไม่บังคับ ใส่เมื่ออยากดู ROAS แยกรายช่องทาง</p>
 
       <div class="extra" id="profitBox">
         <h3>ต้นทุน เพื่อดูกำไรสุทธิ</h3>
@@ -2157,8 +2159,10 @@ $('vbExit').addEventListener('click', exitView);
 const FB_VER='10.12.2';
 function fbSay(t){ $('fbStatus').textContent=t; }
 function parseFbCfg(t){
-  const m=String(t||'').match(/\{[\s\S]*\}/); if(!m) return null;
-  const j=m[0].replace(/\/\/.*$/gm,'').replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g,'$1"$2":').replace(/'/g,'"').replace(/,\s*}/g,'}');
+  const src=String(t||'');
+  // take only the firebaseConfig object, even when the whole snippet (imports, initializeApp…) is pasted
+  const m=src.match(/firebaseConfig\s*=\s*(\{[^{}]*\})/) || src.match(/(\{[^{}]*apiKey[^{}]*\})/); if(!m) return null;
+  const j=m[1].replace(/^\s*\/\/.*$/gm,'').replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g,'$1"$2":').replace(/'/g,'"').replace(/,\s*}/g,'}');
   try{ const o=JSON.parse(j); return o && o.apiKey && o.projectId && o.appId ? o : null; }catch(e){ return null; }
 }
 function loadScript(src){ return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=res; sc.onerror=()=>rej(new Error('load')); document.head.appendChild(sc); }); }
