@@ -365,6 +365,11 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
 .chartwrap .hcol{fill:var(--ink);opacity:0;transition:opacity .12s}
 .chartwrap .hcol.on{opacity:.06}
 .chartwrap .hhit{fill:transparent;cursor:crosshair;outline:none}
+.chartwrap .hhit.dr{cursor:pointer}
+.drill{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;background:var(--shopee-soft);border:1px solid color-mix(in srgb,var(--shopee) 35%,transparent);border-radius:10px;padding:8px 12px;margin:0 0 12px;font-size:.88rem}
+.drill[hidden]{display:none}
+.drill b{font-weight:600}
+.tip .drillhint{margin-top:8px;font-size:.76rem;font-weight:600;color:var(--shopee)}
 .tip{position:fixed;z-index:50;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:250px;max-width:300px;box-shadow:0 12px 32px color-mix(in srgb,#000 22%,transparent);font-size:.84rem;line-height:1.45}
 .tip[hidden]{display:none}
 .tip h5{margin:0;font-size:.95rem;font-weight:700}
@@ -521,6 +526,10 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
           <div class="seg" id="groupSeg" hidden aria-label="แสดงกราฟเป็น">
             <span class="seg-lbl">กราฟ:</span><button type="button" data-g="none">รายวัน</button><button type="button" data-g="week">รวมรายสัปดาห์</button><button type="button" data-g="month">รวมรายเดือน</button>
           </div>
+        </div>
+        <div class="drill" id="drillBar" hidden role="status">
+          <span>📅 กำลังดูรายวันของ <b id="drillName"></b> <span class="muted" id="drillSub"></span></span>
+          <button type="button" class="btn sm" id="drillBack">← กลับไปมุมมองเดิม</button>
         </div>
         <div class="ov-filter" id="ovFilter">
           <button class="chip" data-q="all" aria-pressed="true">ทุกรอบ</button>
@@ -1584,7 +1593,7 @@ function trendSvg(list, target){
     if(d.r._group) g+=`<text x="${cx}" y="${bTop+bH+33}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${esc(d.r._sub)}</text>`;
     else if(dt && d.r.name && !dense && !isDay) g+=`<text x="${cx}" y="${bTop+bH+33}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${esc(dt)}</text>`;
   });
-  data.forEach((d,i)=>{ g+=`<rect class="hhit" data-hit="${i}" tabindex="0" aria-label="รายละเอียด ${esc(d.r.name||recStart(d.r))}" x="${padL+i*gw}" y="0" width="${gw}" height="${H}"/>`; });
+  data.forEach((d,i)=>{ g+=`<rect class="hhit${canDrill(d.r)?' dr':''}" data-hit="${i}" tabindex="0" aria-label="รายละเอียด ${esc(d.r.name||recStart(d.r))}" x="${padL+i*gw}" y="0" width="${gw}" height="${H}"/>`; });
   return `<svg viewBox="0 0 ${W} ${H}" style="min-width:${Math.max(560,n*78)}px" role="img" aria-label="กราฟ ROI ยอดขาย และค่าโฆษณาแต่ละรอบ">${g}</svg>`;
 }
 
@@ -1756,6 +1765,7 @@ function tipHtml(d){
     if(r.adsSales) h+=`<div class="r ind"><span><i style="background:var(--shopee)"></i>ยอดขายจาก Shopee Ads</span><span>${fmtB(r.adsSales)} · ${pc(r.adsSales)}</span></div>`;
   }
   if(m.hasCost) h+=`<hr><div class="r"><span>กำไรสุทธิ</span><span style="font-weight:700;color:${m.profit>=0?'var(--good)':'var(--bad)'}">${fmtB(m.profit)}</span></div>`;
+  if(canDrill(r)){ const n=drillDays(r).length; h+=`<div class="drillhint">${n?`🔍 ${matchMedia('(hover:none)').matches?'แตะอีกครั้ง':'คลิก'}เพื่อดูรายวันในช่วงนี้ (${n} วัน)`:'ยังไม่มีข้อมูลรายวันในช่วงนี้'}</div>`; }
   return h;
 }
 let trafficTipData=null;
@@ -1905,6 +1915,44 @@ $('formPanel').addEventListener('focusout', ()=>setTimeout(()=>{ if(!$('formPane
 if('IntersectionObserver' in window){
   new IntersectionObserver(es=>{ for(const e of es) document.body.classList.toggle('formvis', e.isIntersecting); },{rootMargin:'0px 0px -30% 0px'}).observe($('formPanel'));
 }
+
+// ---------- drill down: click a week/month column to see its days ----------
+let DRILL=null, lastTap={i:-1,t:0}, lastPtr='mouse';
+const canDrill = r => !!r && (r._group || ptypeOf(r)!=='day') && !!(r.d1||r.d2);
+function drillDays(r){ const a=r.d1||r.d2, b=r.d2||r.d1; if(!a) return []; return records.filter(x=>inShop(x) && ptypeOf(x)==='day' && recStart(x)>=a && recStart(x)<=b); }
+function drillInto(r){
+  const days=drillDays(r);
+  const nm = r._group ? (r._lbl||r.name) : (r.name || [ddmm(r.d1),ddmm(r.d2)].filter(Boolean).join('–'));
+  if(!days.length){ toast(`ยังไม่มีข้อมูลรายวันในช่วง ${nm} (${ddmm(r.d1)}–${ddmm(r.d2)}) · บันทึกรอบแบบรายวันก่อน`); return; }
+  if(!DRILL) DRILL={prev:{ptFilter, quick, groupMode, selected:new Set(selected), m1:$('m1').value, m2:$('m2').value}};
+  ptFilter='day'; groupMode='none'; quick='manual'; $('m1').value=''; $('m2').value='';
+  selected=new Set(days.map(x=>x.id));
+  document.querySelectorAll('#ovFilter .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+  $('drillName').textContent=nm; $('drillSub').textContent= r._group ? `· ${days.length} วัน` : `· ${ddmm(r.d1)}–${ddmm(r.d2)} · ${days.length} วัน`; $('drillBar').hidden=false;
+  hideTip(); renderHistory();
+  $('drillBar').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'nearest'});
+}
+function drillBack(){
+  if(!DRILL) return; const p=DRILL.prev; DRILL=null; $('drillBar').hidden=true;
+  ptFilter=p.ptFilter; quick=p.quick; groupMode=p.groupMode; selected=p.selected; $('m1').value=p.m1; $('m2').value=p.m2;
+  document.querySelectorAll('#ovFilter .chip').forEach(c=>c.setAttribute('aria-pressed', String(c.dataset.q===quick)));
+  hideTip(); renderHistory();
+}
+function drillClear(){ if(DRILL){ DRILL=null; $('drillBar').hidden=true; } }
+$('drillBack').addEventListener('click', drillBack);
+$('ovBody').addEventListener('pointerdown', e=>{ lastPtr=e.pointerType||'mouse'; }, true);
+$('ovBody').addEventListener('click', e=>{
+  const h=e.target.closest && e.target.closest('[data-hit]'); if(!h) return;
+  const i=+h.dataset.hit, d=trendData[i]; if(!d || !canDrill(d.r)) return;
+  if(lastPtr==='touch'){ const now=Date.now(); if(lastTap.i!==i || now-lastTap.t>4000){ lastTap={i,t:now}; return; } }
+  lastTap={i:-1,t:0}; drillInto(d.r);
+});
+$('ovBody').addEventListener('keydown', e=>{ if(e.key!=='Enter') return; const h=e.target.dataset && e.target.dataset.hit; if(h===undefined) return; const d=trendData[+h]; if(d && canDrill(d.r)) drillInto(d.r); });
+// any manual change of type/period leaves drill mode
+$('typeSeg').addEventListener('click', drillClear, true);
+$('ovFilter').addEventListener('click', e=>{ if(e.target.closest && e.target.closest('.chip')) drillClear(); }, true);
+['m1','m2'].forEach(id=>$(id).addEventListener('change', drillClear, true));
+$('history').addEventListener('change', drillClear, true);
 
 // ---------- settings ----------
 function applySettings(){
@@ -2330,7 +2378,7 @@ function switchShop(id, quiet){
   }
   BRAND=shopOf(curShop); LIB=libFor(curShop);
   if(!LIB._loaded){ libLoadLocal(); libSeedFromRecords(); LIB._loaded=true; }
-  quick='all'; ptFilter=''; pickDefaultType();
+  drillClear(); quick='all'; ptFilter=''; pickDefaultType();
   selected=new Set(shopRecords().filter(inQuick).map(r=>r.id));
   hideTip(); applyBrand(); renderShopUI(); renderHistory(); render(); try{ updateShareBtn(); renderAdsOpts(); }catch(e){}
   if(!quiet) toast('สลับไป '+shopLabel(BRAND)+' แล้ว');
