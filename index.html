@@ -1562,6 +1562,10 @@ function trendSvg(list, target){
   for(let i=0;i<=4;i++){ const v=maxV/1.12*i/4, yy=y(v);
     g+=`<line x1="${padL}" x2="${W-padR}" y1="${yy}" y2="${yy}" style="stroke:var(--line)" ${i?'stroke-dasharray="2 4"':''}/>`;
     g+=`<text x="${padL-8}" y="${yy+4}" text-anchor="end" font-size="11" style="fill:var(--muted)">${fmtK(v)}</text>`; }
+  { const daily=data.length>1 && data.every(d=>ptypeOf(d.r)==='day' && !d.r._group);
+    if(daily){ const av=data.reduce((a,d)=>a+(d.m.S||0),0)/data.length, ay=y(av);
+      g+=`<line x1="${padL}" x2="${W-padR}" y1="${ay}" y2="${ay}" style="stroke:var(--good)" stroke-width="1.5" stroke-dasharray="6 4" opacity=".9"/>`;
+      g+=`<text x="${W-padR}" y="${ay-6}" text-anchor="end" font-size="11" font-weight="600" style="fill:var(--good)">เฉลี่ย ${fmtK(av)}/วัน</text>`; } }
   data.forEach((d,i)=>{
     g+=`<rect class="hcol" data-col="${i}" x="${padL+i*gw+2}" y="${rTop-18}" width="${gw-4}" height="${bTop+bH-rTop+22}" rx="8"/>`;
     const cx=padL+i*gw+gw/2, bw=Math.min(40,(gw-20)/2);
@@ -1668,9 +1672,15 @@ function renderOverview(){
   const target = agg.target || (isFinite(m.breakEven)?m.breakEven:0);
   const adSales = CH.reduce((t,c)=>t+agg.channels[c.k].sales,0);
   let h = (ptFilter==='all' && hasOverlap(list)) ? `<div class="warnbox">⚠️ กำลังรวมรอบต่างประเภทที่มีช่วงวันที่ทับกัน (เช่น รายวันซ้อนอยู่ในรายสัปดาห์) ตัวเลขรวมอาจนับซ้ำ เลือกประเภทเดียวด้านบนเพื่อเปรียบเทียบแบบเดียวกัน</div>` : '';
+  // average per day (daily rounds: per round; weekly/monthly: by the number of days covered)
+  const kRounds = kList.length ? kList : list;
+  const nDays = kRounds.reduce((a,r)=>a+Math.max(1, dayCount(r.d1||r.d2, r.d2||r.d1)||1), 0);
+  const avgS = nDays ? m.S/nDays : NaN, avgSp = nDays ? m.spend/nDays : NaN;
+  const avgCard = nDays ? `<div class="k"><dt>ยอดขายเฉลี่ย/วัน${m.usePaid?' (ชำระแล้ว)':''}</dt><dd class="num">${fmtB0(avgS)}</dd><p class="ksub num">จาก ${nDays} วัน · ค่าแอดเฉลี่ย ${fmtB0(avgSp)}/วัน</p>${m.secPaid&&m.paid>0&&m.paidCov?`<p class="ksub num">ชำระแล้วเฉลี่ย ${fmtB0(m.paid/Math.max(1,kRounds.filter(r=>+r.paid>0).reduce((a,r)=>a+Math.max(1,dayCount(r.d1||r.d2,r.d2||r.d1)||1),0)))}/วัน</p>`:''}</div>` : '';
   h+=`<dl class="ov-kpis">
     <div class="k main"><dt>ROI รวม${m.usePaid?' (ชำระแล้ว)':''}</dt><dd class="num">${isFinite(m.roi)?fmtX(m.roi):'–'} <span style="font-size:.5em;font-weight:500">เท่า</span></dd>${m.secPaid&&m.paid>0?`<p class="ksub num">ชำระแล้ว ${fmtX(m.roiP)} เท่า</p>`:''}${cov?`<p class="ksub">มีข้อมูลชำระแล้ว ${cov[0]}/${cov[1]} รอบ</p>`:''}</div>
     <div class="k"><dt>${m.SL}รวม</dt><dd class="num">${fmtB0(m.S)}</dd>${m.secPaid&&m.paid>0?`<p class="ksub num">ชำระแล้ว ${fmtB0(m.paid)} · ${fmtP(m.payRate)}${m.paidCov&&m.paidCov[0]<m.paidCov[1]?` (${m.paidCov[0]}/${m.paidCov[1]} รอบ)`:''}</p>`:''}${adSales&&!m.usePaid?`<p class="ksub num">จากแอด ${fmtB0(adSales)}</p>`:''}</div>
+    ${avgCard}
     <div class="k"><dt>ค่าโฆษณารวม</dt><dd class="num">${fmtB0(m.spend)}</dd><p class="ksub num">Shopee ${fmtB0(m.shopee)} · CPAS ${fmtB0(m.off)}</p></div>
     <div class="k"><dt>ACOS</dt><dd class="num">${fmtP(m.acos)}</dd><p class="ksub">ค่าแอดต่อยอดขาย</p></div>
     <div class="k"><dt>${m.hasCost?'กำไรสุทธิรวม':'ยอดขายหลังหักค่าแอด'}</dt><dd class="num" style="color:${pv>=0?'var(--good)':'var(--bad)'}">${fmtB0(pv)}</dd></div>
