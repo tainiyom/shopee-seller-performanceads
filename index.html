@@ -171,9 +171,11 @@ body.viewmode .planbtn{display:none}
 .plwtable{margin-top:12px}
 .plwtable table{min-width:620px}
 .plwtable tr.cur td{background:color-mix(in srgb,var(--shopee) 8%,transparent)}
-.dpanel{position:fixed;z-index:70;top:12px;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 48px color-mix(in srgb,#000 28%,transparent);display:flex;flex-direction:column;animation:dpin .18s ease}
+.dpanel{position:fixed;z-index:70;top:12px;left:12px;width:min(400px,calc(100vw - 24px));max-height:min(80vh,760px);background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 48px color-mix(in srgb,#000 28%,transparent);display:flex;flex-direction:column;animation:dpin .18s ease}
 .dpanel[hidden]{display:none}
-@keyframes dpin{from{transform:translateX(16px);opacity:0}to{transform:none;opacity:1}}
+@keyframes dpin{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+.dp-h{cursor:move;user-select:none}
+.dp-h .btn{cursor:pointer}
 @media (prefers-reduced-motion: reduce){.dpanel{animation:none}}
 .dp-h{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line)}
 .dp-b{flex:1;overflow:auto;padding:14px 16px;overscroll-behavior:contain}
@@ -181,8 +183,7 @@ body.viewmode .planbtn{display:none}
 .dpanel .tip.dpin h5{font-size:1.05rem}
 .drillbtn{margin-top:12px;width:100%}
 .chartwrap .hcol.sel{opacity:.12}
-@media (min-width:1180px){body.dp-open .wrap{max-width:none;margin:0;padding-right:452px}}
-@media (max-width:700px){.dpanel{top:auto;left:0;right:0;bottom:0;width:auto;max-height:82vh;border-radius:16px 16px 0 0;animation:dpup .2s ease}
+@media (max-width:700px){.dpanel{top:auto!important;left:0!important;right:0;bottom:0;width:auto;max-height:82vh;border-radius:16px 16px 0 0;animation:dpup .2s ease}
   @keyframes dpup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}}
 .subsec{margin-top:14px;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--good) 25%,transparent)}
 .subsec-h{display:flex;justify-content:space-between;align-items:baseline;font-size:.86rem;margin-bottom:6px}
@@ -2278,7 +2279,21 @@ function dpRender(){
   $('dpBody').innerHTML=`<div class="tip dpin">${tipHtml(d, DP>0?trendData[DP-1]:null).replace('<!--FULL-->','')}</div>`;
   document.querySelectorAll('#ovBody .hcol').forEach(el=>el.classList.toggle('sel', el.dataset.col==String(DP)));
 }
-function dpOpen(i){ DP=i; hideTip(); $('dpanel').hidden=false; document.body.classList.add('dp-open'); dpRender(); $('dpBody').scrollTop=0; $('dpClose').focus({preventScroll:true}); }
+function dpPlace(x,y){
+  const p=$('dpanel'); if(innerWidth<=700) return;
+  const w=p.offsetWidth, h=p.offsetHeight, vw=innerWidth, vh=innerHeight;
+  let left = x+18+w<=vw-12 ? x+18 : x-w-18; left=Math.max(12,Math.min(left,vw-w-12));
+  let top = Math.max(12, Math.min(y-80, vh-h-12));
+  p.style.left=left+'px'; p.style.top=top+'px';
+}
+function dpOpen(i,x,y){ const was=DP>=0; DP=i; hideTip(); $('dpanel').hidden=false; document.body.classList.add('dp-open'); dpRender(); $('dpBody').scrollTop=0;
+  if(!was || x!==undefined) dpPlace(x!==undefined?x:innerWidth/2, y!==undefined?y:innerHeight/3);
+  $('dpClose').focus({preventScroll:true}); }
+// drag the box by its header
+(()=>{ let sx=0, sy=0, ox=0, oy=0, on=false; const p=$('dpanel'), hd=p.querySelector('.dp-h');
+  hd.addEventListener('pointerdown', e=>{ if(e.target.closest('button') || innerWidth<=700) return; on=true; sx=e.clientX; sy=e.clientY; ox=p.offsetLeft; oy=p.offsetTop; hd.setPointerCapture(e.pointerId); });
+  hd.addEventListener('pointermove', e=>{ if(!on) return; const l=Math.max(0,Math.min(innerWidth-60, ox+e.clientX-sx)), t=Math.max(0,Math.min(innerHeight-40, oy+e.clientY-sy)); p.style.left=l+'px'; p.style.top=t+'px'; });
+  hd.addEventListener('pointerup', ()=>{ on=false; }); })();
 function dpClose(){ DP=-1; $('dpanel').hidden=true; document.body.classList.remove('dp-open'); document.querySelectorAll('#ovBody .hcol.sel').forEach(el=>el.classList.remove('sel')); }
 function dpRefresh(){ if(DP<0) return; if(DP<trendData.length) dpRender(); else dpClose(); }
 $('dpClose').addEventListener('click', dpClose);
@@ -2290,9 +2305,9 @@ $('ovBody').addEventListener('click', e=>{
   const h=e.target.closest && e.target.closest('[data-hit]'); if(!h) return;
   const i=+h.dataset.hit; if(!trendData[i]) return;
   if(DP===i){ dpClose(); return; }
-  dpOpen(i);
+  dpOpen(i, e.clientX, e.clientY);
 });
-$('ovBody').addEventListener('keydown', e=>{ if(e.key!=='Enter') return; const h=e.target.dataset && e.target.dataset.hit; if(h===undefined) return; dpOpen(+h); });
+$('ovBody').addEventListener('keydown', e=>{ if(e.key!=='Enter') return; const h=e.target.dataset && e.target.dataset.hit; if(h===undefined) return; const b=e.target.getBoundingClientRect(); dpOpen(+h, b.left+b.width/2, b.top+60); });
 // any manual change of type/period leaves drill mode
 $('typeSeg').addEventListener('click', drillClear, true);
 $('ovFilter').addEventListener('click', e=>{ if(e.target.closest && e.target.closest('.chip')) drillClear(); }, true);
