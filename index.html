@@ -153,6 +153,9 @@ body.viewmode .planbtn{display:none}
 .plday.big input{border-color:var(--shopee)!important}
 .plcard{border:1px solid color-mix(in srgb,var(--shopee) 35%,var(--line));border-radius:12px;padding:16px 18px;margin-bottom:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--shopee) 6%,transparent),transparent)}
 .plcard h3{margin:0;font-size:1.02rem}
+.plmini{padding:10px 14px}
+.plmini-row{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap;font-size:.88rem}
+.plmini-row button{margin-left:auto}
 .plsentence{font-size:.92rem;line-height:1.6;margin:8px 0 12px}
 .plkpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 @media (max-width:800px){.plkpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -1868,6 +1871,7 @@ $('plDel').addEventListener('click', ()=>{
 
 const tgtOf = r => { const a=r.d1||r.d2, b=r.d2||r.d1; return planDaySum(a, r._group && r._last && r._last<b ? r._last : b); };
 function trendList_hasPlan(L){ return L.some(r=>tgtOf(r)>0); }
+let PLAN_OPEN=false; try{ PLAN_OPEN=localStorage.getItem('shopee-roi-plan-open')==='1'; }catch(e){}
 function planSection(list){
   // month to report: month of the latest selected round, else latest daily round of the shop
   const days=shopRecords().filter(r=>ptypeOf(r)==='day');
@@ -1904,7 +1908,15 @@ function planSection(list){
   if(roiT>0) sent+= ` · ROI สะสม <b>${fmtX(roi)}</b> ${roi>=roiT?'ถึง':'ต่ำกว่า'}เป้า ${fmtX(roiT)}`;
   if(missing.length) sent+=` · <span style="color:var(--warn)">ยังไม่ได้บันทึก ${missing.length} วัน (${missing.slice(0,5).map(ddmm).join(', ')}${missing.length>5?'…':''})</span>`;
   const bar=(v,mark,c)=>`<div class="pbar"><i style="width:${Math.min(100,Math.max(0,v))}%;background:${c}"></i>${mark!=null?`<span class="mk" style="left:${Math.min(100,mark)}%"></span>`:''}</div>`;
-  let h=`<div class="plcard"><div class="card-h"><h3>🎯 เทียบแผนเดือน ${TH_M[+mk.slice(5)-1]} ${+mk.slice(0,4)+543}</h3><span class="muted small">ยอดยืนยันแล้ว · สัปดาห์ พุธ–อังคาร · ข้อมูลถึง ${ddmm(asOf)}</span></div>
+  const ttl=`🎯 เทียบแผนเดือน ${TH_M[+mk.slice(5)-1]} ${+mk.slice(0,4)+543}`;
+  if(!PLAN_OPEN){
+    const fcp=fc/T*100, cls=ach>=100?'g':ach>=90?'y':'r';
+    return `<div class="plcard plmini"><div class="plmini-row"><b>${ttl}</b>
+      <span class="num">สะสม <b>${fmtP(ach)}</b> ของแผน <span class="st ${cls}">${ach>=100?'ตามแผน':ach>=90?'ใกล้เป้า':'ต่ำกว่าแผน'}</span></span>
+      <span class="num muted">ทำได้ ${fmtB0(A)} / ${fmtB0(T)} · คาดปิด ${fmtP(fcp)}${roiT>0?` · ROI ${fmtX(roi)}/${fmtX(roiT)}`:''}</span>
+      <button type="button" class="btn sm" data-plantoggle="1" aria-expanded="false">ดูรายงานแผน ▾</button></div></div>`;
+  }
+  let h=`<div class="plcard"><div class="card-h"><h3>${ttl}</h3><span class="muted small">ยอดยืนยันแล้ว · สัปดาห์ พุธ–อังคาร · ข้อมูลถึง ${ddmm(asOf)} <button type="button" class="btn sm" data-plantoggle="0" aria-expanded="true" style="margin-left:8px">ซ่อน ▴</button></span></div>
   <p class="plsentence">${sent}</p>
   <div class="plkpis">
     <div class="plk"><small>ยอดสะสมเทียบแผนถึงวันนี้ ${st(ach,100,90)}</small><b class="num">${fmtP(ach)}</b><div class="sub num">${fmtB0(A)} / ${fmtB0(Pt)}</div>${bar(ach,null,ach>=100?'var(--good)':ach>=90?'var(--warn)':'var(--bad)')}</div>
@@ -1929,6 +1941,9 @@ function planSection(list){
   return h;
 }
 
+$('ovBody').addEventListener('click', e=>{ const b=e.target.closest && e.target.closest('[data-plantoggle]'); if(!b) return;
+  PLAN_OPEN = b.dataset.plantoggle==='1'; try{ localStorage.setItem('shopee-roi-plan-open', PLAN_OPEN?'1':'0'); }catch(err){}
+  renderOverview(); const c=document.querySelector('#ovBody .plcard'); if(c && PLAN_OPEN) c.scrollIntoView({block:'nearest'}); });
 function renderOverview(){
   const body=$('ovBody');
   const list=records.filter(r=>selected.has(r.id) && inType(r)).sort((a,b)=>recStart(a).localeCompare(recStart(b))).map(V);
