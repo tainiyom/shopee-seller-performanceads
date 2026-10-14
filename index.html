@@ -171,6 +171,19 @@ body.viewmode .planbtn{display:none}
 .plwtable{margin-top:12px}
 .plwtable table{min-width:620px}
 .plwtable tr.cur td{background:color-mix(in srgb,var(--shopee) 8%,transparent)}
+.dpanel{position:fixed;z-index:70;top:12px;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 48px color-mix(in srgb,#000 28%,transparent);display:flex;flex-direction:column;animation:dpin .18s ease}
+.dpanel[hidden]{display:none}
+@keyframes dpin{from{transform:translateX(16px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.dpanel{animation:none}}
+.dp-h{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.dp-b{flex:1;overflow:auto;padding:14px 16px;overscroll-behavior:contain}
+.dpanel .tip.dpin{position:static;pointer-events:auto;min-width:0;max-width:none;box-shadow:none;border:0;padding:0;background:transparent;font-size:.9rem}
+.dpanel .tip.dpin h5{font-size:1.05rem}
+.drillbtn{margin-top:12px;width:100%}
+.chartwrap .hcol.sel{opacity:.12}
+@media (min-width:1180px){body.dp-open .wrap{max-width:none;margin:0;padding-right:452px}}
+@media (max-width:700px){.dpanel{top:auto;left:0;right:0;bottom:0;width:auto;max-height:82vh;border-radius:16px 16px 0 0;animation:dpup .2s ease}
+  @keyframes dpup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}}
 .subsec{margin-top:14px;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--good) 25%,transparent)}
 .subsec-h{display:flex;justify-content:space-between;align-items:baseline;font-size:.86rem;margin-bottom:6px}
 .subsec-h b{font-weight:600}
@@ -438,6 +451,9 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
 .tip .remark{margin-top:8px;padding:7px 9px;border-radius:8px;background:color-mix(in srgb,var(--warn) 14%,transparent);font-size:.78rem;line-height:1.45}
 .tip .remark b{font-weight:600}
 .tip .remark.ok{background:var(--good-soft);color:var(--good);font-weight:600}
+.tip .roasv{display:block;font-size:.74rem;font-weight:700;color:var(--ink);text-align:right}
+.tip .roasv.ok{color:var(--good)} .tip .roasv.low{color:var(--bad)}
+.tip .r span:last-child{text-align:right}
 .tip hr{border:0;border-top:1px solid var(--line);margin:8px 0}
 .tip .big{display:flex;gap:10px;margin-top:2px}
 .tip .big div{flex:1;background:var(--field);border-radius:8px;padding:6px 8px}
@@ -827,6 +843,16 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
     </div>
   </div>
 </div>
+<aside class="dpanel" id="dpanel" hidden aria-label="รายละเอียดรอบที่เลือก">
+  <div class="dp-h">
+    <button type="button" class="btn sm" id="dpPrev" aria-label="รอบก่อนหน้า">◀</button>
+    <span class="muted small num" id="dpPos"></span>
+    <button type="button" class="btn sm" id="dpNext" aria-label="รอบถัดไป">▶</button>
+    <span style="flex:1"></span>
+    <button type="button" class="btn sm" id="dpClose" aria-label="ปิด">✕ ปิด</button>
+  </div>
+  <div class="dp-b" id="dpBody"></div>
+</aside>
 <div class="tip" id="tip" hidden role="tooltip"></div>
 <div class="sug" id="sug" hidden role="listbox" aria-label="สินค้าที่เคยกรอก"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -2020,6 +2046,7 @@ function renderOverview(){
     <div class="tablewrap"><table><thead><tr><th>ช่องทาง</th><th>ค่าใช้จ่าย</th><th>สัดส่วนงบ</th><th>ยอดขายจากโฆษณา</th><th>ROAS ช่องทาง</th></tr></thead><tbody>${tableRows(agg,m)}</tbody></table></div>
   </details>`;
   body.innerHTML=h;
+  try{ dpRefresh(); }catch(e){}
 }
 
 // ---------- chart tooltip ----------
@@ -2037,7 +2064,10 @@ function tipHtml(d, prev){
   const r=d.r, m=d.m, pm=prev&&prev.m;
   const adSales=CH.reduce((t,c)=>t+(r.channels[c.k].sales||0),0);
   const dt=[r.d1,r.d2].filter(Boolean).join(' – ');
-  const line=(c)=>{ const x=r.channels[c.k]; return `<div class="r ind"><span><i style="background:${c.c}"></i>${c.n}</span><span>${fmtB(x.spend)}${x.sales?` / ${fmtB(x.sales)}`:''}</span></div>`; };
+  const roasT = +r.target || planRoi(recStart(r).slice(0,7)) || 0;
+  const roasTag = (sp,sl) => { if(!(sp>0) || !(sl>0)) return ''; const v=sl/sp; return `<span class="roasv${roasT>0?(v>=roasT?' ok':' low'):''}">ROAS ${fmtX(v)}</span>`; };
+  const line=(c)=>{ const x=r.channels[c.k]; return `<div class="r ind"><span><i style="background:${c.c}"></i>${c.n}</span><span>${fmtB(x.spend)}${x.sales?` / ${fmtB(x.sales)}`:''}${roasTag(x.spend,x.sales)}</span></div>`; };
+  const gS = g => CH.filter(c=>c.g===g).reduce((a,c)=>a+(+r.channels[c.k].sales||0),0);
   let h=`<h5>${esc(r.name||recStart(r)||'รอบนี้')}</h5><div class="dt">${esc(dt||'ไม่ระบุวันที่')}</div>${r._group ? ((r.tags||[]).length?`<div class="notebox">📝 มีหมายเหตุ ${r._notedays} วัน ${(r.tags||[]).map(t=>`<span class="ntag">${esc(tagLbl(t))}</span>`).join('')}</div>`:'') : (notesHtml(r)?`<div class="notebox">📝 ${notesHtml(r)}</div>`:'')}
     <div class="big g4">
       <div><small>ROI</small><b>${isFinite(m.roi)?fmtX(m.roi)+' เท่า':'–'}</b>${cmpChg(m.roi, pm&&pm.roi, true)}</div>
@@ -2046,15 +2076,15 @@ function tipHtml(d, prev){
       <div><small>ค่าแอดรวม</small><b>${fmtB0(m.spend)}</b>${cmpChg(m.spend, pm&&pm.spend, false)}</div>
     </div>
     ${d.tgt>0?`<div class="notebox" style="background:var(--field)">🎯 เป้า ${fmtB0(d.tgt)} · ทำได้ <b style="color:${m.S>=d.tgt?'var(--good)':'var(--bad)'}">${fmtP(m.S/d.tgt*100)}</b> (${m.S>=d.tgt?'เกิน':'ขาด'} ${fmtB0(Math.abs(m.S-d.tgt))})</div>`:''}
-    <div class="cmpnote">${prev ? `% เทียบกับ ${esc(prevLabel(prev.r))}` : 'รอบแรกในช่วงที่เลือก ยังไม่มีรอบก่อนหน้าให้เทียบ'}</div>
+    <div class="cmpnote">${prev ? `% เทียบกับ ${esc(prevLabel(prev.r))}` : 'รอบแรกในช่วงที่เลือก ยังไม่มีรอบก่อนหน้าให้เทียบ'}</div><!--FULL-->
     <hr>
     ${m.secPaid&&m.paid>0?`<div class="r ind"><span>ชำระแล้ว · อัตราชำระ ${fmtP(m.payRate)}</span><span>${fmtB(m.paid)}</span></div><div class="r ind"><span>ROI ชำระแล้ว</span><span>${fmtX(m.roiP)} เท่า</span></div>`:''}
     ${m.usePaid&&m.conf>0?`<div class="r ind"><span>ยอดขายที่ยืนยันแล้ว</span><span>${fmtB(m.conf)}</span></div>`:''}
     ${adSales?`<div class="r ind"><span>ยอดขายจากแอด</span><span>${fmtB(adSales)}</span></div>`:''}
     <div class="muted" style="font-size:.72rem;text-align:right">ค่าแอด / ยอดขายจากแอด</div>
-    <div class="r hd"><span style="color:var(--shopee)">Shopee Ads</span><span>${fmtB(m.shopee)}</span></div>
+    <div class="r hd"><span style="color:var(--shopee)">Shopee Ads</span><span>${fmtB(m.shopee)}${gS('shopee')?` / ${fmtB(gS('shopee'))}`:''}${roasTag(m.shopee,gS('shopee'))}</span></div>
     ${CH.filter(c=>c.g==='shopee' && showCh(c, r.channels[c.k])).map(line).join('')}
-    <div class="r hd"><span style="color:var(--off)">นอกแพลตฟอร์ม</span><span>${fmtB(m.off)}</span></div>
+    <div class="r hd"><span style="color:var(--off)">นอกแพลตฟอร์ม</span><span>${fmtB(m.off)}${gS('off')?` / ${fmtB(gS('off'))}`:''}${roasTag(m.off,gS('off'))}</span></div>
     ${CH.filter(c=>c.g==='off').map(line).join('')}`;
   const tr=r.traffic||{}; const tsum=TR.reduce((a,t)=>a+(+tr[t.k]||0),0);
   if(SHOW_TRAFFIC && (tsum||r.adsSales)){
@@ -2063,7 +2093,7 @@ function tipHtml(d, prev){
     if(r.adsSales) h+=`<div class="r ind"><span><i style="background:var(--shopee)"></i>ยอดขายจาก Shopee Ads</span><span>${fmtB(r.adsSales)} · ${pc(r.adsSales)}</span></div>`;
   }
   if(m.hasCost) h+=`<hr><div class="r"><span>กำไรสุทธิ</span><span style="font-weight:700;color:${m.profit>=0?'var(--good)':'var(--bad)'}">${fmtB(m.profit)}</span></div>`;
-  if(canDrill(r)){ const n=drillDays(r).length; h+=`<div class="drillhint">${n?`🔍 ${matchMedia('(hover:none)').matches?'แตะอีกครั้ง':'คลิก'}เพื่อดูรายวันในช่วงนี้ (${n} วัน)`:'ยังไม่มีข้อมูลรายวันในช่วงนี้'}</div>`; }
+  if(canDrill(r)){ const n=drillDays(r).length; h+= n ? `<button type="button" class="btn sm drillbtn" data-drillnow="1">📅 ดูรายวันในช่วงนี้ (${n} วัน)</button>` : `<div class="drillhint" style="color:var(--muted)">ยังไม่มีข้อมูลรายวันในช่วงนี้</div>`; }
   return h;
 }
 let trafficTipData=null;
@@ -2158,7 +2188,7 @@ function showTrk(k,x,y,el){
 }
 function showTip(i, x, y){
   const d=trendData[i]; if(!d) return;
-  const t=$('tip'); t.innerHTML=tipHtml(d, i>0 ? trendData[i-1] : null); t.hidden=false;
+  const t=$('tip'); const full=tipHtml(d, i>0 ? trendData[i-1] : null); t.innerHTML=full.split('<!--FULL-->')[0]+`<div class="drillhint">👆 คลิกเพื่อดูรายละเอียดทั้งหมด</div>`; t.hidden=false;
   document.querySelectorAll('#ovBody .hcol').forEach(el=>el.classList.toggle('on', el.dataset.col==String(i)));
   const w=t.offsetWidth, h=t.offsetHeight, vw=innerWidth, vh=innerHeight;
   let left=x+16, top=y+16;
@@ -2168,8 +2198,8 @@ function showTip(i, x, y){
   t.style.left=left+'px'; t.style.top=top+'px';
 }
 function hideTip(){ $('tip').hidden=true; document.querySelectorAll('#ovBody .seg.on').forEach(e=>e.classList.remove('on')); document.querySelectorAll('#ovBody .hcol.on').forEach(el=>el.classList.remove('on')); }
-$('ovBody').addEventListener('pointermove', e=>{ const c=e.target.closest; if(!c){hideTip();return;} const h=e.target.closest('[data-hit]'); if(h) return showTip(+h.dataset.hit, e.clientX, e.clientY); const k=e.target.closest('[data-trk]'); if(k) return showTrk(k.dataset.trk, e.clientX, e.clientY, k); const q=e.target.closest('[data-t5]'); if(q) return showT5(q.dataset.t5, e.clientX, e.clientY); hideTip(); });
-$('ovBody').addEventListener('pointerdown', e=>{ if(!e.target.closest) return; const h=e.target.closest('[data-hit]'); if(h) return showTip(+h.dataset.hit, e.clientX, e.clientY); const k=e.target.closest('[data-trk]'); if(k) showTrk(k.dataset.trk, e.clientX, e.clientY, k); });
+$('ovBody').addEventListener('pointermove', e=>{ const c=e.target.closest; if(!c){hideTip();return;} if(e.pointerType && e.pointerType!=='mouse') return; const h=e.target.closest('[data-hit]'); if(h) return showTip(+h.dataset.hit, e.clientX, e.clientY); const k=e.target.closest('[data-trk]'); if(k) return showTrk(k.dataset.trk, e.clientX, e.clientY, k); const q=e.target.closest('[data-t5]'); if(q) return showT5(q.dataset.t5, e.clientX, e.clientY); hideTip(); });
+$('ovBody').addEventListener('pointerdown', e=>{ if(!e.target.closest) return; const h=e.target.closest('[data-hit]'); if(h){ if(e.pointerType!=='mouse') hideTip(); return; } const k=e.target.closest('[data-trk]'); if(k) showTrk(k.dataset.trk, e.clientX, e.clientY, k); });
 $('ovBody').addEventListener('pointerleave', hideTip);
 $('ovBody').addEventListener('focusin', e=>{ const q=e.target.closest&&e.target.closest('[data-t5]'); if(q){ const b=q.getBoundingClientRect(); return showT5(q.dataset.t5, b.right-20, b.top+20); } const h=e.target.dataset && e.target.dataset.hit; if(h!==undefined){ const b=e.target.getBoundingClientRect(); showTip(+h, b.right-10, b.top+40); } });
 $('ovBody').addEventListener('focusout', hideTip);
@@ -2239,13 +2269,30 @@ function drillBack(){
 function drillClear(){ if(DRILL){ DRILL=null; $('drillBar').hidden=true; } }
 $('drillBack').addEventListener('click', drillBack);
 $('ovBody').addEventListener('pointerdown', e=>{ lastPtr=e.pointerType||'mouse'; }, true);
+// ---------- detail panel: click a column to pin the full breakdown ----------
+let DP=-1;
+function dpRender(){
+  const d=trendData[DP]; if(!d){ dpClose(); return; }
+  $('dpPos').textContent=`${DP+1} / ${trendData.length}`;
+  $('dpPrev').disabled = DP<=0; $('dpNext').disabled = DP>=trendData.length-1;
+  $('dpBody').innerHTML=`<div class="tip dpin">${tipHtml(d, DP>0?trendData[DP-1]:null).replace('<!--FULL-->','')}</div>`;
+  document.querySelectorAll('#ovBody .hcol').forEach(el=>el.classList.toggle('sel', el.dataset.col==String(DP)));
+}
+function dpOpen(i){ DP=i; hideTip(); $('dpanel').hidden=false; document.body.classList.add('dp-open'); dpRender(); $('dpBody').scrollTop=0; $('dpClose').focus({preventScroll:true}); }
+function dpClose(){ DP=-1; $('dpanel').hidden=true; document.body.classList.remove('dp-open'); document.querySelectorAll('#ovBody .hcol.sel').forEach(el=>el.classList.remove('sel')); }
+function dpRefresh(){ if(DP<0) return; if(DP<trendData.length) dpRender(); else dpClose(); }
+$('dpClose').addEventListener('click', dpClose);
+$('dpPrev').addEventListener('click', ()=>{ if(DP>0){ DP--; dpRender(); } });
+$('dpNext').addEventListener('click', ()=>{ if(DP<trendData.length-1){ DP++; dpRender(); } });
+$('dpBody').addEventListener('click', e=>{ if(e.target.closest('[data-drillnow]')){ const d=trendData[DP]; dpClose(); if(d) drillInto(d.r); } });
+document.addEventListener('keydown', e=>{ if(DP<0) return; if(e.key==='Escape') dpClose(); else if(e.key==='ArrowLeft'){ $('dpPrev').click(); } else if(e.key==='ArrowRight'){ $('dpNext').click(); } });
 $('ovBody').addEventListener('click', e=>{
   const h=e.target.closest && e.target.closest('[data-hit]'); if(!h) return;
-  const i=+h.dataset.hit, d=trendData[i]; if(!d || !canDrill(d.r)) return;
-  if(lastPtr==='touch'){ const now=Date.now(); if(lastTap.i!==i || now-lastTap.t>4000){ lastTap={i,t:now}; return; } }
-  lastTap={i:-1,t:0}; drillInto(d.r);
+  const i=+h.dataset.hit; if(!trendData[i]) return;
+  if(DP===i){ dpClose(); return; }
+  dpOpen(i);
 });
-$('ovBody').addEventListener('keydown', e=>{ if(e.key!=='Enter') return; const h=e.target.dataset && e.target.dataset.hit; if(h===undefined) return; const d=trendData[+h]; if(d && canDrill(d.r)) drillInto(d.r); });
+$('ovBody').addEventListener('keydown', e=>{ if(e.key!=='Enter') return; const h=e.target.dataset && e.target.dataset.hit; if(h===undefined) return; dpOpen(+h); });
 // any manual change of type/period leaves drill mode
 $('typeSeg').addEventListener('click', drillClear, true);
 $('ovFilter').addEventListener('click', e=>{ if(e.target.closest && e.target.closest('.chip')) drillClear(); }, true);
