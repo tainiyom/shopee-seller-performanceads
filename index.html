@@ -365,6 +365,16 @@ body.viewmode .grid, body.viewmode .history, body.viewmode #gearBtn, body.viewmo
 body.viewmode .overview > .hint{display:none}
 #shareBtn.stale::after{content:" •";color:var(--warn);font-weight:700}
 .fbrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.sbin{flex:1;min-width:0;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;color:inherit;width:100%}
+.sbmem{display:grid;gap:4px;font-size:.84rem}
+.sbmem .m{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.sbmem .m span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sbmem .m small{color:var(--muted)}
+.sbown{margin-top:10px;font-size:.86rem}.sbown summary{cursor:pointer;color:var(--muted)}
+.mbox input[type=email],.mbox input[type=password]{width:100%;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;color:inherit}
+.sbgate{position:sticky;top:0;z-index:60;background:var(--panel);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.9rem}
+.sbgate[hidden]{display:none}
+
 .fbrow[hidden],#fbSetup[hidden]{display:none}
 #fbCfg{width:100%;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px;color:inherit;resize:vertical}
 .sharelink{margin-top:12px}
@@ -564,6 +574,28 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
             <button class="btn sm" id="logoDel" hidden>ลบ</button>
           </div>
           <p class="hint" style="margin-top:6px">รองรับ JPG, PNG, WEBP, SVG · PNG พื้นหลังโปร่งใสจะดูดีที่สุด ถ้าไม่ใส่ จะไม่แสดง</p>
+        </div>
+        <div class="sec" id="sbSec">
+          <h4>เก็บข้อมูลบน server (Supabase)</h4>
+          <p class="hint" id="sbStatus">ยังไม่ได้เชื่อม server · ข้อมูลอยู่ในเบราว์เซอร์นี้เท่านั้น</p>
+          <div class="fbrow" id="sbAuthRow"><button type="button" class="btn sm primary" id="sbLoginBtn" hidden>เข้าสู่ระบบ</button><button type="button" class="btn sm" id="sbLogout" hidden>ออกจากระบบ</button></div>
+          <div id="sbShopBox" hidden>
+            <label class="mlbl">สมาชิกของร้านนี้</label>
+            <div id="sbMembers" class="sbmem"></div>
+            <div class="fbrow" id="sbAddRow"><input type="email" id="sbMemEmail" placeholder="อีเมลสมาชิก" class="sbin"><select id="sbMemRole" class="sbin" style="flex:0 0 auto;width:auto"><option value="viewer">ดูอย่างเดียว</option><option value="editor">กรอก/แก้ไข</option><option value="owner">เจ้าของ</option></select><button type="button" class="btn sm" id="sbMemAdd">เพิ่ม</button></div>
+            <label class="opt" style="margin-top:8px"><input type="checkbox" id="sbPublic"><div><b>เปิดลิงก์ดูรายงานแบบสาธารณะ</b><span>ใครมีลิงก์ก็ดูแดชบอร์ดของร้านนี้ได้ (แก้ไขไม่ได้)</span></div></label>
+            <div class="fbrow" id="sbPubRow" hidden><button type="button" class="btn sm" id="sbCopyPub">คัดลอกลิงก์รายงาน</button></div>
+          </div>
+          <details class="sbown"><summary>ใช้ Supabase ของตัวเอง (สำหรับคนที่นำระบบไปใช้)</summary>
+            <ol class="hint" style="margin:6px 0 0;padding-left:18px">
+              <li>สร้างโปรเจกต์ฟรีที่ supabase.com</li>
+              <li>SQL Editor → วางสคริปต์ตั้งค่า (ปุ่มด้านล่าง) → Run</li>
+              <li>Project Settings → API → คัดลอก Project URL และ anon/publishable key มาวาง</li>
+            </ol>
+            <label for="sbUrl" class="mlbl">Project URL</label><input type="text" id="sbUrl" class="sbin" placeholder="https://xxxx.supabase.co" spellcheck="false">
+            <label for="sbKey" class="mlbl">anon / publishable key</label><input type="text" id="sbKey" class="sbin" placeholder="sb_publishable_… หรือ eyJ…" spellcheck="false">
+            <div class="fbrow"><button type="button" class="btn sm" id="sbSaveCfg">บันทึกและเชื่อมต่อ</button><button type="button" class="btn sm" id="sbCopySql">คัดลอกสคริปต์ตั้งค่า</button><button type="button" class="btn sm" id="sbDlCfg">ดาวน์โหลด supabase-config.json</button><button type="button" class="btn sm" id="sbClearCfg">ล้างค่า</button></div>
+          </details>
         </div>
         <div class="sec" id="fbSec" hidden>
           <h4>ลิงก์สาธารณะ + ซิงก์ออนไลน์ (Firebase)</h4>
@@ -792,6 +824,17 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
   <div><small>ค่าแอดรวม</small><b class="num" id="mbSpend">฿0</b></div>
   <div><small>ACOS</small><b class="num" id="mbAcos">–</b></div>
   <div class="focus" id="mbFocus" hidden></div>
+</div>
+<div class="sbgate" id="sbGate" hidden><b>ข้อมูลร้านเก็บบน server</b><span class="hint" id="sbGateTxt">เข้าสู่ระบบเพื่อดูและบันทึกข้อมูล</span><span style="flex:1"></span><button type="button" class="btn sm primary" id="sbGateBtn">เข้าสู่ระบบ</button></div>
+<div class="modal" id="sbModal" hidden role="dialog" aria-modal="true" aria-labelledby="sbTitle">
+  <div class="mbox">
+    <h3 id="sbTitle">เข้าสู่ระบบ</h3>
+    <p class="hint" id="sbSub" style="font-size:.86rem">ใช้อีเมลและรหัสผ่านของคุณ ข้อมูลร้านจะซิงก์กับ server ทุกเครื่อง</p>
+    <label for="sbEmail" class="mlbl">อีเมล</label><input type="email" id="sbEmail" autocomplete="email">
+    <label for="sbPass" class="mlbl">รหัสผ่าน (อย่างน้อย 6 ตัว)</label><input type="password" id="sbPass" autocomplete="current-password">
+    <div class="warnbox" id="sbErr" hidden></div>
+    <div class="mact" style="flex-wrap:wrap"><button type="button" class="btn" id="sbForgot">ลืมรหัสผ่าน</button><button type="button" class="btn" id="sbSignup">สมัครใหม่</button><span style="flex:1"></span><button type="button" class="btn" id="sbCancel">ยกเลิก</button><button type="button" class="btn primary" id="sbGo">เข้าสู่ระบบ</button></div>
+  </div>
 </div>
 <div class="modal" id="impModal" hidden role="dialog" aria-modal="true" aria-labelledby="impTitle">
   <div class="mbox">
@@ -2705,6 +2748,154 @@ async function fbBoot(){
   });
 }
 
+
+// ---------- Supabase: data on a server, split per shop (own hosting) ----------
+const SB_JS='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+const SB_CFG_KEY='shopee-roi-sbcfg';
+let SB=null, SBCFG=null, SBUSER=null, SB_FROM_FILE=false, SB_ROLES={}, SB_PUBLIC={};
+const SETUP_SQL="-- Shopee Seller Performance · Supabase setup\n-- Run once in a new Supabase project: SQL Editor → paste → Run.\n-- Data is split per shop. Access is per shop: owner / editor / viewer.\n\ncreate table if not exists public.shops (\n  id          text primary key,\n  name        text not null default '',\n  data        jsonb not null default '{}'::jsonb,   -- logo, url, adsOn, tags, plans\n  is_public   boolean not null default false,       -- true = anyone with the link can view (read-only)\n  created_by  uuid default auth.uid(),\n  created_at  timestamptz not null default now(),\n  updated_at  timestamptz not null default now()\n);\n\ncreate table if not exists public.shop_members (\n  shop_id    text not null references public.shops(id) on delete cascade,\n  user_id    uuid not null references auth.users(id) on delete cascade,\n  role       text not null check (role in ('owner','editor','viewer')),\n  created_at timestamptz not null default now(),\n  primary key (shop_id, user_id)\n);\ncreate index if not exists shop_members_user_idx on public.shop_members(user_id);\n\n-- invitations by e-mail; turned into memberships when that person signs in (claim_invites)\ncreate table if not exists public.shop_invites (\n  shop_id    text not null references public.shops(id) on delete cascade,\n  email      text not null,\n  role       text not null check (role in ('owner','editor','viewer')),\n  invited_by uuid default auth.uid(),\n  created_at timestamptz not null default now(),\n  primary key (shop_id, email)\n);\n\ncreate table if not exists public.records (\n  id          text primary key,\n  shop_id     text not null references public.shops(id) on delete cascade,\n  d1          date,\n  d2          date,\n  ptype       text,\n  data        jsonb not null,\n  updated_by  uuid default auth.uid(),\n  updated_at  timestamptz not null default now()\n);\ncreate index if not exists records_shop_d1_idx on public.records(shop_id, d1);\n\ncreate table if not exists public.products (\n  doc_id      text primary key,\n  shop_id     text not null references public.shops(id) on delete cascade,\n  key         text not null,\n  data        jsonb not null,\n  updated_at  timestamptz not null default now()\n);\ncreate index if not exists products_shop_idx on public.products(shop_id);\n\n-- ---------- helpers ----------\ncreate or replace function public.shop_role(p_shop text)\nreturns text language sql stable security definer set search_path = public as $$\n  select role from public.shop_members where shop_id = p_shop and user_id = auth.uid()\n$$;\n\ncreate or replace function public.can_read(p_shop text)\nreturns boolean language sql stable security definer set search_path = public as $$\n  select exists(select 1 from public.shop_members where shop_id = p_shop and user_id = auth.uid())\n      or exists(select 1 from public.shops where id = p_shop and is_public)\n$$;\n\ncreate or replace function public.can_write(p_shop text)\nreturns boolean language sql stable security definer set search_path = public as $$\n  select exists(select 1 from public.shop_members where shop_id = p_shop and user_id = auth.uid() and role in ('owner','editor'))\n$$;\n\ncreate or replace function public.is_owner(p_shop text)\nreturns boolean language sql stable security definer set search_path = public as $$\n  select exists(select 1 from public.shop_members where shop_id = p_shop and user_id = auth.uid() and role = 'owner')\n$$;\n\n-- whoever creates a shop becomes its owner\ncreate or replace function public.tg_shop_owner()\nreturns trigger language plpgsql security definer set search_path = public as $$\nbegin\n  if auth.uid() is not null then\n    insert into public.shop_members(shop_id, user_id, role) values (new.id, auth.uid(), 'owner')\n    on conflict do nothing;\n  end if;\n  return new;\nend $$;\ndrop trigger if exists shop_owner on public.shops;\ncreate trigger shop_owner after insert on public.shops for each row execute function public.tg_shop_owner();\n\ncreate or replace function public.tg_touch()\nreturns trigger language plpgsql as $$ begin new.updated_at = now(); return new; end $$;\ndrop trigger if exists touch_shops on public.shops;\ncreate trigger touch_shops before update on public.shops for each row execute function public.tg_touch();\ndrop trigger if exists touch_records on public.records;\ncreate trigger touch_records before update on public.records for each row execute function public.tg_touch();\n\n-- ---------- membership functions ----------\n-- owner adds someone by e-mail; if they have no account yet it becomes an invite\ncreate or replace function public.add_member(p_shop text, p_email text, p_role text)\nreturns text language plpgsql security definer set search_path = public as $$\ndeclare v_uid uuid;\nbegin\n  if not public.is_owner(p_shop) then raise exception 'only the shop owner can add members'; end if;\n  if p_role not in ('owner','editor','viewer') then raise exception 'bad role'; end if;\n  select id into v_uid from auth.users where lower(email) = lower(trim(p_email)) and email_confirmed_at is not null;\n  if v_uid is null then\n    insert into public.shop_invites(shop_id, email, role) values (p_shop, lower(trim(p_email)), p_role)\n    on conflict (shop_id, email) do update set role = excluded.role;\n    return 'invited';\n  end if;\n  insert into public.shop_members(shop_id, user_id, role) values (p_shop, v_uid, p_role)\n  on conflict (shop_id, user_id) do update set role = excluded.role;\n  return 'added';\nend $$;\n\ncreate or replace function public.remove_member(p_shop text, p_user uuid)\nreturns void language plpgsql security definer set search_path = public as $$\nbegin\n  if not public.is_owner(p_shop) then raise exception 'only the shop owner can remove members'; end if;\n  if p_user = auth.uid() and (select count(*) from public.shop_members where shop_id=p_shop and role='owner') < 2 then\n    raise exception 'a shop needs at least one owner';\n  end if;\n  delete from public.shop_members where shop_id = p_shop and user_id = p_user;\nend $$;\n\ncreate or replace function public.list_members(p_shop text)\nreturns table(user_id uuid, email text, role text, pending boolean)\nlanguage sql stable security definer set search_path = public as $$\n  select m.user_id, u.email::text, m.role, false from public.shop_members m join auth.users u on u.id = m.user_id\n   where m.shop_id = p_shop and public.can_write(p_shop)\n  union all\n  select null, i.email, i.role, true from public.shop_invites i where i.shop_id = p_shop and public.is_owner(p_shop)\n$$;\n\n-- signed-in user picks up the invites sent to their (confirmed) e-mail\ncreate or replace function public.claim_invites()\nreturns integer language plpgsql security definer set search_path = public as $$\ndeclare v_email text; n integer;\nbegin\n  select email into v_email from auth.users where id = auth.uid() and email_confirmed_at is not null;\n  if v_email is null then return 0; end if;\n  insert into public.shop_members(shop_id, user_id, role)\n    select shop_id, auth.uid(), role from public.shop_invites where email = lower(v_email)\n  on conflict (shop_id, user_id) do update set role = excluded.role;\n  get diagnostics n = row_count;\n  delete from public.shop_invites where email = lower(v_email);\n  return n;\nend $$;\n\n-- ---------- row level security ----------\nalter table public.shops        enable row level security;\nalter table public.shop_members enable row level security;\nalter table public.shop_invites enable row level security;\nalter table public.records      enable row level security;\nalter table public.products     enable row level security;\n\ndrop policy if exists shops_read   on public.shops;\ndrop policy if exists shops_insert on public.shops;\ndrop policy if exists shops_update on public.shops;\ndrop policy if exists shops_delete on public.shops;\ncreate policy shops_read   on public.shops for select using (public.can_read(id) or created_by = auth.uid());\ncreate policy shops_insert on public.shops for insert to authenticated with check (created_by = auth.uid());\ncreate policy shops_update on public.shops for update to authenticated using (public.can_write(id)) with check (public.can_write(id));\ncreate policy shops_delete on public.shops for delete to authenticated using (public.is_owner(id));\n\ndrop policy if exists members_read on public.shop_members;\ncreate policy members_read on public.shop_members for select to authenticated using (user_id = auth.uid() or public.is_owner(shop_id));\n-- membership changes go through add_member / remove_member only\n\ndrop policy if exists invites_read on public.shop_invites;\ncreate policy invites_read on public.shop_invites for select to authenticated using (public.is_owner(shop_id));\n\ndrop policy if exists records_read  on public.records;\ndrop policy if exists records_write on public.records;\ndrop policy if exists records_upd   on public.records;\ndrop policy if exists records_del   on public.records;\ncreate policy records_read  on public.records for select using (public.can_read(shop_id));\ncreate policy records_write on public.records for insert to authenticated with check (public.can_write(shop_id));\ncreate policy records_upd   on public.records for update to authenticated using (public.can_write(shop_id)) with check (public.can_write(shop_id));\ncreate policy records_del   on public.records for delete to authenticated using (public.can_write(shop_id));\n\ndrop policy if exists products_read  on public.products;\ndrop policy if exists products_write on public.products;\ndrop policy if exists products_upd   on public.products;\ndrop policy if exists products_del   on public.products;\ncreate policy products_read  on public.products for select using (public.can_read(shop_id));\ncreate policy products_write on public.products for insert to authenticated with check (public.can_write(shop_id));\ncreate policy products_upd   on public.products for update to authenticated using (public.can_write(shop_id)) with check (public.can_write(shop_id));\ncreate policy products_del   on public.products for delete to authenticated using (public.can_write(shop_id));\n\nrevoke all on function public.add_member(text,text,text)   from anon;\nrevoke all on function public.remove_member(text,uuid)     from anon;\nrevoke all on function public.list_members(text)           from anon;\nrevoke all on function public.claim_invites()              from anon;\n";
+function sbSay(t){ $('sbStatus').textContent=t; }
+function sbErr(e){ const m=String((e&&e.message)||e||''); 
+  if(/Invalid login/i.test(m)) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+  if(/Email not confirmed/i.test(m)) return 'ยังไม่ได้ยืนยันอีเมล เปิดอีเมลแล้วกดลิงก์ยืนยันก่อน';
+  if(/already registered/i.test(m)) return 'อีเมลนี้สมัครไว้แล้ว กดเข้าสู่ระบบได้เลย';
+  if(/Password should be/i.test(m)) return 'รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร';
+  if(/row-level security|permission denied|42501/i.test(m)) return 'บัญชีนี้ไม่มีสิทธิ์แก้ไขร้านนี้';
+  if(/Failed to fetch|NetworkError/i.test(m)) return 'ต่อ server ไม่ได้ ตรวจสอบอินเทอร์เน็ต';
+  return m||'เกิดข้อผิดพลาด'; }
+async function sbAll(table, cols){ const out=[]; for(let from=0;;from+=1000){ const {data,error}=await SB.from(table).select(cols).range(from,from+999); if(error) throw error; out.push(...data); if(data.length<1000) break; } return out; }
+// Firestore-shaped adapter so the rest of the page keeps working unchanged
+function sbAdapter(){
+  const ok=({error})=>{ if(error) throw error; };
+  return { collection(){ return {
+    async get(){
+      try{ await SB.rpc('sp_claim_invites'); }catch(e){}
+      const [shops,mem,recs,prods]=await Promise.all([sbAll('sp_shops','id,name,data,is_public'), sbAll('sp_shop_members','shop_id,role'), sbAll('sp_records','id,shop_id,data'), sbAll('sp_products','doc_id,shop_id,key,data')]);
+      SB_ROLES={}; for(const m of mem) if(m.role) SB_ROLES[m.shop_id]=m.role;
+      SB_PUBLIC={}; for(const x of shops) SB_PUBLIC[x.id]=!!x.is_public;
+      const docs=[
+        ...shops.filter(x=>{ if(!(x.data&&x.data._seed)) return true; const loc=(typeof SHOPS!=='undefined'?SHOPS:[]).find(z=>z.id===x.id); return !(loc&&(loc.name||loc.logo||loc.plans)); })
+               .map(x=>{ const {_seed,...d}=x.data||{}; return {id:'shop_'+x.id, data:()=>({...d, kind:'shop', id:x.id, name:x.name||''})}; }),
+        ...recs.map(x=>({id:x.id, data:()=>({...(x.data||{}), id:x.id, shop:x.shop_id})})),
+        ...prods.map(x=>({id:x.doc_id, data:()=>({...(x.data||{}), kind:'product', shop:x.shop_id, key:x.key})})),
+      ];
+      return {docs};
+    },
+    doc(id){ return {
+      async set(o){
+        if(o&&o.kind==='shop'){ const {kind,id:sid,name,...rest}=o;
+          if(SB_ROLES[sid]==='viewer') return;            // viewers cannot change shop settings
+          const r=await SB.from('sp_shops').upsert({id:sid,name:name||'',data:rest},{onConflict:'id'});
+          if(r.error){ if(/row-level|42501/.test(r.error.message||r.error.code)) return; throw r.error; }
+          if(!SB_ROLES[sid]) SB_ROLES[sid]='owner'; return; }
+        if(o&&o.kind==='product'){ ok(await SB.from('sp_products').upsert({doc_id:id,shop_id:o.shop||'s1',key:o.key||'',data:o},{onConflict:'doc_id'})); return; }
+        if(o&&o.channels){ ok(await SB.from('sp_records').upsert({id, shop_id:o.shop||'s1', d1:o.d1||null, d2:o.d2||null, ptype:o.ptype||null, data:o},{onConflict:'id'})); return; }
+      },
+      async delete(){
+        if(id.startsWith('shop_')){ ok(await SB.from('sp_shops').delete().eq('id',id.slice(5))); return; }
+        ok(await SB.from('sp_records').delete().eq('id',id)); ok(await SB.from('sp_products').delete().eq('doc_id',id));
+      },
+    }; },
+  }; } };
+}
+function sbUI(){
+  const on=!!SB, user=!!SBUSER;
+  $('sbLoginBtn').hidden=!on||user; $('sbLogout').hidden=!user;
+  $('sbGate').hidden=!on||user;
+  $('sbShopBox').hidden=!user;
+  $('sbClearCfg').hidden=SB_FROM_FILE;
+  if(SBCFG){ $('sbUrl').value=SBCFG.url||''; $('sbKey').value=SBCFG.anonKey||''; }
+  sbSay(!on ? 'ยังไม่ได้เชื่อม server · ข้อมูลอยู่ในเบราว์เซอร์นี้เท่านั้น'
+    : user ? `เชื่อมต่อแล้ว: ${SBUSER.email} · ข้อมูลแยกตามร้านบน server${SB_FROM_FILE?'':' (ค่าจากเบราว์เซอร์นี้)'}`
+    : 'เชื่อม server แล้ว · เข้าสู่ระบบเพื่อดูและบันทึกข้อมูล');
+  if(user) sbShopPanel();
+}
+async function sbShopPanel(){
+  if(!SBUSER) return;
+  const role=SB_ROLES[curShop]||'', owner=role==='owner';
+  $('sbAddRow').hidden=!owner; $('sbPublic').disabled=!owner; $('sbPublic').checked=!!SB_PUBLIC[curShop]; $('sbPubRow').hidden=!SB_PUBLIC[curShop];
+  const box=$('sbMembers');
+  if(!role){ box.innerHTML='<span class="hint">ร้านนี้ยังไม่ได้บันทึกบน server หรือคุณยังไม่ได้เป็นสมาชิก</span>'; return; }
+  const RL={owner:'เจ้าของ',editor:'กรอก/แก้ไข',viewer:'ดูอย่างเดียว'};
+  if(role==='viewer'){ box.innerHTML=`<span class="hint">สิทธิ์ของคุณในร้านนี้: ${RL[role]}</span>`; return; }
+  const {data,error}=await SB.rpc('sp_list_members',{p_shop:curShop});
+  if(error){ box.innerHTML=`<span class="hint">${esc(sbErr(error))}</span>`; return; }
+  box.innerHTML=(data||[]).map(m=>`<div class="m"><span>${esc(m.email)}${m.user_id===SBUSER.id?' <small>(คุณ)</small>':''}${m.pending?' <small>· รอสมัคร/ยืนยันอีเมล</small>':''}</span><small>${RL[m.role]||m.role}</small>${owner&&!m.pending&&m.user_id!==SBUSER.id?`<button type="button" class="btn sm" data-sbrm="${esc(m.user_id)}">ลบ</button>`:''}</div>`).join('')||'<span class="hint">ยังไม่มีสมาชิก</span>';
+}
+async function sbLoadLib(){ if(window.supabase&&window.supabase.createClient) return; await loadScript(SB_JS); }
+async function sbBoot(){
+  let cfg=null;
+  try{ const r=await fetch('supabase-config.json',{cache:'no-store'}); if(r.ok){ cfg=await r.json(); SB_FROM_FILE=!!(cfg&&cfg.url); } }catch(e){}
+  if(!(cfg&&cfg.url)){ cfg=null; try{ cfg=JSON.parse(localStorage.getItem(SB_CFG_KEY)||'null'); }catch(e){} }
+  SBCFG=cfg; if(!(cfg&&cfg.url&&cfg.anonKey)){ sbUI(); return false; }
+  try{ await sbLoadLib(); SB=window.supabase.createClient(cfg.url, cfg.anonKey, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}); }
+  catch(e){ SB=null; sbUI(); sbSay('โหลดระบบ server ไม่สำเร็จ ลองรีเฟรชหน้า'); return false; }
+  sbUI();
+  const attach=async u=>{ if(!u||(db&&uid===u.id)) return; SBUSER=u; sbUI();
+    try{ await attachDb(sbAdapter(), u.id, `บันทึกบน server แล้ว (${u.email}) · เปิดจากเครื่องไหนก็ได้ · ข้อมูลแยกตามร้าน`); renderHistory(); sbUI(); }
+    catch(e){ db=null; uid=null; sbSay('อ่านข้อมูลจาก server ไม่ได้: '+sbErr(e)); } };
+  const {data:{session}}=await SB.auth.getSession();
+  if(session&&session.user) await attach(session.user);
+  SB.auth.onAuthStateChange((ev,ses)=>{ if(ev==='SIGNED_IN'&&ses&&ses.user) attach(ses.user); if(ev==='SIGNED_OUT'){ location.reload(); }
+    if(ev==='PASSWORD_RECOVERY'){ setTimeout(async()=>{ const pw=prompt('ตั้งรหัสผ่านใหม่ (อย่างน้อย 6 ตัว)',''); if(pw&&pw.length>=6){ const {error}=await SB.auth.updateUser({password:pw}); toast(error?sbErr(error):'ตั้งรหัสผ่านใหม่แล้ว'); } },300); } });
+  return true;
+}
+function sbOpen(mode){ $('sbErr').hidden=true; $('sbModal').hidden=false; $('sbEmail').focus(); }
+$('sbLoginBtn').addEventListener('click', sbOpen); $('sbGateBtn').addEventListener('click', sbOpen);
+$('sbCancel').addEventListener('click', ()=>$('sbModal').hidden=true);
+$('sbModal').addEventListener('click', e=>{ if(e.target===$('sbModal')) $('sbModal').hidden=true; });
+$('sbPass').addEventListener('keydown', e=>{ if(e.key==='Enter') $('sbGo').click(); });
+const sbShowErr=t=>{ const w=$('sbErr'); w.textContent=t; w.hidden=false; };
+$('sbGo').addEventListener('click', async ()=>{
+  const email=$('sbEmail').value.trim(), password=$('sbPass').value; if(!email||!password){ sbShowErr('กรอกอีเมลและรหัสผ่าน'); return; }
+  $('sbGo').disabled=true; const {error}=await SB.auth.signInWithPassword({email,password}); $('sbGo').disabled=false;
+  if(error){ sbShowErr(sbErr(error)); return; } $('sbModal').hidden=true; toast('เข้าสู่ระบบแล้ว กำลังโหลดข้อมูลจาก server…');
+});
+$('sbSignup').addEventListener('click', async ()=>{
+  const email=$('sbEmail').value.trim(), password=$('sbPass').value; if(!email||password.length<6){ sbShowErr('กรอกอีเมล และตั้งรหัสผ่านอย่างน้อย 6 ตัว แล้วกดสมัครใหม่'); return; }
+  const {data,error}=await SB.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error){ sbShowErr(sbErr(error)); return; }
+  if(data&&data.session){ $('sbModal').hidden=true; toast('สมัครและเข้าสู่ระบบแล้ว'); return; }
+  sbShowErr('สมัครแล้ว เปิดอีเมลแล้วกดลิงก์ยืนยัน จากนั้นกลับมากดเข้าสู่ระบบ');
+});
+$('sbForgot').addEventListener('click', async ()=>{
+  const email=$('sbEmail').value.trim(); if(!email){ sbShowErr('กรอกอีเมลก่อน แล้วกดลืมรหัสผ่าน'); return; }
+  const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname+'?reset=1'});
+  sbShowErr(error?sbErr(error):'ส่งลิงก์ตั้งรหัสผ่านใหม่ไปที่อีเมลแล้ว');
+});
+$('sbLogout').addEventListener('click', async ()=>{ await SB.auth.signOut(); });
+$('sbMemAdd').addEventListener('click', async ()=>{
+  const email=$('sbMemEmail').value.trim(); if(!/^\S+@\S+\.\S+$/.test(email)){ toast('ใส่อีเมลให้ถูกต้อง'); return; }
+  const {data,error}=await SB.rpc('sp_add_member',{p_shop:curShop,p_email:email,p_role:$('sbMemRole').value});
+  if(error){ toast(sbErr(error)); return; } $('sbMemEmail').value='';
+  toast(data==='invited'?'ส่งคำเชิญแล้ว · เมื่อคนนี้สมัครด้วยอีเมลนี้และเข้าสู่ระบบ จะเห็นร้านนี้ทันที':'เพิ่มสมาชิกแล้ว'); sbShopPanel();
+});
+$('sbMembers').addEventListener('click', async e=>{ const b=e.target.closest('[data-sbrm]'); if(!b) return;
+  const {error}=await SB.rpc('sp_remove_member',{p_shop:curShop,p_user:b.dataset.sbrm}); if(error){ toast(sbErr(error)); return; } toast('ลบสมาชิกแล้ว'); sbShopPanel(); });
+$('sbPublic').addEventListener('change', async e=>{
+  const v=e.target.checked; const {error}=await SB.from('sp_shops').update({is_public:v}).eq('id',curShop);
+  if(error){ e.target.checked=!v; toast(sbErr(error)); return; } SB_PUBLIC[curShop]=v; $('sbPubRow').hidden=!v; toast(v?'เปิดลิงก์รายงานสาธารณะแล้ว':'ปิดลิงก์รายงานสาธารณะแล้ว');
+});
+const sbPubLink=()=>new URL('v2.html?shop='+encodeURIComponent(curShop), location.href).href;
+async function sbCopy(t,msg){ try{ await navigator.clipboard.writeText(t); toast(msg); }catch(e){ prompt('คัดลอกข้อความนี้', t); } }
+$('sbCopyPub').addEventListener('click', ()=>sbCopy(sbPubLink(),'คัดลอกลิงก์รายงานแล้ว'));
+$('sbCopySql').addEventListener('click', ()=>sbCopy(SETUP_SQL,'คัดลอกสคริปต์ตั้งค่าแล้ว · วางใน Supabase → SQL Editor แล้วกด Run'));
+$('sbSaveCfg').addEventListener('click', ()=>{
+  const url=$('sbUrl').value.trim().replace(/\/+$/,''), anonKey=$('sbKey').value.trim();
+  if(!/^https:\/\/[^\s]+\.supabase\.(co|in)$/.test(url)&&!/^https:\/\//.test(url)){ toast('Project URL ต้องขึ้นต้นด้วย https://'); return; }
+  if(anonKey.length<20){ toast('วาง anon หรือ publishable key ให้ครบ'); return; }
+  try{ localStorage.setItem(SB_CFG_KEY, JSON.stringify({url,anonKey})); }catch(e){}
+  toast('บันทึกแล้ว กำลังเชื่อมต่อ…'); setTimeout(()=>location.reload(),500);
+});
+$('sbDlCfg').addEventListener('click', ()=>{
+  const url=$('sbUrl').value.trim().replace(/\/+$/,''), anonKey=$('sbKey').value.trim(); if(!url||!anonKey){ toast('วาง Project URL และ key ก่อน'); return; }
+  const blob=new Blob([JSON.stringify({url,anonKey},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='supabase-config.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast('อัปโหลดไฟล์นี้ไว้ข้าง index.html บน GitHub ทีมจะไม่ต้องตั้งค่าเอง');
+});
+$('sbClearCfg').addEventListener('click', ()=>{ try{ localStorage.removeItem(SB_CFG_KEY); }catch(e){} location.reload(); });
+$('gearBtn').addEventListener('click', ()=>{ if(SBUSER) sbShopPanel(); });
+if(typeof window.claude!=='undefined') $('sbSec').hidden=true;   // claude.ai keeps its own account storage
+
 // ---------- Shopee Ads channels on/off (per shop) ----------
 function renderAdsOpts(){
   $('adsOpts').innerHTML = CH.filter(c=>c.g==='shopee').map(c=>`<label><input type="checkbox" data-ad="${c.k}" ${adsOn(c.k)?'checked':''}><span class="dot" style="background:${c.c}"></span>${c.n}</label>`).join('');
@@ -2751,6 +2942,7 @@ function switchShop(id, quiet){
   drillClear(); quick='all'; ptFilter=''; pickDefaultType();
   selected=new Set(shopRecords().filter(inQuick).map(r=>r.id));
   hideTip(); applyBrand(); renderShopUI(); renderHistory(); render(); try{ updateShareBtn(); renderAdsOpts(); renderTagChips(); }catch(e){}
+  try{ if(SBUSER) sbShopPanel(); }catch(e){}
   if(!quiet) toast('สลับไป '+shopLabel(BRAND)+' แล้ว');
 }
 function closeShopMenu(){ $('shopMenu').hidden=true; $('shopBtn').setAttribute('aria-expanded','false'); }
@@ -2811,8 +3003,14 @@ async function attachDb(d, id, note){
   const remote=snap.docs.filter(x=>x.id!=='_settings').map(x=>x.data()).filter(x=>x&&x.channels).map(x=>normRec(structuredClone(x)));
   // merge any local-only records up to the account
   const ids=new Set(remote.map(x=>x.id));
-  for(const r of records){ if(!ids.has(r.id)){ try{ await coll().doc(r.id).set(r); remote.push(r);}catch(e){} } }
-  records=remote; for(const k in LIBS) LIBS[k]._loaded=false; switchShop(curShop, true); try{localStorage.removeItem(LSKEY);}catch(e){}
+  let pushFail=0;
+  for(const r of records){ if(!ids.has(r.id)){ try{ await coll().doc(r.id).set(r); remote.push(r);}catch(e){ pushFail++; remote.push(r); } } }
+  records=remote; for(const k in LIBS) LIBS[k]._loaded=false; switchShop(curShop, true);
+  try{ const have=new Set(snap.docs.map(x=>x.id));
+    for(const sh of SHOPS){ const key=sh.id==='s1'?LIBKEY:LIBKEY+'-'+sh.id; let arr=[]; try{ arr=JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
+      for(const p of arr){ if(!p||!p.key) continue; const did=sh.id==='s1'?hashKey(p.key):hashKey(sh.id+'|'+p.key); if(have.has(did)) continue;
+        try{ const {saved,...doc}=p; await coll().doc(did).set({...doc, kind:'product', shop:sh.id}); libFor(sh.id).set(p.key,{...doc,saved:true}); }catch(e){} } } }catch(e){}
+  if(pushFail){ lsSave(); toast(`อัปโหลดขึ้น server ไม่สำเร็จ ${pushFail} รอบ · ยังเก็บสำเนาไว้ในเครื่องนี้`); } else { try{localStorage.removeItem(LSKEY);}catch(e){} }
   $('storeNote').textContent=note;
 }
 async function initReports(owner){
@@ -2823,7 +3021,7 @@ async function initReports(owner){
   updateShareBtn();
 }
 (async ()=>{
-  if(typeof window.claude==='undefined'){ fbBoot(); return; }   // own hosting (GitHub): optional Firebase
+  if(typeof window.claude==='undefined'){ if(!(await sbBoot())) fbBoot(); return; }   // own hosting (GitHub): Supabase, else optional Firebase
   try{
     const [d,u,dl] = await Promise.all([claude.use('db'), claude.use('user'), claude.use('downloads')]);
     downloads=dl; dbR=d; userCap=u;

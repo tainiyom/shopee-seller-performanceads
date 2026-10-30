@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shopee Seller Performance V2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky control bar (shop · month · views) over a 12-col KPI board; summary first, detail below, one drawer for a day's full record */
+:root{
+  --bg:#f3f4f6; --surface:#ffffff; --sunk:#eceef1; --line:#e1e4e8; --line-2:#cfd4da;
+  --ink:#16181c; --ink-2:#4b515b; --ink-3:#7b828c;
+  --accent:#e2492b; --accent-ink:#ffffff; --accent-soft:#fde9e4;
+  --s-sales:#2a78d6; --s-sales-soft:#cde2fb; --s-roi:#6250d6; --s-plan:#16181c;
+  --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4; --c6:#008300; --c7:#6250d6; --c8:#e34948;
+  --good:#0ca30c; --good-ink:#0b7a0b; --good-soft:#e3f5e3;
+  --warn:#fab219; --warn-ink:#8a5d00; --warn-soft:#fff4d9;
+  --bad:#d03b3b; --bad-ink:#b42f2f; --bad-soft:#fbe6e6;
+  --shadow:0 1px 2px rgba(20,24,30,.06),0 2px 8px rgba(20,24,30,.05);
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1114; --surface:#181b20; --sunk:#121418; --line:#272c33; --line-2:#363c45;
+  --ink:#eceef1; --ink-2:#b5bbc4; --ink-3:#868d97;
+  --accent:#f0603f; --accent-ink:#ffffff; --accent-soft:#3a201a;
+  --s-sales:#3987e5; --s-sales-soft:#1c3556; --s-roi:#9085e9; --s-plan:#eceef1;
+  --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181; --c6:#008300; --c7:#9085e9; --c8:#e66767;
+  --good-ink:#5fd35f; --good-soft:#15301a; --warn-ink:#ffc94d; --warn-soft:#352a10; --bad-ink:#ff8a8a; --bad-soft:#3a1a1a;
+  --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1114; --surface:#181b20; --sunk:#121418; --line:#272c33; --line-2:#363c45;
+  --ink:#eceef1; --ink-2:#b5bbc4; --ink-3:#868d97;
+  --accent:#f0603f; --accent-ink:#ffffff; --accent-soft:#3a201a;
+  --s-sales:#3987e5; --s-sales-soft:#1c3556; --s-roi:#9085e9; --s-plan:#eceef1;
+  --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181; --c6:#008300; --c7:#9085e9; --c8:#e66767;
+  --good-ink:#5fd35f; --good-soft:#15301a; --warn-ink:#ffc94d; --warn-soft:#352a10; --bad-ink:#ff8a8a; --bad-soft:#3a1a1a;
+  --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.num,td.n,th.n{font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .row1{display:flex;align-items:center;gap:12px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .mark{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:15px;flex:none}
+.brand h1{font-family:var(--f-display);font-size:17px;font-weight:700;margin:0;letter-spacing:.01em;white-space:nowrap}
+.brand h1 small{font-family:var(--f-body);font-weight:500;color:var(--ink-3);font-size:12px;margin-left:6px}
+.sp{flex:1}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sel{appearance:none;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:6px 30px 6px 10px;font-weight:600;max-width:220px;background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+.mnav{display:flex;align-items:center;background:var(--sunk);border:1px solid var(--line);border-radius:8px}
+.mnav button{border:0;background:none;padding:6px 10px;color:var(--ink-2)}
+.mnav button:disabled{opacity:.3;cursor:default}
+.mnav b{min-width:92px;text-align:center;font-weight:600}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-bottom:-1px}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{padding:9px 14px;color:var(--ink-2);text-decoration:none;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.tabs a:hover{color:var(--ink)}
+.srcpill{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.srcpill i{width:7px;height:7px;border-radius:50%;background:var(--ink-3);display:inline-block}
+.srcpill.live i{background:var(--good)}
+.btn{border:1px solid var(--line-2);background:var(--surface);border-radius:8px;padding:6px 12px;font-weight:600;font-size:13px}
+.btn:hover{background:var(--sunk)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(.95)}
+.btn.sm{padding:3px 9px;font-size:12px}
+
+main{padding-block:18px 48px;display:grid;gap:16px}
+.view[hidden]{display:none!important}
+.view{display:grid;gap:16px;min-width:0}
+.view>*,main>*{min-width:0}
+
+/* headline */
+.head{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.head h2{font-family:var(--f-display);font-size:26px;line-height:1.2;margin:0;font-weight:700;text-wrap:balance}
+.head p{margin:4px 0 0;color:var(--ink-2);max-width:72ch}
+.verdict{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:13px;padding:3px 10px;border-radius:999px}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;line-height:1.5}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip.good{background:var(--good-soft);color:var(--good-ink)}
+.chip.warn{background:var(--warn-soft);color:var(--warn-ink)}
+.chip.bad{background:var(--bad-soft);color:var(--bad-ink)}
+.chip.mute{background:var(--sunk);color:var(--ink-3)}
+.tag{display:inline-flex;font-size:12px;padding:1px 8px;border-radius:6px;background:var(--sunk);border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.up{color:var(--good-ink)} .down{color:var(--bad-ink)} .flat{color:var(--ink-3)}
+
+/* KPI board */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:6px;align-content:start;min-width:0}
+.kpi .lb{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-2);font-weight:600}
+.kpi .v{font-family:var(--f-display);font-size:28px;font-weight:700;line-height:1.1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi .v small{font-family:var(--f-body);font-size:13px;color:var(--ink-3);font-weight:500;margin-left:4px;letter-spacing:0}
+.kpi .s{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.kpi .s b{color:var(--ink);font-weight:600}
+.meter{position:relative;height:8px;background:var(--sunk);border-radius:99px;overflow:visible;margin-top:4px}
+.meter .f{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--s-sales)}
+.meter .m{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);border-radius:2px}
+.meter.good .f{background:var(--good)} .meter.warn .f{background:var(--warn)} .meter.bad .f{background:var(--bad)}
+.mlegend{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3)}
+
+/* panels */
+.grid2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+.grid2e{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.panel>header{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.panel h3{font-family:var(--f-display);font-size:16.5px;font-weight:700;margin:0}
+.panel header .hint{color:var(--ink-3);font-size:12.5px}
+.panel header .sp{flex:1}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px}
+.legend i.ln{height:2px;border-radius:2px}
+.legend i.dash{height:0;border-top:2px dashed var(--s-plan);background:none!important;width:14px}
+.legend i.tick{width:12px;height:2px;background:var(--s-plan)}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart text{font-family:var(--f-body);font-size:11px;fill:var(--ink-3)}
+.chart .lbl{fill:var(--ink-2);font-weight:600}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .axis{stroke:var(--line-2);stroke-width:1}
+.chart [data-tip]{cursor:pointer}
+.chart .hit:hover+.hl, .chart .bar:hover{opacity:.85}
+.empty{padding:28px;text-align:center;color:var(--ink-3)}
+
+/* actions */
+.acts{display:grid;gap:10px}
+.act{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;padding:12px;border-radius:8px;background:var(--sunk);border:1px solid var(--line)}
+.act .ic{grid-row:span 2;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:14px;font-family:var(--f-display)}
+.act.bad .ic{background:var(--bad-soft);color:var(--bad-ink)}
+.act.warn .ic{background:var(--warn-soft);color:var(--warn-ink)}
+.act.good .ic{background:var(--good-soft);color:var(--good-ink)}
+.act.info .ic{background:var(--s-sales-soft);color:var(--s-sales)}
+.act b{font-size:13.5px;line-height:1.4}
+.act p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.act p strong{color:var(--ink)}
+
+/* tables */
+.tbl{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-weight:600;color:var(--ink-3);font-size:12px;text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+td.n,th.n{text-align:right}
+tr.sub td{background:var(--sunk);font-weight:600}
+tr.tot td{font-weight:700;border-bottom:0;border-top:2px solid var(--line-2)}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--sunk)}
+td .bar{display:inline-block;height:6px;border-radius:3px;background:var(--s-sales);vertical-align:middle}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+.dl{font-size:12px;font-weight:600}
+.muted{color:var(--ink-3)}
+.note{font-size:12.5px;color:var(--ink-3);margin:10px 0 0;line-height:1.55}
+
+/* products */
+.prods{display:grid;gap:8px}
+.prod{display:grid;grid-template-columns:24px 48px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px;border-radius:8px;border:1px solid var(--line)}
+.prod .rk{font-family:var(--f-display);font-weight:700;color:var(--ink-3);text-align:center}
+.prod img,.prod .ph{width:48px;height:48px;border-radius:6px;object-fit:cover;background:var(--sunk)}
+.prod a{color:var(--ink);text-decoration:none;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.4}
+.prod a:hover{text-decoration:underline}
+.prod .pv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.prod .pv small{display:block;font-weight:500;color:var(--ink-3);font-size:11.5px}
+.prod .pb{grid-column:3/5;height:4px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.prod .pb i{display:block;height:100%;background:var(--s-sales)}
+
+/* tooltip & drawer */
+#tip{position:fixed;z-index:60;pointer-events:none;background:var(--surface);border:1px solid var(--line-2);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:8px 10px;font-size:12.5px;min-width:150px;max-width:280px;line-height:1.5}
+#tip .t{font-weight:700;margin-bottom:4px}
+#tip .r{display:flex;justify-content:space-between;gap:14px;font-variant-numeric:tabular-nums}
+#tip .r span:first-child{color:var(--ink-2)}
+#tip .h{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+.scrim{position:fixed;inset:0;background:rgba(10,12,16,.35);z-index:70}
+.drawer{position:fixed;z-index:80;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--surface);border-left:1px solid var(--line);box-shadow:-8px 0 30px rgba(0,0,0,.15);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.drawer .dh{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.drawer .dh h3{margin:0;font-family:var(--f-display);font-size:17px;flex:1}
+.drawer .db{overflow-y:auto;padding:16px;display:grid;gap:16px;align-content:start}
+.ib{border:0;background:var(--sunk);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;font-size:15px;color:var(--ink-2)}
+.ib:disabled{opacity:.35;cursor:default}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quad div{background:var(--sunk);border-radius:8px;padding:10px}
+.quad span{font-size:12px;color:var(--ink-2);display:block}
+.quad b{font-family:var(--f-display);font-size:20px;font-variant-numeric:tabular-nums}
+.quad em{font-style:normal;font-size:12px;display:block}
+.dsec h4{margin:0 0 6px;font-size:13px;color:var(--ink-2)}
+.kv{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;font-size:13px;font-variant-numeric:tabular-nums}
+.kv span:nth-child(3n+2),.kv span:nth-child(3n){text-align:right}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:rgba(10,12,16,.4);padding:16px}
+.modal .box{background:var(--surface);border-radius:12px;border:1px solid var(--line);width:min(760px,100%);max-height:calc(100% - 32px);overflow:auto;padding:18px;display:grid;gap:14px}
+.modal h3{margin:0;font-family:var(--f-display);font-size:18px}
+.field{display:grid;gap:4px;font-size:12.5px;color:var(--ink-2);font-weight:600}
+.field input{border:1px solid var(--line-2);background:var(--surface);border-radius:8px;padding:7px 10px;font-weight:500;color:var(--ink);width:100%}
+.frow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.daygrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.daygrid label{display:grid;gap:2px;font-size:11px;color:var(--ink-3)}
+.daygrid input{border:1px solid var(--line-2);border-radius:6px;padding:4px 6px;font-size:12px;width:100%;background:var(--surface);font-variant-numeric:tabular-nums}
+.daygrid label.camp input{border-color:var(--accent);background:var(--accent-soft)}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;z-index:99;font-size:13px;max-width:calc(100% - 32px)}
+
+.srcbox{display:grid;gap:10px}
+.srcrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.srcrow b{min-width:180px}
+.srcrow .sp{flex:1}
+
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis .kpi:first-child{grid-column:1/-1}
+  .grid2e{grid-template-columns:1fr}
+  .head h2{font-size:21px}
+  .kpi .v{font-size:23px}
+  .brand h1 small{display:none}
+  .frow{grid-template-columns:1fr 1fr}
+  .drawer{top:auto;width:100%;max-height:86%;border-left:0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;padding-left:env(safe-area-inset-left,0px)}
+}
+@media (max-width:420px){.kpis{grid-template-columns:1fr}.kpis .kpi:first-child{grid-column:auto}}
+@media (prefers-reduced-motion:no-preference){.drawer{animation:slin .18s ease-out}@keyframes slin{from{transform:translateX(24px);opacity:.6}}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="row1">
+      <div class="brand"><div class="mark" id="shopMark">S</div><h1>Shopee Seller Performance<small>V2</small></h1></div>
+      <span class="sp"></span>
+      <div class="ctl">
+        <label class="srcpill" id="srcPill" title="แหล่งข้อมูล"><i></i><span id="srcTxt">กำลังโหลด…</span></label>
+        <select class="sel" id="shopSel" aria-label="เลือกร้าน"></select>
+        <div class="mnav" id="mnav"><button id="mPrev" aria-label="เดือนก่อน">◀</button><b id="mLbl" class="num">–</b><button id="mNext" aria-label="เดือนถัดไป">▶</button></div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="มุมมอง">
+      <a href="#overview">ภาพรวม &amp; KPI</a>
+      <a href="#weeks">รายสัปดาห์</a>
+      <a href="#months">รายเดือน</a>
+      <a href="#ads">ประสิทธิภาพโฆษณา</a>
+      <a href="#mix">ที่มายอดขาย &amp; สินค้า</a>
+      <a href="#data">ข้อมูล &amp; แผน</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="view" id="v-overview"></section>
+  <section class="view" id="v-weeks" hidden></section>
+  <section class="view" id="v-months" hidden></section>
+  <section class="view" id="v-ads" hidden></section>
+  <section class="view" id="v-mix" hidden></section>
+  <section class="view" id="v-data" hidden></section>
+</main>
+
+<div id="tip" hidden></div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="รายละเอียดรายวัน">
+  <div class="dh"><button class="ib" id="dPrev" aria-label="วันก่อนหน้า">◀</button><h3 id="dTitle">–</h3><button class="ib" id="dNext" aria-label="วันถัดไป">▶</button><button class="ib" id="dClose" aria-label="ปิด">✕</button></div>
+  <div class="db" id="dBody"></div>
+</aside>
+<div class="modal" id="planModal" hidden>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="plTitle">
+    <h3 id="plTitle">ตั้งแผนเดือน</h3>
+    <div class="frow">
+      <label class="field">เป้ายอดขายทั้งเดือน (฿)<input id="plTotal" inputmode="numeric" placeholder="7,000,000"></label>
+      <label class="field">เป้า ROI (รวม CPAS)<input id="plRoi" inputmode="decimal" placeholder="6.5"></label>
+      <label class="field">วันแคมเปญ: วันที่=เป้า<input id="plCamp" placeholder="10=500000, 25=500000"></label>
+    </div>
+    <div class="mfoot" style="justify-content:flex-start"><button class="btn" id="plSpread">กระจายเป้าให้วันปกติเท่ากัน</button><span class="muted" id="plSum"></span></div>
+    <div class="daygrid" id="plDays"></div>
+    <div class="mfoot"><button class="btn" id="plClear">ลบแผนเดือนนี้</button><span class="sp" style="flex:1"></span><button class="btn" id="plCancel">ยกเลิก</button><button class="btn pri" id="plSave">บันทึกแผน</button></div>
+  </div>
+</div>
+<input type="file" id="csvFile" accept=".csv,text/csv" hidden>
+
+<script>
+'use strict';
+/* ================= constants ================= */
+const CH=[
+  {k:'product',g:'shopee',n:'ROAS กำหนดเอง',full:'โฆษณาเพิ่มยอดขายแบบกำหนด ROAS เอง',old:'โฆษณาสินค้า',c:'--c1'},
+  {k:'search',g:'shopee',n:'Shop Ads',full:'โฆษณา Shop Ads',old:'โฆษณาคำค้นหา',c:'--c2'},
+  {k:'brand',g:'shopee',n:'Search Brand Ads',full:'Search Brand Ads',old:'Brand Ads',c:'--c3'},
+  {k:'live',g:'shopee',n:'Live Ads',full:'โฆษณา Live Ads',old:'Live Ads',c:'--c4'},
+  {k:'brandMax',g:'shopee',n:'Brand Max Ads',full:'Brand Max Ads',c:'--c6'},
+  {k:'autoBid',g:'shopee',n:'ตั้งราคาอัตโนมัติ',full:'โฆษณาเพิ่มยอดขายแบบตั้งราคาอัตโนมัติ',c:'--c6'},
+  {k:'gmvShop',g:'shopee',n:'GMV Max-Shop',full:'Product Ads (GMV Max-Shop)',c:'--c6'},
+  {k:'otherAds',g:'shopee',n:'อื่นๆ',full:'อื่นๆ',c:'--c6'},
+  {k:'cpasShop',g:'off',n:'CPAS in shop',full:'CPAS in shop',c:'--c5'},
+  {k:'cpasMeta',g:'off',n:'CPAS in Meta',full:'CPAS in Meta',c:'--c7'},
+];
+const TR=[{k:'pdp',n:'หน้ารายละเอียดสินค้า',c:'--c1'},{k:'live',n:'Live ของร้านค้า',c:'--c2'},{k:'video',n:'วิดีโอของร้านค้า',c:'--c3'},{k:'partner',n:'พาร์ทเนอร์',c:'--c4'}];
+const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const TMF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const TD=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+const DEF_ROI=6.5, FB_VER='10.12.2';
+const LS={plans:'shopee-v2-plans',imp:'shopee-v2-import',shop:'shopee-v2-shop',month:'shopee-v2-month'};
+
+/* ================= utils ================= */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}};
+const B=v=>'฿'+Math.round(v||0).toLocaleString('th-TH');
+const BM=v=>{const a=Math.abs(v||0);return a>=1e6?'฿'+(v/1e6).toFixed(a>=1e7?1:2)+'M':a>=1e3?'฿'+(v/1e3).toFixed(a>=1e5?0:1)+'K':'฿'+Math.round(v||0);};
+const X=v=>isFinite(v)&&v?v.toFixed(2):'–';
+const P=(v,d=1)=>isFinite(v)?(v*100).toFixed(d)+'%':'–';
+const sgn=v=>(v>0?'+':v<0?'−':'±');
+const pct=(a,b)=>b?a/b-1:NaN;
+const dlt=(v,goodUp=true,d=1)=>{ if(!isFinite(v)) return '<span class="flat">–</span>'; const c=Math.abs(v)<.005?'flat':((v>0)===goodUp?'up':'down'); return `<span class="${c} dl">${v>0?'▲':v<0?'▼':''} ${Math.abs(v*100).toFixed(d)}%</span>`; };
+const D=s=>new Date(s+'T00:00:00Z');
+const iso=d=>d.toISOString().slice(0,10);
+const addD=(s,n)=>{const d=D(s);d.setUTCDate(d.getUTCDate()+n);return iso(d);};
+const dow=s=>D(s).getUTCDay();
+const wkStart=s=>addD(s,-((dow(s)-3+7)%7));   // week = Wednesday–Tuesday
+const mKey=s=>s.slice(0,7);
+const mDays=mk=>{const [y,m]=mk.split('-').map(Number);return new Date(Date.UTC(y,m,0)).getUTCDate();};
+const mList=mk=>Array.from({length:mDays(mk)},(_,i)=>mk+'-'+String(i+1).padStart(2,'0'));
+const mLabel=(mk,full)=>{const [y,m]=mk.split('-');return (full?TMF:TM)[+m-1]+' '+y;};
+const dLabel=s=>`${+s.slice(8)} ${TM[+s.slice(5,7)-1]}`;
+const dLabelW=s=>`${TD[dow(s)]} ${dLabel(s)}`;
+const range=(a,b)=>{const o=[];for(let d=a;d<=b;d=addD(d,1))o.push(d);return o;};
+const todayIso=()=>{const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;};
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2600);}
+function niceMax(v){if(v<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(v)));const f=v/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e;}
+
+/* ================= state ================= */
+let SHOPS=[], RECS=[], IMAGES={}, SRC={kind:'none',label:'ไม่มีข้อมูล'};
+let SHOP=null, MONTH=null, VIEW='overview';
+let PLANS_LOCAL=lsGet(LS.plans,{});
+let FB=null;
+
+/* ================= data model ================= */
+function normRec(r){
+  r.channels=r.channels||{}; for(const c of CH){ const x=r.channels[c.k]||{}; r.channels[c.k]={spend:+x.spend||0,sales:+x.sales||0}; }
+  r.traffic=r.traffic||{}; for(const t of TR) r.traffic[t.k]=+r.traffic[t.k]||0;
+  r.sales=+r.sales||0; r.adsSales=+r.adsSales||0; r.tags=Array.isArray(r.tags)?r.tags:[]; r.note=r.note||'';
+  r.top5=(r.top5||[]).filter(x=>x&&x.name); r.top5u=(r.top5u||[]).filter(x=>x&&x.name);
+  r.shop=r.shop||'s1';
+  if(!r.ptype){ r.ptype = r.d1===r.d2?'day' : (dow(r.d1)===3&&r.d2===addD(r.d1,6))?'week' : (r.d1.endsWith('-01')&&r.d2===mKey(r.d1)+'-'+mDays(mKey(r.d1)))?'month':'custom'; }
+  return r;
+}
+const spendOf=r=>CH.reduce((s,c)=>s+r.channels[c.k].spend,0);
+function agg(list){
+  const a={sales:0,spend:0,adsSales:0,n:list.length,ch:{},tr:{},trSum:0};
+  for(const c of CH) a.ch[c.k]={spend:0,sales:0}; for(const t of TR) a.tr[t.k]=0;
+  for(const r of list){ a.sales+=r.sales; a.adsSales+=r.adsSales; for(const c of CH){a.ch[c.k].spend+=r.channels[c.k].spend;a.ch[c.k].sales+=r.channels[c.k].sales;} for(const t of TR){a.tr[t.k]+=r.traffic[t.k];} }
+  a.spend=CH.reduce((s,c)=>s+a.ch[c.k].spend,0); a.trSum=TR.reduce((s,t)=>s+a.tr[t.k],0);
+  a.shopeeSpend=CH.filter(c=>c.g==='shopee').reduce((s,c)=>s+a.ch[c.k].spend,0); a.offSpend=a.spend-a.shopeeSpend;
+  a.roi=a.spend?a.sales/a.spend:NaN; a.acos=a.sales?a.spend/a.sales:NaN; return a;
+}
+const shopRecs=()=>RECS.filter(r=>r.shop===SHOP);
+const dailyMap=()=>{const m=new Map();for(const r of shopRecs()) if(r.ptype==='day') m.set(r.d1,r);return m;};
+function planFor(mk){
+  const loc=PLANS_LOCAL[SHOP]&&PLANS_LOCAL[SHOP][mk]; if(loc) return loc;
+  const sh=SHOPS.find(s=>s.id===SHOP); const p=sh&&sh.plans&&sh.plans[mk]; if(p&&p.days&&Object.keys(p.days).length) return p;
+  return null;
+}
+const roiTarget=mk=>{const p=planFor(mk);return (p&&+p.roi)||DEF_ROI;};
+// month totals: full month record wins when dailies don't cover the month; else sum the dailies (month-to-date)
+function monthData(mk){
+  const dm=dailyMap(); const days=mList(mk).filter(d=>dm.has(d)); const daily=days.map(d=>dm.get(d));
+  const mrec=shopRecs().find(r=>r.ptype==='month'&&mKey(r.d1)===mk);
+  const full=mDays(mk);
+  if(mrec && days.length<full) return {mk,src:'month',a:agg([mrec]),rec:mrec,daily,days,nDays:full,lastDay:mk+'-'+String(full).padStart(2,'0'),complete:true};
+  if(daily.length) return {mk,src:'daily',a:agg(daily),daily,days,nDays:days.length,lastDay:days[days.length-1],complete:days.length===full};
+  return null;
+}
+function allMonths(){
+  const s=new Set(); for(const r of shopRecs()){ if(r.ptype==='month'||r.ptype==='day') s.add(mKey(r.d1)); if(r.ptype==='week'){s.add(mKey(r.d1));} }
+  return [...s].sort().filter(mk=>monthData(mk));
+}
+// weeks (Wed–Tue): recorded week round wins; otherwise sum available dailies
+function weekList(){
+  const dm=dailyMap(); const map=new Map();
+  for(const r of shopRecs()){ if(r.ptype==='week'&&dow(r.d1)===3) map.set(r.d1,{ws:r.d1,we:r.d2,a:agg([r]),src:'week',n:7,days:range(r.d1,r.d2).filter(d=>dm.has(d))}); }
+  for(const [d] of dm){ const ws=wkStart(d); if(!map.has(ws)){ map.set(ws,{ws,we:addD(ws,6),src:'daily'}); } }
+  for(const w of map.values()) if(w.src==='daily'){ w.days=range(w.ws,w.we).filter(d=>dm.has(d)); w.a=agg(w.days.map(d=>dm.get(d))); w.n=w.days.length; }
+  return [...map.values()].sort((a,b)=>a.ws.localeCompare(b.ws));
+}
+function planSum(days){ let s=0,has=false; for(const d of days){ const p=planFor(mKey(d)); if(p&&p.days&&p.days[d]!=null){ s+=+p.days[d]||0; has=true; } } return has?s:null; }
+const planDay=d=>{const p=planFor(mKey(d));return p&&p.days&&p.days[d]!=null?+p.days[d]:null;};
+const imgOf=it=>it.img||IMAGES[it.url]||'';
+const statusOf=(ratio,goodAt=1,warnAt=.9)=>!isFinite(ratio)?'mute':ratio>=goodAt?'good':ratio>=warnAt?'warn':'bad';
+const chipTxt={good:'ถึงเป้า',warn:'ใกล้เป้า',bad:'ต่ำกว่าเป้า',mute:'ไม่มีเป้า'};
+const chip=(st,txt)=>`<span class="chip ${st}">${esc(txt||chipTxt[st])}</span>`;
+
+/* ================= loading ================= */
+function setData(shops,recs,images,src){
+  RECS=recs.filter(r=>r&&r.d1&&r.d2&&r.channels).map(normRec);
+  const ids=[...new Set(RECS.map(r=>r.shop))];
+  SHOPS=ids.map(id=>{ const s=(shops||[]).find(x=>x.id===id)||{}; return {id,name:s.name||(id==='s1'?'ร้านหลัก':id),logo:s.logo||'',url:s.url||'',plans:s.plans||{}}; });
+  IMAGES=images||{}; SRC=src;
+  // October 2026 plan agreed for YOUNGAGE (Oct target ~7M, 10.10 & Payday 500K, ROI 6.5) when the source has no plans
+  const yg=SHOPS.find(s=>/youngage/i.test(s.name));
+  if(yg && !(yg.plans&&yg.plans['2026-10'])){ const days={}; for(const d of mList('2026-10')){const n=+d.slice(8); days[d]=n===10||n===25?500000:n<=7?185000:n<=14?205000:n<=21?215000:220000;} yg.plans={...(yg.plans||{}),'2026-10':{roi:6.5,days}}; }
+  const keep=lsGet(LS.shop,null); SHOP=SHOPS.some(s=>s.id===keep)?keep:(SHOPS[0]&&SHOPS[0].id)||null;
+  pickMonth(lsGet(LS.month,null)); renderAll();
+}
+function pickMonth(want){ const ms=SHOP?allMonths():[]; MONTH=ms.includes(want)?want:(ms.filter(m=>monthData(m).src==='daily').pop()||ms[ms.length-1]||null); }
+async function loadSnapshot(){ try{ const r=await fetch('snapshot.json',{cache:'no-store'}); if(!r.ok) return null; return await r.json(); }catch(e){ return null; } }
+function loadV1Local(){ // same-origin data saved by the entry page (V1)
+  try{ const recs=JSON.parse(localStorage.getItem('shopee-roi-records-v1')||'[]'); if(!recs.length) return null;
+    const shops=JSON.parse(localStorage.getItem('shopee-roi-shops-v1')||'[]'); return {shops,records:recs}; }catch(e){ return null; }
+}
+async function boot(){
+  const imp=lsGet(LS.imp,null);
+  const v1=loadV1Local();
+  const snap=await loadSnapshot();
+  if(imp&&imp.records&&imp.records.length) setData(imp.shops,imp.records,(snap&&snap.images)||{},{kind:'import',label:'ไฟล์ CSV ที่นำเข้า'});
+  else if(v1) setData(v1.shops,v1.records,{},{kind:'v1',label:'ข้อมูลในเบราว์เซอร์นี้ (หน้ากรอก)'});
+  else if(snap) setData(snap.shops,snap.records,snap.images,{kind:'snap',label:'ไฟล์ CSV '+dLabel(snap.asOf)+' '+snap.asOf.slice(0,4)});
+  else { SRC={kind:'none',label:'ยังไม่มีข้อมูล'}; renderAll(); }
+  if(typeof window.claude==='undefined'){ if(!(await sbBoot())) fbBoot(); }
+}
+/* --- Supabase (own hosting): same server and sign-in as the entry page; ?shop=<id> opens a shop shared publicly --- */
+const SB_JS='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+let SB=null, SBU=null;
+async function sbBoot(){
+  let cfg=null; try{ const r=await fetch('supabase-config.json',{cache:'no-store'}); if(r.ok) cfg=await r.json(); }catch(e){}
+  if(!(cfg&&cfg.url)){ try{ cfg=JSON.parse(localStorage.getItem('shopee-roi-sbcfg')||'null'); }catch(e){} }
+  if(!(cfg&&cfg.url&&cfg.anonKey)) return false;
+  try{ if(!(window.supabase&&window.supabase.createClient)) await loadScript(SB_JS); SB=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true}}); }catch(e){ return false; }
+  const pub=new URLSearchParams(location.search).get('shop');
+  const {data:{session}}=await SB.auth.getSession(); SBU=session&&session.user||null;
+  SB.auth.onAuthStateChange((ev,ses)=>{ const u=ses&&ses.user||null; if(ev==='SIGNED_IN'&&(!SBU||SBU.id!==u.id)){ SBU=u; sbPull(); } if(ev==='SIGNED_OUT'){ SBU=null; location.reload(); } });
+  if(SBU||pub) await sbPull(pub); else { SRC={kind:'sbgate',label:'เข้าสู่ระบบเพื่อดูข้อมูลบน server'}; renderAll(); }
+  return true;
+}
+async function sbAllRows(q){ const out=[]; for(let f=0;;f+=1000){ const {data,error}=await q().range(f,f+999); if(error) throw error; out.push(...data); if(data.length<1000) break; } return out; }
+async function sbPull(pub){
+  try{
+    if(SBU){ try{ await SB.rpc('sp_claim_invites'); }catch(e){} }
+    const only=q=>pub&&!SBU?q.eq(q.__col||'shop_id',pub):q;
+    const shops=await sbAllRows(()=>{ let q=SB.from('sp_shops').select('id,name,data'); return pub&&!SBU?q.eq('id',pub):q; });
+    const recs=await sbAllRows(()=>{ let q=SB.from('sp_records').select('id,shop_id,data'); return pub&&!SBU?q.eq('shop_id',pub):q; });
+    const prods=await sbAllRows(()=>{ let q=SB.from('sp_products').select('shop_id,data'); return pub&&!SBU?q.eq('shop_id',pub):q; });
+    if(!recs.length){ SRC={kind:'sbgate',label:SBU?'บัญชีนี้ยังไม่มีร้านบน server':'ไม่พบรายงานนี้ หรือเจ้าของปิดลิงก์แล้ว'}; renderAll(); return; }
+    const images={}; for(const p of prods){ const d=p.data||{}; if(d.url&&d.img) images[d.url]=d.img; }
+    const sh=shops.map(x=>({id:x.id,name:x.name,plans:(x.data||{}).plans||{},logo:(x.data||{}).logo||'',url:(x.data||{}).url||''}));
+    const rs=recs.map(x=>({...(x.data||{}),id:x.id,shop:x.shop_id}));
+    if(pub&&!SBU) lsSet(LS.shop,pub);
+    setData(sh,rs,images,{kind:'sb',label:SBU?'server · '+SBU.email:'รายงานสาธารณะ (ดูอย่างเดียว)',live:true});
+  }catch(e){ toast('อ่านข้อมูลจาก server ไม่ได้ ลองรีเฟรชหน้า'); }
+}
+async function sbLogin(){ const email=($('sbE')||{}).value||'', password=($('sbP')||{}).value||''; if(!email||!password){ toast('กรอกอีเมลและรหัสผ่าน'); return; }
+  const {error}=await SB.auth.signInWithPassword({email:email.trim(),password}); if(error){ toast(/Invalid login/i.test(error.message)?'อีเมลหรือรหัสผ่านไม่ถูกต้อง':/not confirmed/i.test(error.message)?'ยังไม่ได้ยืนยันอีเมล':'เข้าสู่ระบบไม่สำเร็จ'); return; } toast('เข้าสู่ระบบแล้ว กำลังโหลดข้อมูล…'); }
+/* --- Firebase (own hosting, same project as the entry page): read-only --- */
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+async function fbBoot(){
+  let cfg=null; try{ const r=await fetch('firebase-config.json',{cache:'no-store'}); if(r.ok) cfg=await r.json(); }catch(e){}
+  if(!(cfg&&cfg.apiKey)){ try{ cfg=JSON.parse(localStorage.getItem('shopee-roi-fbcfg')||'null'); }catch(e){} }
+  if(!(cfg&&cfg.apiKey)) return;
+  try{ const b=`https://www.gstatic.com/firebasejs/${FB_VER}/`; await loadScript(b+'firebase-app-compat.js'); await loadScript(b+'firebase-auth-compat.js'); await loadScript(b+'firebase-firestore-compat.js');
+    if(!firebase.apps.length) firebase.initializeApp(cfg); }catch(e){ return; }
+  FB={cfg,user:null}; renderSrc();
+  firebase.auth().onAuthStateChanged(async u=>{ FB.user=u; renderSrc(); if(u) await fbPull(); });
+}
+async function fbPull(){
+  try{ const snap=await firebase.firestore().collection('data/users/'+FB.user.uid).get();
+    const docs=snap.docs.map(d=>d.data()).filter(Boolean);
+    const shops=docs.filter(x=>x.kind==='shop'&&x.id); const recs=docs.filter(x=>x.channels&&x.d1);
+    if(!recs.length){ toast('บัญชีนี้ยังไม่มีข้อมูลใน Firebase'); return; }
+    const snapI=(await loadSnapshot()||{}).images||{};
+    setData(shops,recs,snapI,{kind:'fb',label:'Firebase · '+(FB.user.email||'บัญชี Google'),live:true});
+    toast('ดึงข้อมูลล่าสุดจาก Firebase แล้ว');
+  }catch(e){ toast('อ่านข้อมูลจาก Firebase ไม่ได้ ตรวจสอบกฎความปลอดภัยใน Firestore'); }
+}
+async function fbLogin(){ try{ await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()); }catch(e){ toast('เข้าสู่ระบบไม่สำเร็จ'); } }
+
+/* --- CSV import (same file the entry page downloads) --- */
+function parseCSV(t){ const rows=[];let row=[],f='',q=false; t=t.replace(/^﻿/,'');
+  for(let i=0;i<t.length;i++){const c=t[i]; if(q){ if(c==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true; else if(c===','){row.push(f);f='';} else if(c==='\n'||c==='\r'){ if(c==='\r'&&t[i+1]==='\n')i++; row.push(f);rows.push(row);row=[];f=''; } else f+=c; }
+  if(f!==''||row.length){row.push(f);rows.push(row);} return rows.filter(r=>r.some(x=>x!==''));
+}
+const pNum=v=>{const n=parseFloat(String(v??'').replace(/[,\s฿%]/g,''));return isFinite(n)?n:0;};
+function importCSV(text){
+  const rows=parseCSV(text); if(rows.length<2) throw new Error('empty');
+  const H=rows[0].map(h=>h.trim()); const ix=n=>H.indexOf(n);
+  const get=(r,n,alt)=>{let i=ix(n); if(i<0&&alt) i=ix(alt); return i>=0?r[i]:'';};
+  if(ix('ยอดขายที่ยืนยันแล้ว')<0||ix('จาก')<0) throw new Error('format');
+  const PT={'รายวัน':'day','รายสัปดาห์':'week','รายเดือน':'month','กำหนดเอง':'custom'};
+  const shops=new Map(), recs=[], images={};
+  for(const r of rows.slice(1)){
+    const sid=String(get(r,'รหัสร้าน')||'s1').trim()||'s1'; if(!shops.has(sid)) shops.set(sid,{id:sid,name:String(get(r,'ร้านค้า')||'').trim()});
+    const channels={}; for(const c of CH) channels[c.k]={spend:pNum(get(r,'ค่าใช้จ่าย '+c.full,c.old&&'ค่าใช้จ่าย '+c.old)),sales:pNum(get(r,'ยอดขาย '+c.full,c.old&&'ยอดขาย '+c.old))};
+    const top=(p,val)=>[1,2,3,4,5].map(n=>{const nm=String(get(r,p+n+' ชื่อ')||'').trim(); if(!nm) return null; const url=String(get(r,p+n+' ลิงก์')||'').trim(); const im=String(get(r,p+n+' รูป')||''); if(url&&/^data:image\//.test(im)) images[url]=im; return {name:nm,url,[val]:pNum(get(r,p+n+(val==='sales'?' ยอดขาย':' จำนวน')))};}).filter(Boolean);
+    const d1=String(get(r,'จาก')).trim(), d2=String(get(r,'ถึง')).trim(); if(!/^\d{4}-\d\d-\d\d$/.test(d1)) continue;
+    recs.push({id:String(get(r,'รหัสรอบ')||'').trim()||('r'+recs.length),shop:sid,name:get(r,'รอบ'),d1,d2:d2||d1,ptype:PT[String(get(r,'ประเภทรอบ')).trim()]||'',
+      sales:pNum(get(r,'ยอดขายที่ยืนยันแล้ว')),channels,traffic:Object.fromEntries(TR.map(t=>[t.k,pNum(get(r,'ยอดขายที่มา '+t.n))])),adsSales:pNum(get(r,'ยอดขายจากโฆษณา Shopee Ads')),
+      tags:String(get(r,'แท็กหมายเหตุ')||'').split('|').map(s=>s.trim()).filter(Boolean),note:String(get(r,'หมายเหตุ')||'').trim(),top5:top('TOP ','sales'),top5u:top('TOPชิ้น ','units')});
+  }
+  return {shops:[...shops.values()],records:recs,images};
+}
+
+/* ================= rendering: shell ================= */
+function renderSrc(){
+  const el=$('srcPill'); el.classList.toggle('live',!!SRC.live); $('srcTxt').textContent=SRC.label;
+}
+function renderShell(){
+  renderSrc();
+  $('shopSel').innerHTML=SHOPS.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('')||'<option>ไม่มีร้าน</option>';
+  if(SHOP) $('shopSel').value=SHOP;
+  const sh=SHOPS.find(s=>s.id===SHOP); $('shopMark').textContent=sh?(sh.name.trim()[0]||'S').toUpperCase():'S';
+  const ms=SHOP?allMonths():[]; const i=ms.indexOf(MONTH);
+  $('mLbl').textContent=MONTH?mLabel(MONTH):'–'; $('mPrev').disabled=i<=0; $('mNext').disabled=i<0||i>=ms.length-1;
+  $('mnav').style.visibility=['overview','ads','mix'].includes(VIEW)?'visible':'hidden';
+  for(const a of $('tabs').querySelectorAll('a')) a.setAttribute('aria-current',a.getAttribute('href')==='#'+VIEW?'page':'false');
+  for(const v of ['overview','weeks','months','ads','mix','data']) $('v-'+v).hidden=v!==VIEW;
+}
+function renderAll(){ renderShell(); const f={overview:renderOverview,weeks:renderWeeks,months:renderMonths,ads:renderAds,mix:renderMix,data:renderData}[VIEW]; if(!SHOP&&VIEW!=='data'){ $('v-'+VIEW).innerHTML=emptyState(); return; } f(); drawCharts(); }
+function emptyState(){ if(SRC.kind==='sbgate') return `<div class="panel empty"><h3>${esc(SRC.label)}</h3><p>ข้อมูลร้านเก็บบน server เข้าสู่ระบบด้วยบัญชีเดียวกับหน้ากรอกข้อมูล</p><a class="btn pri" href="#data">ไปหน้าเข้าสู่ระบบ</a></div>`; return `<div class="panel empty"><h3>ยังไม่มีข้อมูล</h3><p>นำเข้าไฟล์ CSV ที่ดาวน์โหลดจากหน้ากรอกข้อมูล (ปุ่ม “ดาวน์โหลดทุกร้าน”) เพื่อเริ่มดูรายงาน</p><button class="btn pri" data-act="import">นำเข้าไฟล์ CSV</button></div>`; }
+
+/* ================= overview ================= */
+function monthKpis(mk){
+  const md=monthData(mk); if(!md) return null;
+  const plan=planFor(mk), roiT=roiTarget(mk), a=md.a;
+  const target=plan?Object.values(plan.days).reduce((s,v)=>s+(+v||0),0):null;
+  const planTD=plan?mList(mk).filter(d=>d<=md.lastDay).reduce((s,d)=>s+(+plan.days[d]||0),0):null;
+  const rem=mList(mk).filter(d=>d>md.lastDay);
+  const ach=planTD?a.sales/planTD:NaN;
+  const avgDay=a.sales/md.nDays;
+  const last7=md.daily.filter(r=>r.d1>addD(md.lastDay,-7)); const a7=agg(last7);
+  const avg7=last7.length?a7.sales/last7.length:avgDay;
+  let forecast;
+  if(md.complete) forecast=a.sales;
+  else if(plan) forecast=a.sales+rem.reduce((s,d)=>s+(+plan.days[d]||0),0)*(isFinite(ach)?ach:1);
+  else forecast=a.sales+rem.length*avg7;
+  const needDay=target&&rem.length?(target-a.sales)/rem.length:NaN;
+  const spendCap=a.sales/roiT; const overSpend=a.spend-spendCap;
+  const budgetLeftDay=rem.length?(forecast-a.sales)/rem.length/roiT:NaN;
+  // previous month for a like-for-like daily average
+  const ms=allMonths(); const pm=ms[ms.indexOf(mk)-1]; const pmd=pm&&monthData(pm);
+  const prevAvg=pmd?pmd.a.sales/pmd.nDays:NaN, prevRoi=pmd?pmd.a.roi:NaN, prevAcos=pmd?pmd.a.acos:NaN;
+  return {md,plan,roiT,a,target,planTD,rem,ach,avgDay,avg7,a7,forecast,needDay,spendCap,overSpend,budgetLeftDay,pm,pmd,prevAvg,prevRoi,prevAcos};
+}
+function renderOverview(){
+  const v=$('v-overview'); const K=MONTH&&monthKpis(MONTH); if(!K){ v.innerHTML=emptyState(); return; }
+  const {md,plan,roiT,a}=K; const sh=SHOPS.find(s=>s.id===SHOP);
+  const asOf=md.src==='daily'?`ข้อมูลถึง ${dLabel(md.lastDay)} (${md.nDays} วัน)`:`ข้อมูลรอบรายเดือน ${mLabel(MONTH)}`;
+  const roiSt=statusOf(a.roi/roiT,1,.92), achSt=plan?statusOf(K.ach,1,.9):'mute';
+  const verdictSt = plan ? (achSt==='good'&&roiSt==='good'?'good':(achSt==='bad'||roiSt==='bad')?'bad':'warn') : roiSt;
+  const vText=plan?{good:'อยู่ในแผน',warn:'ต้องเร่ง',bad:'หลุดแผน',mute:'—'}[verdictSt]:{good:'ROI ผ่านเป้า',warn:'ROI ใกล้เป้า',bad:'ROI ต่ำกว่าเป้า',mute:'—'}[verdictSt];
+  let sentence = plan
+    ? `ยอดขาย ${B(a.sales)} ทำได้ <b>${P(K.ach,0)}</b> ของแผนถึงวันนี้ · ROI <b>${X(a.roi)}</b> ${a.roi>=roiT?'ผ่าน':'ต่ำกว่า'}เป้า ${roiT} · คาดจบเดือน ${BM(K.forecast)} จากเป้า ${BM(K.target)}`
+    : `ยอดขาย ${B(a.sales)} · เฉลี่ย ${B(K.avgDay)}/วัน ${isFinite(K.prevAvg)?`(${sgn(K.avgDay-K.prevAvg)}${P(Math.abs(pct(K.avgDay,K.prevAvg)),0)} เทียบ ${mLabel(K.pm)})`:''} · ROI <b>${X(a.roi)}</b> เป้า ${roiT}`;
+  const k1 = plan ? `
+    <div class="kpi"><div class="lb">ยอดขายยืนยันแล้ว ${chip(achSt)}</div>
+      <div class="v num">${BM(a.sales)}<small>/ แผน ${BM(K.planTD)}</small></div>
+      <div class="meter ${achSt}" title="เส้นดำ = แผนถึงวันนี้"><div class="f" style="width:${Math.min(100,a.sales/K.target*100)}%"></div><div class="m" style="left:${Math.min(100,K.planTD/K.target*100)}%"></div></div>
+      <div class="mlegend"><span>0</span><span>เป้าเดือน ${BM(K.target)}</span></div>
+      <div class="s">ทำได้ <b>${P(K.ach,1)}</b> ของแผนถึง ${dLabel(md.lastDay)} · ขาดอีก <b>${B(Math.max(0,K.planTD-a.sales))}</b></div></div>`
+    : `<div class="kpi"><div class="lb">ยอดขายยืนยันแล้ว ${chip('mute','ยังไม่ตั้งแผน')}</div>
+      <div class="v num">${BM(a.sales)}</div>
+      <div class="s">${md.src==='daily'?`${md.nDays} วัน`:'ทั้งเดือน'} · <button class="btn sm" data-act="plan">ตั้งแผนเดือนนี้</button></div></div>`;
+  const kpis=`<div class="kpis">${k1}
+    <div class="kpi"><div class="lb">ROI รวม CPAS ${chip(roiSt)}</div>
+      <div class="v num">${X(a.roi)}<small>เป้า ${roiT}</small></div>
+      <div class="meter ${roiSt}"><div class="f" style="width:${Math.min(100,a.roi/(roiT*1.5)*100)}%"></div><div class="m" style="left:${100/1.5}%"></div></div>
+      <div class="s">${[isFinite(K.prevRoi)?`${mLabel(K.pm)} ${X(K.prevRoi)}`:'',md.daily.length>=7?`7 วันล่าสุด <b>${X(K.a7.roi)}</b>`:''].filter(Boolean).join(' · ')}</div></div>
+    <div class="kpi"><div class="lb">ค่าโฆษณารวม ${chip(K.overSpend>0?'bad':'good',K.overSpend>0?'เกินเพดาน':'ในเพดาน')}</div>
+      <div class="v num">${BM(a.spend)}<small>ACOS ${P(a.acos)}</small></div>
+      <div class="s">เพดานที่ ROI ${roiT} = <b>${BM(K.spendCap)}</b> (ACOS ≤ ${P(1/roiT)})<br>${K.overSpend>0?`ใช้เกิน <b>${B(K.overSpend)}</b>`:`ยังใช้ได้อีก <b>${B(-K.overSpend)}</b>`}</div></div>
+    <div class="kpi"><div class="lb">${md.complete?'ยอดจบเดือน':'คาดการณ์สิ้นเดือน'} ${plan?chip(statusOf(K.forecast/K.target,1,.93)):''}</div>
+      <div class="v num">${BM(K.forecast)}${plan?`<small>${P(K.forecast/K.target,0)} ของเป้า</small>`:''}</div>
+      <div class="s">${md.complete?'ปิดเดือนแล้ว':plan?`ถ้ายังทำได้ ${P(K.ach,0)} ของแผนในวันที่เหลือ ${K.rem.length} วัน`:`จากค่าเฉลี่ย 7 วันล่าสุด × ${K.rem.length} วันที่เหลือ`}</div></div>
+    <div class="kpi"><div class="lb">${plan&&K.rem.length?'ต้องทำต่อวันที่เหลือ':'ยอดเฉลี่ยต่อวัน'}</div>
+      ${plan&&K.rem.length?`<div class="v num">${BM(K.needDay)}<small>/วัน</small></div>
+      <div class="s">7 วันล่าสุดเฉลี่ย <b>${B(K.avg7)}</b>/วัน · ${K.needDay>K.avg7?`ขาดอีก <b class="down">${B(K.needDay-K.avg7)}</b>/วัน`:'<b class="up">ทำได้ตามที่ต้องการ</b>'}<br>งบแอดวันที่เหลือ ≤ <b>${B(K.budgetLeftDay)}</b>/วัน เพื่อให้วันเหล่านั้นได้ ROI ${roiT}</div>`
+      :`<div class="v num">${BM(K.avgDay)}<small>/วัน</small></div><div class="s">${isFinite(K.prevAvg)?`${mLabel(K.pm)} ${B(K.prevAvg)}/วัน ${dlt(pct(K.avgDay,K.prevAvg))}`:'—'}</div>`}</div>
+  </div>`;
+  const acts=insights(K);
+  v.innerHTML=`
+  <div class="head"><div style="flex:1;min-width:0"><h2>${esc(sh?sh.name:'')} · ${mLabel(MONTH,true)} <span class="verdict chip ${verdictSt}">${vText}</span></h2>
+    <p>${sentence}</p><p class="muted" style="font-size:12.5px">${asOf} · สัปดาห์นับ พุธ–อังคาร · ROI = ยอดขายยืนยันแล้ว ÷ ค่าโฆษณาทุกช่องทาง (รวม CPAS)</p></div>
+    <div class="ctl"><button class="btn" data-act="plan">${plan?'แก้แผนเดือนนี้':'ตั้งแผนเดือนนี้'}</button></div></div>
+  ${kpis}
+  <div class="grid2">
+    <div class="panel"><header><h3>${plan?'ยอดสะสมเทียบแผน':'ยอดสะสมในเดือน'}</h3><span class="hint">เส้นทึบ = ทำได้จริง${plan?' · เส้นประ = แผน':''}${md.complete?'':' · จุดไข่ปลา = คาดการณ์'}</span></header>
+      <div class="chart" data-chart="burn" style="height:250px"></div></div>
+    <div class="panel"><header><h3>สิ่งที่ควรทำต่อ</h3><span class="hint">คำนวณจากข้อมูลเดือนนี้</span></header><div class="acts">${acts||'<p class="muted">ยังไม่มีประเด็นที่ต้องแก้</p>'}</div></div>
+  </div>
+  <div class="panel"><header><h3>ยอดขายรายวัน</h3><span class="hint">คลิกแท่งเพื่อดูรายละเอียดวันนั้น</span><span class="sp"></span>
+    <div class="legend"><span><i style="background:var(--s-sales)"></i>ยอดขาย</span>${plan?'<span><i class="tick"></i>เป้ารายวัน</span>':''}<span><i style="background:var(--accent)"></i>วันที่มีหมายเหตุ</span></div></header>
+    ${md.daily.length?'<div class="chart" data-chart="daily" style="height:240px"></div>':`<p class="empty">เดือนนี้มีเฉพาะรอบรายเดือน ไม่มีข้อมูลรายวัน</p>`}
+    ${md.daily.length?`<header style="margin:14px 0 4px"><h3 style="font-size:14.5px">ROI รายวัน</h3><span class="sp"></span><div class="legend"><span><i class="ln" style="background:var(--s-roi)"></i>ROI</span><span><i class="dash"></i>เป้า ${roiT}</span></div></header>
+    <div class="chart" data-chart="roiDaily" style="height:150px"></div>`:''}
+  </div>
+  <div class="panel"><header><h3>สกอร์การ์ดรายสัปดาห์ (พุธ–อังคาร)</h3><span class="hint">สัปดาห์ที่คาบเกี่ยวเดือนนี้</span></header>${weekTable(weekList().filter(w=>mKey(w.ws)===MONTH||mKey(w.we)===MONTH),true)}</div>`;
+}
+function insights(K){
+  const out=[]; const {md,plan,roiT,a}=K;
+  const add=(sev,ic,title,body)=>out.push({sev,html:`<div class="act ${sev}"><div class="ic">${ic}</div><b>${title}</b><p>${body}</p></div>`});
+  // missing days
+  if(md.src==='daily'){ const t=todayIso(); const end=MONTH+'-'+String(mDays(MONTH)).padStart(2,'0'); const lim=addD(t,-1)<end?addD(t,-1):end;
+    const miss=mList(MONTH).filter(d=>d<=lim&&!md.days.includes(d));
+    if(miss.length) add('warn','!',`ยังไม่ได้กรอก ${miss.length} วัน`,`${miss.slice(0,6).map(dLabel).join(', ')}${miss.length>6?' …':''} · ตัวเลขสะสมและคาดการณ์จะต่ำกว่าความจริงจนกว่าจะกรอกครบ`); }
+  if(plan&&!md.complete&&isFinite(K.needDay)){
+    const gap=K.needDay-K.avg7;
+    add(gap>0?(gap/K.needDay>.25?'bad':'warn'):'good',gap>0?'↑':'✓', gap>0?`ต้องเพิ่มยอดอีก ${B(gap)}/วัน`:'ทำยอดได้เกินที่ต้องการ',
+      `เหลือ ${K.rem.length} วัน ต้องเฉลี่ย <strong>${B(K.needDay)}</strong>/วัน เพื่อถึงเป้า ${BM(K.target)} · 7 วันล่าสุดเฉลี่ย ${B(K.avg7)}${K.rem.some(d=>planDay(d)>=400000)?` · ยังมีวันแคมเปญ ${K.rem.filter(d=>planDay(d)>=400000).map(dLabel).join(', ')} ช่วยได้`:''}`);
+  }
+  if(K.overSpend>0){
+    const perDay=K.overSpend/md.nDays;
+    add(a.roi<roiT*.85?'bad':'warn','฿',`ROI ${X(a.roi)} ต่ำกว่าเป้า ${roiT}`,
+      `ค่าแอดเกินเพดานเฉลี่ย <strong>${B(perDay)}/วัน</strong> · ทางเลือก: ลดงบช่องที่ ROAS ต่ำ หรือเพิ่มยอดขายอีก ${B(perDay*roiT)}/วัน ที่งบเท่าเดิม${isFinite(K.budgetLeftDay)?` · วันที่เหลือคุมงบไม่เกิน ${B(K.budgetLeftDay)}/วัน`:''}`);
+  } else if(a.spend) add('good','✓',`ROI ${X(a.roi)} ผ่านเป้า ${roiT}`,`ยังเพิ่มงบได้อีก ${B(-K.overSpend)} โดย ROI ไม่หลุดเป้า ลองเพิ่มในช่องที่ ROAS สูงทีละ 10–20%`);
+  // channels
+  const chs=CH.map(c=>({...c,...a.ch[c.k],roas:a.ch[c.k].spend?a.ch[c.k].sales/a.ch[c.k].spend:NaN,share:a.spend?a.ch[c.k].spend/a.spend:0})).filter(c=>c.spend>0);
+  const weak=chs.filter(c=>c.share>=.03&&c.roas<roiT).sort((x,y)=>x.roas-y.roas)[0];
+  if(weak) add('warn','↓',`${weak.n}: ROAS ${X(weak.roas)} ต่ำกว่าเป้า`,`ใช้งบ ${P(weak.share)} (${B(weak.spend)}) · ทบทวนคีย์เวิร์ด/สินค้าที่ไม่ทำยอด หรือลดงบลงแล้วดูว่ายอดรวมลดตามหรือไม่`);
+  const strong=chs.filter(c=>c.roas>=roiT*1.5).sort((x,y)=>y.roas-x.roas)[0];
+  if(strong) add('info','↗',`${strong.n}: ROAS ${X(strong.roas)} สูงสุด`,`ใช้งบเพียง ${P(strong.share)} · ทดลองเพิ่มงบทีละ 10–20% แล้วเช็ก ROI รวมของร้าน (ยอดจากแอดแต่ละช่องอาจนับซ้ำกัน)`);
+  // tag impact (e.g. days without Live)
+  if(md.daily.length>=7){
+    const med=[...md.daily].map(r=>r.sales).sort((x,y)=>x-y)[Math.floor(md.daily.length/2)];
+    const normal=md.daily.filter(r=>r.sales<med*2.2);
+    const tags=[...new Set(normal.flatMap(r=>r.tags))];
+    for(const t of tags){ const w=normal.filter(r=>r.tags.includes(t)), wo=normal.filter(r=>!r.tags.includes(t)); if(!w.length||!wo.length) continue;
+      const aw=w.reduce((s,r)=>s+r.sales,0)/w.length, ao=wo.reduce((s,r)=>s+r.sales,0)/wo.length; const ch_=pct(aw,ao);
+      if(Math.abs(ch_)>=.1) add(ch_<0?'warn':'info','#',`วันที่ “${t}” ยอดเฉลี่ย ${ch_<0?'ต่ำกว่า':'สูงกว่า'} ${P(Math.abs(ch_),0)}`,`${w.length} วัน เฉลี่ย ${B(aw)} เทียบวันอื่น ${B(ao)} (ไม่นับวันแคมเปญ)${ch_<0?' · วางแผนให้มีกิจกรรมทดแทนในวันแบบนี้':''}`); }
+    // weekday pattern
+    const byD=[0,1,2,3,4,5,6].map(d=>{const l=normal.filter(r=>dow(r.d1)===d);return {d,n:l.length,avg:l.length?l.reduce((s,r)=>s+r.sales,0)/l.length:NaN};}).filter(x=>x.n>=2);
+    if(byD.length>=5){ byD.sort((x,y)=>x.avg-y.avg); const lo=byD[0], hi=byD[byD.length-1];
+      if(hi.avg/lo.avg>1.25) add('info','◷',`วัน${TD[lo.d]}ยอดต่ำสุดของสัปดาห์`,`เฉลี่ย ${B(lo.avg)} เทียบวัน${TD[hi.d]} ${B(hi.avg)} · เหมาะจัดโปร/ไลฟ์พิเศษในวัน${TD[lo.d]}`); }
+  }
+  const order={bad:0,warn:1,info:2,good:3}; return out.sort((x,y)=>order[x.sev]-order[y.sev]).slice(0,6).map(x=>x.html).join('');
+}
+function weekTable(ws,compact){
+  if(!ws.length) return '<p class="empty">ไม่มีข้อมูลรายสัปดาห์</p>';
+  const all=weekList();
+  const rows=ws.map(w=>{
+    const prev=all[all.findIndex(x=>x.ws===w.ws)-1]; const plan=planSum(range(w.ws,w.we).filter(d=>w.src==='week'||w.days.includes(d)));
+    const roiT=roiTarget(mKey(w.we)); const partial=w.src==='daily'&&w.n<7;
+    const st=plan?statusOf(w.a.sales/plan,1,.9):'mute'; const rs=statusOf(w.a.roi/roiT,1,.92);
+    const ps=prev?prev.a.sales/(prev.n||7):NaN, cs=w.a.sales/(w.n||7);
+    return `<tr class="click" data-week="${w.ws}"><td><b>${dLabel(w.ws)} – ${dLabel(w.we)}</b>${partial?` <span class="muted">(${w.n} วัน)</span>`:''}</td>
+      <td class="n">${B(w.a.sales)}</td><td class="n">${plan?B(plan):'<span class="muted">–</span>'}</td><td>${plan?`${chip(st,P(w.a.sales/plan,0))}`:'<span class="muted">–</span>'}</td>
+      <td class="n">${partial?'<span class="muted" title="เทียบค่าเฉลี่ยต่อวัน">/วัน </span>':''}${dlt(pct(cs,ps))}</td>
+      <td class="n">${B(w.a.spend)}</td><td class="n">${dlt(pct(w.a.spend/(w.n||7),prev?prev.a.spend/(prev.n||7):NaN),false)}</td>
+      <td class="n">${P(w.a.acos)}</td><td>${chip(rs,X(w.a.roi))}</td></tr>`; }).join('');
+  return `<div class="tbl"><table><thead><tr><th>สัปดาห์</th><th class="n">ยอดขาย</th><th class="n">แผน</th><th>ทำได้</th><th class="n">ยอด vs สัปดาห์ก่อน</th><th class="n">ค่าแอด</th><th class="n">ค่าแอด vs ก่อน</th><th class="n">ACOS</th><th>ROI</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="note">สัปดาห์ที่ยังไม่ครบ 7 วันเทียบกับสัปดาห์ก่อนด้วยค่าเฉลี่ยต่อวัน · ค่าแอดลดลง = สีเขียว · คลิกแถวเพื่อดูรายวัน</p>`;
+}
+
+/* ================= weeks view ================= */
+function renderWeeks(){
+  const ws=weekList(); const v=$('v-weeks');
+  if(!ws.length){ v.innerHTML='<div class="panel empty">ร้านนี้ยังไม่มีข้อมูลรายสัปดาห์หรือรายวัน</div>'; return; }
+  const last=ws[ws.length-1], prev=ws[ws.length-2];
+  const lastFull=[...ws].reverse().find(w=>w.src==='week'||w.n===7);
+  v.innerHTML=`<div class="head"><div><h2>รายสัปดาห์ (พุธ–อังคาร)</h2><p>${ws.length} สัปดาห์ · ล่าสุด ${dLabel(last.ws)} – ${dLabel(last.we)}${last.src==='daily'&&last.n<7?` (มีข้อมูล ${last.n} วัน)`:''} · ใช้ตัวเลขรอบรายสัปดาห์ที่บันทึกไว้ก่อน ถ้าไม่มีจึงรวมจากรายวัน</p></div></div>
+  <div class="panel"><header><h3>ยอดขายรายสัปดาห์</h3><span class="sp"></span><div class="legend"><span><i style="background:var(--s-sales)"></i>ยอดขาย</span><span><i class="tick"></i>แผน</span><span><i style="background:var(--s-sales-soft)"></i>สัปดาห์ที่ยังไม่ครบ</span></div></header>
+    <div class="chart" data-chart="weekly" style="height:230px"></div>
+    <header style="margin:14px 0 4px"><h3 style="font-size:14.5px">ROI รายสัปดาห์</h3><span class="sp"></span><div class="legend"><span><i class="ln" style="background:var(--s-roi)"></i>ROI</span><span><i class="dash"></i>เป้า</span></div></header>
+    <div class="chart" data-chart="weeklyRoi" style="height:140px"></div></div>
+  <div class="panel"><header><h3>ตารางสกอร์การ์ด</h3>${lastFull?`<span class="hint">สัปดาห์เต็มล่าสุด ${dLabel(lastFull.ws)} – ${dLabel(lastFull.we)}: ${B(lastFull.a.sales)} · ROI ${X(lastFull.a.roi)}</span>`:''}</header>${weekTable([...ws].reverse())}</div>`;
+}
+
+/* ================= months view ================= */
+function renderMonths(){
+  const ms=allMonths(); const v=$('v-months');
+  const rows=ms.map((mk,i)=>{ const md=monthData(mk), a=md.a, p=i?monthData(ms[i-1]):null; const avg=a.sales/md.nDays, pavg=p?p.a.sales/p.nDays:NaN; const roiT=roiTarget(mk);
+    return `<tr class="click" data-month="${mk}"><td><b>${mLabel(mk)}</b>${md.complete?'':` <span class="muted">(${md.nDays} วัน)</span>`}</td><td class="n">${B(a.sales)}</td><td class="n">${B(avg)}</td><td class="n">${dlt(pct(avg,pavg))}</td>
+    <td class="n">${B(a.spend)}</td><td class="n">${P(a.spend?a.offSpend/a.spend:NaN)}</td><td class="n">${P(a.acos)}</td><td>${chip(statusOf(a.roi/roiT,1,.92),X(a.roi))}</td><td class="n">${p?`<span class="${a.roi>=p.a.roi?'up':'down'} dl">${sgn(a.roi-p.a.roi)}${Math.abs(a.roi-p.a.roi).toFixed(2)}</span>`:'–'}</td></tr>`; }).reverse().join('');
+  v.innerHTML=`<div class="head"><div><h2>แนวโน้มรายเดือน</h2><p>เทียบเดือนต่อเดือนด้วยยอดเฉลี่ยต่อวัน เพื่อให้เดือนที่ยังไม่จบเทียบกับเดือนเต็มได้ยุติธรรม</p></div></div>
+  <div class="grid2e">
+    <div class="panel"><header><h3>ยอดขายเฉลี่ยต่อวัน</h3><span class="hint">แท่งอ่อน = เดือนที่ยังไม่ครบ</span></header><div class="chart" data-chart="mAvg" style="height:230px"></div></div>
+    <div class="panel"><header><h3>ROI รายเดือน</h3><span class="sp"></span><div class="legend"><span><i class="ln" style="background:var(--s-roi)"></i>ROI</span><span><i class="dash"></i>เป้า</span></div></header><div class="chart" data-chart="mRoi" style="height:230px"></div></div>
+  </div>
+  <div class="panel"><header><h3>ตารางรายเดือน</h3></header><div class="tbl"><table><thead><tr><th>เดือน</th><th class="n">ยอดขาย</th><th class="n">เฉลี่ย/วัน</th><th class="n">vs เดือนก่อน</th><th class="n">ค่าแอด</th><th class="n">สัดส่วนนอกแพลตฟอร์ม</th><th class="n">ACOS</th><th>ROI</th><th class="n">ROI เปลี่ยน</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="note">คลิกแถวเพื่อเปิดภาพรวมของเดือนนั้น</p></div>`;
+}
+
+/* ================= ads view ================= */
+function renderAds(){
+  const v=$('v-ads'); const md=monthData(MONTH); if(!md){v.innerHTML=emptyState();return;}
+  const a=md.a, roiT=roiTarget(MONTH); const ms=allMonths(); const pm=ms[ms.indexOf(MONTH)-1]; const pa=pm&&monthData(pm).a;
+  const row=c=>{ const x=a.ch[c.k]; if(!x.spend&&!x.sales) return ''; const roas=x.spend?x.sales/x.spend:NaN; const pr=pa&&pa.ch[c.k].spend?pa.ch[c.k].sales/pa.ch[c.k].spend:NaN;
+    return `<tr><td><span class="sw" style="background:var(${c.c})"></span>${esc(c.n)}</td><td class="n">${B(x.spend)}</td><td class="n"><span class="bar" style="width:${Math.round((x.spend/a.spend)*80)}px"></span> ${P(x.spend/a.spend)}</td><td class="n">${B(x.sales)}</td><td>${chip(statusOf(roas/roiT,1,.85),X(roas))}</td><td class="n">${isFinite(pr)?`<span class="${roas>=pr?'up':'down'} dl">${sgn(roas-pr)}${Math.abs(roas-pr).toFixed(2)}</span>`:'–'}</td></tr>`; };
+  const grp=(g,label)=>{ const cs=CH.filter(c=>c.g===g); const sp=cs.reduce((s,c)=>s+a.ch[c.k].spend,0), sa=cs.reduce((s,c)=>s+a.ch[c.k].sales,0); if(!sp&&!sa) return '';
+    return `<tr class="sub"><td>${label}</td><td class="n">${B(sp)}</td><td class="n">${P(sp/a.spend)}</td><td class="n">${B(sa)}</td><td>${chip(statusOf((sa/sp)/roiT,1,.85),X(sa/sp))}</td><td></td></tr>${cs.map(row).join('')}`; };
+  const attr=a.sales?(CH.reduce((s,c)=>s+a.ch[c.k].sales,0))/a.sales:NaN;
+  v.innerHTML=`<div class="head"><div><h2>ประสิทธิภาพโฆษณา · ${mLabel(MONTH,true)}</h2><p>ค่าแอดรวม ${B(a.spend)} · ROI ร้าน ${X(a.roi)} (เป้า ${roiT}) · ช่องที่ ROAS ต่ำกว่าเป้าคือจุดแรกที่ควรตรวจ</p></div></div>
+  <div class="grid2">
+    <div class="panel"><header><h3>ROAS รายช่องทาง</h3><span class="sp"></span><div class="legend"><span><i class="dash"></i>เป้า ROI ${roiT}</span></div></header><div class="chart" data-chart="roas" style="height:${Math.max(160,CH.filter(c=>a.ch[c.k].spend).length*36+40)}px"></div></div>
+    <div class="panel"><header><h3>งบแอดไปที่ไหน</h3><span class="hint">สัดส่วนค่าใช้จ่ายรายสัปดาห์</span></header><div class="chart" data-chart="spendMix" style="height:220px"></div><div class="legend" id="mixLegend" style="margin-top:8px"></div></div>
+  </div>
+  <div class="panel"><header><h3>ตารางช่องทาง</h3>${pm?`<span class="hint">เทียบ ROAS กับ ${mLabel(pm)}</span>`:''}</header>
+    <div class="tbl"><table><thead><tr><th>ช่องทาง</th><th class="n">ค่าใช้จ่าย</th><th class="n">% ของงบ</th><th class="n">ยอดขายจากแอด</th><th>ROAS</th><th class="n">เปลี่ยน</th></tr></thead>
+    <tbody>${grp('shopee','Shopee Ads')}${grp('off','นอกแพลตฟอร์ม (CPAS)')}<tr class="tot"><td>รวมทั้งร้าน (ROI)</td><td class="n">${B(a.spend)}</td><td class="n">100%</td><td class="n">${B(a.sales)} <span class="muted">ยอดร้าน</span></td><td>${chip(statusOf(a.roi/roiT,1,.92),X(a.roi))}</td><td></td></tr></tbody></table></div>
+    <p class="note">ยอดขายจากแอดของทุกช่องรวมกัน = ${P(attr,0)} ของยอดขายทั้งร้าน${attr>1?' (มากกว่า 100% แปลว่าแต่ละแพลตฟอร์มนับยอดซ้ำกัน)':''} จึงใช้ ROI ร้าน (ยอดยืนยันแล้ว ÷ ค่าแอดทั้งหมด) เป็นตัวตัดสินหลัก และใช้ ROAS รายช่องเพื่อเทียบกันเอง</p></div>`;
+}
+
+/* ================= mix view ================= */
+function aggTop(list,key){
+  const m=new Map(); for(const r of list) for(const it of (key==='sales'?r.top5:r.top5u)){ const k=it.url||it.name; const o=m.get(k)||{name:it.name,url:it.url,img:imgOf(it),v:0,n:0}; o.v+=+(it[key==='sales'?'sales':'units'])||0; o.n++; if(!o.img) o.img=imgOf(it); m.set(k,o); }
+  return [...m.values()].sort((a,b)=>b.v-a.v).slice(0,8);
+}
+function renderMix(){
+  const v=$('v-mix'); const md=monthData(MONTH); if(!md){v.innerHTML=emptyState();return;}
+  const a=md.a; const src=md.src==='month'?[md.rec]:md.daily;
+  const ts=aggTop(src,'sales'), tu=aggTop(src,'units');
+  const prodList=(l,unit)=>{ if(!l.length) return '<p class="muted">ไม่มีข้อมูล TOP 5 ในช่วงนี้</p>'; const mx=l[0].v;
+    return `<div class="prods">${l.map((p,i)=>`<div class="prod"><span class="rk">${i+1}</span>${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy">`:'<span class="ph"></span>'}<span style="min-width:0">${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a>`:`<span>${esc(p.name)}</span>`}</span>
+      <span class="pv">${unit==='sales'?B(p.v):Math.round(p.v).toLocaleString('th-TH')+' ชิ้น'}<small>${unit==='sales'&&a.sales?P(p.v/a.sales)+' ของยอด · ':''}ติด TOP ${p.n} ${md.src==='month'?'รอบ':'วัน'}</small></span><span class="pb"><i style="width:${p.v/mx*100}%"></i></span></div>`).join('')}</div>`; };
+  const trRows=TR.map(t=>`<tr><td><span class="sw" style="background:var(${t.c})"></span>${t.n}</td><td class="n">${B(a.tr[t.k])}</td><td class="n">${P(a.trSum?a.tr[t.k]/a.trSum:NaN)}</td></tr>`).join('');
+  v.innerHTML=`<div class="head"><div><h2>ที่มายอดขาย &amp; สินค้า · ${mLabel(MONTH,true)}</h2><p>ดูว่ายอดมาจากช่องทางไหน และสินค้าตัวไหนแบกยอด เพื่อวางไลฟ์ วิดีโอ และงบแอดให้ตรงจุด</p></div></div>
+  <div class="grid2">
+    <div class="panel"><header><h3>ที่มายอดขายรายสัปดาห์</h3><span class="hint">สัดส่วน 100%</span></header><div class="chart" data-chart="trMix" style="height:220px"></div>
+      <div class="legend" style="margin-top:8px">${TR.map(t=>`<span><i style="background:var(${t.c})"></i>${t.n}</span>`).join('')}</div></div>
+    <div class="panel"><header><h3>รวมทั้งช่วง</h3></header><div class="tbl"><table><thead><tr><th>ที่มา</th><th class="n">ยอดขาย</th><th class="n">สัดส่วน</th></tr></thead><tbody>${trRows}</tbody></table></div>
+      <p class="note">ยอดจาก Shopee Ads ${B(a.adsSales)} = ${P(a.sales?a.adsSales/a.sales:NaN,0)} ของยอดร้าน · Live ${P(a.trSum?a.tr.live/a.trSum:NaN,0)} ของยอดตามที่มา</p></div>
+  </div>
+  <div class="grid2e">
+    <div class="panel"><header><h3>สินค้าขายดีตามยอดขาย</h3><span class="hint">${md.src==='month'?'TOP 5 ของรอบรายเดือน':'รวม TOP 5 รายวันทั้งเดือน'}</span></header>${prodList(ts,'sales')}</div>
+    <div class="panel"><header><h3>สินค้าขายดีตามจำนวนชิ้น</h3></header>${prodList(tu,'units')}</div>
+  </div>`;
+}
+
+/* ================= data view ================= */
+function renderData(){
+  const v=$('v-data'); const n=RECS.length; const by=SHOPS.map(s=>{const l=RECS.filter(r=>r.shop===s.id);const ds=l.map(r=>r.d1).sort();return `<tr><td><b>${esc(s.name)}</b></td><td class="n">${l.filter(r=>r.ptype==='day').length}</td><td class="n">${l.filter(r=>r.ptype==='week').length}</td><td class="n">${l.filter(r=>r.ptype==='month').length}</td><td>${ds.length?`${dLabel(ds[0])} ${ds[0].slice(0,4)} – ${dLabel(l.map(r=>r.d2).sort().pop())}`:''}</td></tr>`;}).join('');
+  const sbRow = SB ? `<div class="srcrow"><b>Server (Supabase)</b>${SBU?`<span class="muted">เข้าสู่ระบบแล้ว: ${esc(SBU.email||'')} · ข้อมูลแยกตามร้าน ตามสิทธิ์สมาชิก</span><span class="sp"></span><button class="btn" data-act="sbpull">ดึงใหม่</button><button class="btn" data-act="sbout">ออกจากระบบ</button>`:`<span class="muted">ใช้บัญชีเดียวกับหน้ากรอกข้อมูล</span><span class="sp"></span><input id="sbE" type="email" placeholder="อีเมล" class="sel" style="background-image:none;padding-right:10px"><input id="sbP" type="password" placeholder="รหัสผ่าน" class="sel" style="background-image:none;padding-right:10px"><button class="btn pri" data-act="sblogin">เข้าสู่ระบบ</button>`}</div>`:'';
+  const fbRow = FB ? `<div class="srcrow"><b>Firebase (ข้อมูลจริงล่าสุด)</b><span class="muted">${FB.user?'เข้าสู่ระบบแล้ว: '+esc(FB.user.email||''):'ดึงข้อมูลที่ทีมกรอกในหน้ากรอกข้อมูลแบบสด'}</span><span class="sp"></span>${FB.user?'<button class="btn" data-act="fbpull">ดึงใหม่</button>':'<button class="btn pri" data-act="fblogin">เข้าสู่ระบบ Google</button>'}</div>`:'';
+  v.innerHTML=`<div class="head"><div><h2>ข้อมูล &amp; แผน</h2><p>หน้านี้ใช้อ่านและวัดผล ส่วนการกรอกข้อมูลรายวันยังทำที่หน้ากรอกเดิม (V1) แล้วนำมาแสดงที่นี่</p></div></div>
+  <div class="panel"><header><h3>แหล่งข้อมูล</h3><span class="hint">ตอนนี้ใช้: ${esc(SRC.label)}</span></header><div class="srcbox">${sbRow}${fbRow}
+    <div class="srcrow"><b>นำเข้าไฟล์ CSV</b><span class="muted">ไฟล์จากปุ่ม “ดาวน์โหลดทุกร้าน” ในหน้ากรอก · เก็บไว้ในเบราว์เซอร์นี้</span><span class="sp"></span><button class="btn pri" data-act="import">เลือกไฟล์</button>${SRC.kind==='import'?'<button class="btn" data-act="clearimp">เลิกใช้ไฟล์ที่นำเข้า</button>':''}</div></div></div>
+  <div class="panel"><header><h3>ข้อมูลที่โหลดอยู่</h3><span class="hint">${n} รอบ</span></header><div class="tbl"><table><thead><tr><th>ร้าน</th><th class="n">รายวัน</th><th class="n">รายสัปดาห์</th><th class="n">รายเดือน</th><th>ช่วงข้อมูล</th></tr></thead><tbody>${by}</tbody></table></div></div>
+  <div class="panel"><header><h3>แผนรายเดือน</h3><span class="hint">${esc(SHOPS.find(s=>s.id===SHOP)?.name||'')}</span><span class="sp"></span><button class="btn" data-act="plan">ตั้ง/แก้แผน ${MONTH?mLabel(MONTH):''}</button></header>
+    ${planTable()}<p class="note">แผนที่แก้ในหน้านี้เก็บในเบราว์เซอร์นี้ และใช้แทนแผนจากหน้ากรอกเฉพาะเดือนที่แก้</p></div>
+  <div class="panel"><header><h3>วิธีอ่านตัวเลข</h3></header><div class="note" style="margin:0">
+    <p style="margin:0 0 6px"><b>ROI</b> = ยอดขายที่ยืนยันแล้ว ÷ ค่าโฆษณาทุกช่องทาง (Shopee Ads + CPAS in shop + CPAS in Meta) · <b>ACOS</b> = ค่าโฆษณา ÷ ยอดขาย · เป้า ROI 6.5 เท่ากับ ACOS ไม่เกิน 15.4%</p>
+    <p style="margin:0 0 6px"><b>เพดานค่าแอด</b> = ยอดขาย ÷ เป้า ROI คือค่าแอดสูงสุดที่ยังรักษา ROI ตามเป้าได้</p>
+    <p style="margin:0 0 6px"><b>คาดการณ์สิ้นเดือน</b> = ยอดที่ทำได้ + แผนของวันที่เหลือ × % ที่ทำได้ตามแผนจนถึงตอนนี้ (ถ้าไม่มีแผนใช้ค่าเฉลี่ย 7 วันล่าสุด)</p>
+    <p style="margin:0"><b>สัปดาห์</b> นับพุธถึงอังคารตามรอบบัญชี · ถ้ามีรอบรายสัปดาห์ที่บันทึกไว้ จะใช้ตัวเลขนั้นก่อนผลรวมรายวัน</p></div></div>`;
+}
+function planTable(){
+  const ms=allMonths(); const rows=ms.map(mk=>{const p=planFor(mk); if(!p) return ''; const t=Object.values(p.days).reduce((s,v)=>s+(+v||0),0); const md=monthData(mk);
+    return `<tr><td><b>${mLabel(mk)}</b></td><td class="n">${B(t)}</td><td class="n">${p.roi||DEF_ROI}</td><td class="n">${B(md.a.sales)}</td><td>${chip(statusOf(md.a.sales/t,1,.9),P(md.a.sales/t,0)+' ของเป้าเดือน')}</td></tr>`;}).join('');
+  return rows?`<div class="tbl"><table><thead><tr><th>เดือน</th><th class="n">เป้ายอดขาย</th><th class="n">เป้า ROI</th><th class="n">ทำได้</th><th>สถานะ</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<p class="muted">ยังไม่มีแผน</p>';
+}
+
+/* ================= charts ================= */
+const charts={};
+function drawCharts(){ for(const el of document.querySelectorAll('.view:not([hidden]) [data-chart]')){ const f=charts[el.dataset.chart]; if(f){ const w=Math.max(260,el.clientWidth), h=el.clientHeight; el.innerHTML=f(w,h)||''; } } }
+let rT; window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(drawCharts,120);});
+const tipAttr=html=>`data-tip="${esc(html)}"`;
+const trow=(k,v)=>`<div class="r"><span>${k}</span><b>${v}</b></div>`;
+function yAxis(w,h,pad,max,fmt,ticks=4){ let s=''; for(let i=0;i<=ticks;i++){ const v=max*i/ticks, y=pad.t+(h-pad.t-pad.b)*(1-i/ticks); s+=`<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}"/><text x="${pad.l-6}" y="${y+4}" text-anchor="end">${fmt(v)}</text>`; } return s; }
+function xLabels(xs,labels,y,every){ const n=xs.length; return xs.map((x,i)=>{ const show=i%every===0||(i===n-1&&(n-1)%every>=Math.max(2,every/2)); return show?`<text x="${x}" y="${y}" text-anchor="middle">${labels[i]}</text>`:''; }).join(''); }
+function dayTip(r){ const p=planDay(r.d1); const roiT=roiTarget(mKey(r.d1)); const sp=spendOf(r);
+  return `<div class="t">${dLabelW(r.d1)}</div>${trow('ยอดขาย',B(r.sales))}${p?trow('เป้า',B(p)+` (${P(r.sales/p,0)})`):''}${trow('ค่าแอด',B(sp))}${trow('ROI',X(sp?r.sales/sp:NaN)+(sp&&r.sales/sp>=roiT?' ✓':''))}${r.tags.length?`<div class="h">${r.tags.map(esc).join(' · ')}</div>`:''}<div class="h">คลิกเพื่อดูรายละเอียด</div>`; }
+charts.daily=(w,h)=>{
+  const md=monthData(MONTH); const days=mList(MONTH); const dm=dailyMap();
+  const pad={l:52,r:8,t:10,b:24}; const iw=w-pad.l-pad.r, ih=h-pad.t-pad.b; const bw=iw/days.length;
+  const max=niceMax(Math.max(...days.map(d=>Math.max((dm.get(d)||{}).sales||0,planDay(d)||0)))*1.05);
+  let s=yAxis(w,h,pad,max,BM);
+  days.forEach((d,i)=>{ const r=dm.get(d); const x=pad.l+i*bw; const cx=x+bw/2; const p=planDay(d);
+    if(r){ const bh=r.sales/max*ih; const y=pad.t+ih-bh; const bwid=Math.max(2,bw-Math.min(6,bw*.28));
+      s+=`<rect class="bar" data-day="${d}" ${tipAttr(dayTip(r))} x="${cx-bwid/2}" y="${y}" width="${bwid}" height="${bh}" rx="${Math.min(3,bwid/2)}" fill="var(--s-sales)"/>`;
+      if(r.tags.length||r.note) s+=`<circle cx="${cx}" cy="${pad.t+ih+5}" r="3" fill="var(--accent)"/>`; }
+    if(p){ const y=pad.t+ih-p/max*ih; s+=`<line x1="${cx-bw*.42}" x2="${cx+bw*.42}" y1="${y}" y2="${y}" stroke="var(--s-plan)" stroke-width="2" stroke-linecap="round"/>`; }
+  });
+  s+=`<line class="axis" x1="${pad.l}" x2="${w-pad.r}" y1="${pad.t+ih}" y2="${pad.t+ih}"/>`;
+  s+=xLabels(days.map((_,i)=>pad.l+i*bw+bw/2),days.map(d=>+d.slice(8)),h-4,w<520?4:w<800?2:1);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="ยอดขายรายวัน">${s}</svg>`;
+};
+function lineChart(w,h,{labels,series,target,fmtY,maxY,tips,every,onKey,ticks}){
+  const pad={l:44,r:30,t:12,b:22}; const iw=w-pad.l-pad.r, ih=h-pad.t-pad.b; const n=labels.length; const step=n>1?iw/(n-1):0; const xs=labels.map((_,i)=>pad.l+(n>1?i*step:iw/2));
+  const vals=series.flatMap(s=>s.v.filter(v=>v!=null&&isFinite(v))); const max=maxY||niceMax(Math.max(...vals,target||0)*1.12);
+  let s=yAxis(w,h,pad,max,fmtY,ticks||(h<180?2:4)); const Y=v=>pad.t+ih-(v/max)*ih;
+  if(target){ s+=`<line x1="${pad.l}" x2="${w-pad.r}" y1="${Y(target)}" y2="${Y(target)}" stroke="var(--s-plan)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${w-pad.r+4}" y="${Y(target)+4}" class="lbl">${target}</text>`; }
+  for(const se of series){ let d='',on=false; se.v.forEach((v,i)=>{ if(v==null||!isFinite(v)){on=false;return;} d+=(on?'L':'M')+xs[i]+' '+Y(v); on=true; });
+    s+=`<path d="${d}" fill="none" stroke="${se.c}" stroke-width="2" stroke-linejoin="round" ${se.dash?`stroke-dasharray="${se.dash}"`:''}/>`;
+    if(se.dots) se.v.forEach((v,i)=>{ if(v==null||!isFinite(v)) return; const ok=target?v>=target:true; s+=`<circle cx="${xs[i]}" cy="${Y(v)}" r="4" fill="${ok?'var(--good)':'var(--bad)'}" stroke="var(--surface)" stroke-width="2"/>`; });
+  }
+  if(tips) xs.forEach((x,i)=>{ if(!tips[i]) return; const hw=n>1?step/2:iw/2; s+=`<rect x="${x-hw}" y="${pad.t}" width="${hw*2}" height="${ih}" fill="transparent" ${tipAttr(tips[i])} ${onKey?`data-${onKey.k}="${onKey.v[i]}"`:''}/>`; });
+  s+=`<line class="axis" x1="${pad.l}" x2="${w-pad.r}" y1="${pad.t+ih}" y2="${pad.t+ih}"/>`+xLabels(xs,labels,h-4,every||1);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${s}</svg>`;
+}
+charts.roiDaily=(w,h)=>{ const days=mList(MONTH), dm=dailyMap(); const v=days.map(d=>{const r=dm.get(d);if(!r)return null;const sp=spendOf(r);return sp?r.sales/sp:null;});
+  return lineChart(w,h,{labels:days.map(d=>+d.slice(8)),series:[{v,c:'var(--s-roi)',dots:true}],target:roiTarget(MONTH),fmtY:x=>x.toFixed(0),every:w<520?4:w<800?2:1,tips:days.map(d=>dm.get(d)?dayTip(dm.get(d)):null),onKey:{k:'day',v:days}}); };
+charts.burn=(w,h)=>{
+  const K=monthKpis(MONTH); const {md,plan}=K; const days=mList(MONTH); const dm=dailyMap();
+  if(md.src==='month'){ return `<p class="empty">เดือนนี้มีเฉพาะรอบรายเดือน · ยอดรวม ${B(md.a.sales)}${plan?` = ${P(md.a.sales/K.target,0)} ของเป้า`:''}</p>`; }
+  let ca=0, cp=0; const act=[], pl=[], fc=[]; const ratio=plan&&isFinite(K.ach)?K.ach:1; let lastIdx=-1;
+  days.forEach((d,i)=>{ if(d<=md.lastDay){ ca+=(dm.get(d)||{}).sales||0; act.push(ca); lastIdx=i; } else act.push(null);
+    if(plan){ cp+=+plan.days[d]||0; pl.push(cp);} });
+  let cf=ca; days.forEach((d,i)=>{ if(i<lastIdx) fc.push(null); else if(i===lastIdx) fc.push(ca); else { cf+= plan?(+plan.days[d]||0)*ratio:K.avg7; fc.push(cf);} });
+  const series=[]; if(plan) series.push({v:pl,c:'var(--s-plan)',dash:'5 4'}); series.push({v:act,c:'var(--s-sales)'}); if(!md.complete) series.push({v:fc,c:'var(--s-sales)',dash:'2 4'});
+  const tips=days.map((d,i)=>`<div class="t">ถึง ${dLabel(d)}</div>${act[i]!=null?trow('ทำได้สะสม',B(act[i])):trow('คาดการณ์',B(fc[i]))}${plan?trow('แผนสะสม',B(pl[i])):''}${plan&&act[i]!=null?trow('ทำได้',P(act[i]/pl[i],0)):''}`);
+  let svg=lineChart(w,h,{labels:days.map(d=>+d.slice(8)),series,fmtY:BM,every:w<520?5:w<800?3:2,tips});
+  // end labels
+  const pad={l:44,r:30,t:12,b:22}; const iw=w-pad.l-pad.r, ih=h-pad.t-pad.b; const max=niceMax(Math.max(ca,cp,cf)*1.12); const X_=i=>pad.l+i*iw/(days.length-1), Y=v=>pad.t+ih-(v/max)*ih;
+  let lab=`<circle cx="${X_(lastIdx)}" cy="${Y(ca)}" r="4.5" fill="var(--s-sales)" stroke="var(--surface)" stroke-width="2"/><text x="${X_(lastIdx)-8}" y="${Y(ca)+18}" text-anchor="end" class="lbl">ทำได้ ${BM(ca)}</text>`;
+  if(plan) lab+=`<text x="${w-pad.r}" y="${Y(cp)-8}" text-anchor="end" class="lbl">แผน ${BM(cp)}</text>`;
+  if(!md.complete) lab+=`<text x="${w-pad.r}" y="${Y(cf)-8}" text-anchor="end" class="lbl" style="fill:var(--s-sales)">คาด ${BM(cf)}</text>`;
+  return svg.replace('</svg>',lab+'</svg>');
+};
+charts.weekly=(w,h)=>{
+  const ws=weekList(); const pad={l:52,r:8,t:10,b:24}; const iw=w-pad.l-pad.r, ih=h-pad.t-pad.b; const bw=iw/ws.length;
+  const plans=ws.map(x=>planSum(range(x.ws,x.we)));
+  const max=niceMax(Math.max(...ws.map((x,i)=>Math.max(x.a.sales,plans[i]||0)))*1.05); let s=yAxis(w,h,pad,max,BM);
+  ws.forEach((x,i)=>{ const cx=pad.l+i*bw+bw/2, bwid=Math.min(46,bw*.62), bh=x.a.sales/max*ih; const partial=x.src==='daily'&&x.n<7;
+    const tip=`<div class="t">${dLabel(x.ws)} – ${dLabel(x.we)}${partial?` (${x.n} วัน)`:''}</div>${trow('ยอดขาย',B(x.a.sales))}${plans[i]?trow('แผน',B(plans[i])+` (${P(x.a.sales/plans[i],0)})`):''}${trow('ค่าแอด',B(x.a.spend))}${trow('ROI',X(x.a.roi))}<div class="h">คลิกเพื่อดูรายวัน</div>`;
+    s+=`<rect class="bar" data-week="${x.ws}" ${tipAttr(tip)} x="${cx-bwid/2}" y="${pad.t+ih-bh}" width="${bwid}" height="${bh}" rx="3" fill="${partial?'var(--s-sales-soft)':'var(--s-sales)'}"/>`;
+    if(plans[i]){ const y=pad.t+ih-plans[i]/max*ih; s+=`<line x1="${cx-bwid/2-4}" x2="${cx+bwid/2+4}" y1="${y}" y2="${y}" stroke="var(--s-plan)" stroke-width="2" stroke-linecap="round"/>`; } });
+  s+=`<line class="axis" x1="${pad.l}" x2="${w-pad.r}" y1="${pad.t+ih}" y2="${pad.t+ih}"/>`+xLabels(ws.map((_,i)=>pad.l+i*bw+bw/2),ws.map(x=>dLabel(x.ws)),h-4,Math.ceil(ws.length/(w/70)));
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${s}</svg>`;
+};
+charts.weeklyRoi=(w,h)=>{ const ws=weekList(); return lineChart(w,h,{labels:ws.map(x=>dLabel(x.ws)),series:[{v:ws.map(x=>x.a.roi),c:'var(--s-roi)',dots:true}],target:roiTarget(mKey(ws[ws.length-1].we)),fmtY:x=>x.toFixed(0),every:Math.ceil(ws.length/(w/70)),
+  tips:ws.map(x=>`<div class="t">${dLabel(x.ws)} – ${dLabel(x.we)}</div>${trow('ROI',X(x.a.roi))}${trow('ACOS',P(x.a.acos))}`),onKey:{k:'week',v:ws.map(x=>x.ws)}}); };
+charts.mAvg=(w,h)=>{
+  const ms=allMonths(); const md=ms.map(monthData); const pad={l:52,r:8,t:16,b:24}; const iw=w-pad.l-pad.r, ih=h-pad.t-pad.b; const bw=iw/ms.length;
+  const vals=md.map(m=>m.a.sales/m.nDays); const max=niceMax(Math.max(...vals)*1.1); let s=yAxis(w,h,pad,max,BM);
+  ms.forEach((mk,i)=>{ const cx=pad.l+i*bw+bw/2, bwid=Math.min(44,bw*.6), bh=vals[i]/max*ih;
+    s+=`<rect class="bar" data-month="${mk}" ${tipAttr(`<div class="t">${mLabel(mk,true)}</div>${trow('เฉลี่ย/วัน',B(vals[i]))}${trow('ยอดรวม',B(md[i].a.sales))}${trow('วันที่มีข้อมูล',md[i].nDays)}`)} x="${cx-bwid/2}" y="${pad.t+ih-bh}" width="${bwid}" height="${bh}" rx="3" fill="${md[i].complete?'var(--s-sales)':'var(--s-sales-soft)'}"/>`;
+    if(i===ms.length-1||w>560) s+=`<text x="${cx}" y="${pad.t+ih-bh-5}" text-anchor="middle" class="lbl">${BM(vals[i])}</text>`; });
+  s+=`<line class="axis" x1="${pad.l}" x2="${w-pad.r}" y1="${pad.t+ih}" y2="${pad.t+ih}"/>`+xLabels(ms.map((_,i)=>pad.l+i*bw+bw/2),ms.map(m=>TM[+m.slice(5)-1]),h-4,1);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${s}</svg>`;
+};
+charts.mRoi=(w,h)=>{ const ms=allMonths(); const md=ms.map(monthData); return lineChart(w,h,{labels:ms.map(m=>TM[+m.slice(5)-1]),series:[{v:md.map(m=>m.a.roi),c:'var(--s-roi)',dots:true}],target:roiTarget(ms[ms.length-1]),fmtY:x=>x.toFixed(0),
+  tips:md.map((m,i)=>`<div class="t">${mLabel(ms[i],true)}</div>${trow('ROI',X(m.a.roi))}${trow('ค่าแอด',B(m.a.spend))}${trow('ACOS',P(m.a.acos))}`),onKey:{k:'month',v:ms}}); };
+charts.roas=(w,h)=>{
+  const md=monthData(MONTH), a=md.a, roiT=roiTarget(MONTH); const cs=CH.filter(c=>a.ch[c.k].spend>0).map(c=>({...c,roas:a.ch[c.k].sales/a.ch[c.k].spend,sp:a.ch[c.k].spend})).sort((x,y)=>y.roas-x.roas);
+  if(!cs.length) return '<p class="empty">ไม่มีค่าโฆษณา</p>';
+  const lw=Math.min(130,w*.32); const pad={l:lw,r:56,t:6,b:22}; const iw=w-pad.l-pad.r; const rh=(h-pad.t-pad.b)/cs.length; const max=niceMax(Math.max(...cs.map(c=>c.roas),roiT)*1.05);
+  let s=''; const nt=[5,4,2].find(k=>Number.isInteger(max/k))||4; for(let i=0;i<=nt;i++){ const x=pad.l+iw*i/nt; s+=`<line class="grid" x1="${x}" x2="${x}" y1="${pad.t}" y2="${h-pad.b}"/><text x="${x}" y="${h-6}" text-anchor="middle">${+(max*i/nt).toFixed(1)}</text>`; }
+  cs.forEach((c,i)=>{ const y=pad.t+i*rh, bh=Math.min(18,rh*.6), bwid=c.roas/max*iw; const ok=c.roas>=roiT;
+    s+=`<text x="${pad.l-8}" y="${y+rh/2+4}" text-anchor="end" class="lbl">${esc(c.n)}</text>
+    <rect class="bar" ${tipAttr(`<div class="t">${esc(c.full)}</div>${trow('ค่าใช้จ่าย',B(c.sp))}${trow('ยอดขาย',B(a.ch[c.k].sales))}${trow('ROAS',X(c.roas))}${trow('% ของงบ',P(c.sp/a.spend))}`)} x="${pad.l}" y="${y+(rh-bh)/2}" width="${Math.max(2,bwid)}" height="${bh}" rx="3" fill="var(${c.c})"/>
+    <text x="${pad.l+bwid+6}" y="${y+rh/2+4}" class="lbl" style="fill:${ok?'var(--good-ink)':'var(--bad-ink)'}">${X(c.roas)} ${ok?'✓':'✕'}</text>`; });
+  const tx=pad.l+roiT/max*iw; s+=`<line x1="${tx}" x2="${tx}" y1="${pad.t}" y2="${h-pad.b}" stroke="var(--s-plan)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${s}</svg>`;
+};
+function stack100(w,h,rows,keys,label,tipT){
+  const pad={l:74,r:8,t:4,b:20}; const iw=w-pad.l-pad.r; const rh=(h-pad.t-pad.b)/Math.max(rows.length,1); let s='';
+  for(let i=0;i<=4;i++){ const x=pad.l+iw*i/4; s+=`<text x="${x}" y="${h-4}" text-anchor="middle">${i*25}%</text>`; }
+  rows.forEach((r,i)=>{ const tot=keys.reduce((a,k)=>a+(r.v[k.k]||0),0); const y=pad.t+i*rh+(rh-Math.min(20,rh*.66))/2, bh=Math.min(20,rh*.66); let x=pad.l;
+    s+=`<text x="${pad.l-8}" y="${y+bh/2+4}" text-anchor="end" class="lbl">${esc(r.l)}</text>`;
+    if(!tot){ s+=`<text x="${pad.l}" y="${y+bh/2+4}">ไม่มีข้อมูล</text>`; return; }
+    const tip=`<div class="t">${esc(r.t||r.l)}</div>`+keys.filter(k=>r.v[k.k]).map(k=>trow(k.n,`${B(r.v[k.k])} · ${P(r.v[k.k]/tot,0)}`)).join('');
+    keys.forEach(k=>{ const v=r.v[k.k]||0; if(!v) return; const ww=v/tot*iw; s+=`<rect ${tipAttr(tip)} x="${x+1}" y="${y}" width="${Math.max(0,ww-2)}" height="${bh}" fill="var(${k.c})"/>`; if(ww>38) s+=`<text x="${x+ww/2}" y="${y+bh/2+4}" text-anchor="middle" style="fill:#fff;font-weight:600">${Math.round(v/tot*100)}%</text>`; x+=ww; }); });
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${s}</svg>`;
+}
+function weeksOfMonth(){ return weekList().filter(w=>mKey(w.ws)===MONTH||mKey(w.we)===MONTH); }
+charts.trMix=(w,h)=>{ const md=monthData(MONTH); let rows=weeksOfMonth().map(x=>({l:dLabel(x.ws),t:`${dLabel(x.ws)} – ${dLabel(x.we)}`,v:x.a.tr}));
+  if(md.src==='month') rows=[{l:mLabel(MONTH),v:md.a.tr}]; return stack100(w,h,rows,TR); };
+charts.spendMix=(w,h)=>{ const md=monthData(MONTH); const keys=[...CH.filter(c=>['product','search','brand','live'].includes(c.k)),{k:'oth',n:'Shopee อื่นๆ',c:'--c6'},...CH.filter(c=>c.g==='off')];
+  const pack=a=>{const v={};for(const k of keys) v[k.k]=k.k==='oth'?['brandMax','autoBid','gmvShop','otherAds'].reduce((s,x)=>s+a.ch[x].spend,0):a.ch[k.k].spend;return v;};
+  let rows=weeksOfMonth().map(x=>({l:dLabel(x.ws),t:`${dLabel(x.ws)} – ${dLabel(x.we)}`,v:pack(x.a)})); if(md.src==='month') rows=[{l:mLabel(MONTH),v:pack(md.a)}];
+  const used=keys.filter(k=>rows.some(r=>r.v[k.k]>0)); setTimeout(()=>{const el=$('mixLegend'); if(el) el.innerHTML=used.map(k=>`<span><i style="background:var(${k.c})"></i>${esc(k.n)}</span>`).join('');});
+  return stack100(w,h,rows,used); };
+
+/* ================= tooltip ================= */
+const tip=$('tip'); let tipOn=null;
+function showTip(el,ev){ tip.innerHTML=el.getAttribute('data-tip'); tip.hidden=false; moveTip(ev); tipOn=el; }
+function moveTip(ev){ const pad=14; let x=ev.clientX+pad, y=ev.clientY+pad; const r=tip.getBoundingClientRect(); if(x+r.width>innerWidth-8) x=ev.clientX-r.width-pad; if(y+r.height>innerHeight-8) y=ev.clientY-r.height-pad; tip.style.left=Math.max(8,x)+'px'; tip.style.top=Math.max(8,y)+'px'; }
+document.addEventListener('pointerover',e=>{ if(e.pointerType==='touch') return; const el=e.target.closest&&e.target.closest('[data-tip]'); if(el) showTip(el,e); else if(tipOn){tip.hidden=true;tipOn=null;} });
+document.addEventListener('pointermove',e=>{ if(tipOn&&e.pointerType!=='touch') moveTip(e); });
+document.addEventListener('scroll',()=>{tip.hidden=true;tipOn=null;},{passive:true});
+
+/* ================= drawer (day detail) ================= */
+let DAY=null;
+function openDay(d){ const dm=dailyMap(); const r=dm.get(d); if(!r) return; DAY=d; tip.hidden=true;
+  const sp=spendOf(r), roi=sp?r.sales/sp:NaN, p=planDay(d), roiT=roiTarget(mKey(d));
+  const prevR=dm.get(addD(d,-7)); const ps=prevR?spendOf(prevR):0;
+  const chRows=CH.filter(c=>r.channels[c.k].spend||r.channels[c.k].sales).map(c=>{const x=r.channels[c.k];const ro=x.spend?x.sales/x.spend:NaN;return `<span><span class="sw" style="background:var(${c.c})"></span>${esc(c.n)}</span><span>${B(x.spend)}</span><span class="${ro>=roiT?'up':'down'}">${X(ro)}</span>`;}).join('');
+  const trT=TR.reduce((s,t)=>s+r.traffic[t.k],0);
+  const top=(r.top5||[]).slice(0,5).map((it,i)=>`<div class="prod"><span class="rk">${i+1}</span>${imgOf(it)?`<img src="${esc(imgOf(it))}" alt="">`:'<span class="ph"></span>'}<span style="min-width:0">${it.url?`<a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.name)}</a>`:esc(it.name)}</span><span class="pv">${B(it.sales)}</span></div>`).join('');
+  $('dTitle').textContent=dLabelW(d)+' '+d.slice(0,4);
+  $('dBody').innerHTML=`${r.tags.length||r.note?`<div style="display:flex;gap:6px;flex-wrap:wrap">${r.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${r.note?`<span class="muted" style="font-size:13px">${esc(r.note)}</span>`:''}</div>`:''}
+    <div class="quad">
+      <div><span>ยอดขายยืนยันแล้ว</span><b>${B(r.sales)}</b><em>${p?`เป้า ${B(p)} · ${chip(statusOf(r.sales/p,1,.9),P(r.sales/p,0))}`:''}</em></div>
+      <div><span>ROI</span><b>${X(roi)}</b><em>${chip(statusOf(roi/roiT,1,.92),'เป้า '+roiT)}</em></div>
+      <div><span>ค่าโฆษณารวม</span><b>${B(sp)}</b><em>${prevR?'vs '+TD[dow(d)]+'ก่อน '+dlt(pct(sp,ps),false):''}</em></div>
+      <div><span>ACOS</span><b>${P(sp/r.sales)}</b><em>${prevR?'ยอด vs '+TD[dow(d)]+'ก่อน '+dlt(pct(r.sales,prevR.sales)):''}</em></div>
+    </div>
+    <div class="dsec"><h4>ค่าแอดและ ROAS รายช่องทาง</h4><div class="kv"><span class="muted">ช่องทาง</span><span class="muted">ค่าใช้จ่าย</span><span class="muted">ROAS</span>${chRows}</div></div>
+    ${trT?`<div class="dsec"><h4>ที่มายอดขาย</h4><div class="kv">${TR.map(t=>`<span><span class="sw" style="background:var(${t.c})"></span>${t.n}</span><span>${B(r.traffic[t.k])}</span><span>${P(r.traffic[t.k]/trT,0)}</span>`).join('')}</div></div>`:''}
+    ${top?`<div class="dsec"><h4>TOP 5 ตามยอดขาย</h4><div class="prods">${top}</div></div>`:''}`;
+  const keys=[...dm.keys()].sort(); const i=keys.indexOf(d); $('dPrev').disabled=i<=0; $('dNext').disabled=i>=keys.length-1;
+  $('drawer').hidden=false; $('scrim').hidden=false; }
+function closeDay(){ $('drawer').hidden=true; $('scrim').hidden=true; DAY=null; }
+function stepDay(n){ const keys=[...dailyMap().keys()].sort(); const i=keys.indexOf(DAY)+n; if(keys[i]){ if(mKey(keys[i])!==MONTH&&allMonths().includes(mKey(keys[i]))){ MONTH=mKey(keys[i]); renderAll(); } openDay(keys[i]); } }
+$('dClose').onclick=closeDay; $('scrim').onclick=closeDay; $('dPrev').onclick=()=>stepDay(-1); $('dNext').onclick=()=>stepDay(1);
+document.addEventListener('keydown',e=>{ if(!$('planModal').hidden){ if(e.key==='Escape') $('planModal').hidden=true; return; } if($('drawer').hidden) return; if(e.key==='Escape') closeDay(); if(e.key==='ArrowLeft') stepDay(-1); if(e.key==='ArrowRight') stepDay(1); });
+
+/* ================= plan editor ================= */
+function openPlan(){ if(!MONTH) return; const p=planFor(MONTH)||{roi:DEF_ROI,days:{}}; const days=mList(MONTH);
+  $('plTitle').textContent='ตั้งแผน '+mLabel(MONTH,true);
+  $('plRoi').value=p.roi||DEF_ROI; const t=days.reduce((s,d)=>s+(+p.days[d]||0),0); $('plTotal').value=t?t.toLocaleString('en-US'):'';
+  const vals=days.map(d=>+p.days[d]||0); const med=[...vals].sort((a,b)=>a-b)[Math.floor(vals.length/2)]; $('plCamp').value=days.filter((d,i)=>med&&vals[i]>=med*1.8).map(d=>`${+d.slice(8)}=${+p.days[d]}`).join(', ');
+  const lead=(dow(days[0])+6)%7;
+  $('plDays').innerHTML=['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'].map(x=>`<label style="text-align:center;font-weight:600">${x}</label>`).join('')+'<span></span>'.repeat(lead)+days.map(d=>`<label${med&&(+p.days[d]||0)>=med*1.8?' class="camp"':''}>${+d.slice(8)}<input id="pd-${d}" data-d="${d}" inputmode="numeric" value="${p.days[d]?(+p.days[d]).toLocaleString('en-US'):''}"></label>`).join('');
+  plSum(); $('planModal').hidden=false; $('plTotal').focus(); }
+function plSum(){ const t=[...$('plDays').querySelectorAll('input')].reduce((s,i)=>s+pNum(i.value),0); $('plSum').textContent='รวมรายวัน '+B(t); }
+$('plDays').addEventListener('input',plSum);
+$('plSpread').onclick=()=>{ const tot=pNum($('plTotal').value); if(!tot){ toast('ใส่เป้ายอดขายทั้งเดือนก่อน'); return; }
+  const camp={}; for(const part of $('plCamp').value.split(/[,\s]+/)){ const m=part.match(/^(\d{1,2})=([\d.,]+)$/); if(m) camp[+m[1]]=pNum(m[2]); }
+  const days=mList(MONTH); const cs=days.filter(d=>camp[+d.slice(8)]); const rest=(tot-cs.reduce((s,d)=>s+camp[+d.slice(8)],0))/(days.length-cs.length);
+  for(const d of days){ const el=$('pd-'+d); el.value=Math.round(camp[+d.slice(8)]||rest).toLocaleString('en-US'); el.parentElement.classList.toggle('camp',!!camp[+d.slice(8)]); } plSum(); };
+$('plCancel').onclick=()=>$('planModal').hidden=true;
+$('plSave').onclick=()=>{ const days={}; for(const i of $('plDays').querySelectorAll('input')){ const v=pNum(i.value); if(v) days[i.dataset.d]=v; }
+  if(!Object.keys(days).length){ toast('ยังไม่มีเป้ารายวัน กด “กระจายเป้า” หรือกรอกเองในตาราง'); return; }
+  (PLANS_LOCAL[SHOP]=PLANS_LOCAL[SHOP]||{})[MONTH]={roi:pNum($('plRoi').value)||DEF_ROI,days}; lsSet(LS.plans,PLANS_LOCAL); $('planModal').hidden=true; renderAll(); toast('บันทึกแผน '+mLabel(MONTH)+' แล้ว'); };
+let clearArmed=0;
+$('plClear').onclick=()=>{ if(Date.now()-clearArmed>3000){ clearArmed=Date.now(); $('plClear').textContent='กดอีกครั้งเพื่อยืนยัน'; setTimeout(()=>$('plClear').textContent='ลบแผนเดือนนี้',3000); return; }
+  if(PLANS_LOCAL[SHOP]) delete PLANS_LOCAL[SHOP][MONTH]; const sh=SHOPS.find(s=>s.id===SHOP); if(sh&&sh.plans) delete sh.plans[MONTH]; lsSet(LS.plans,PLANS_LOCAL); $('planModal').hidden=true; renderAll(); toast('ลบแผนแล้ว'); };
+
+/* ================= events ================= */
+function route(){ const h=location.hash.slice(1); VIEW=['overview','weeks','months','ads','mix','data'].includes(h)?h:'overview'; closeDay(); renderAll(); }
+window.addEventListener('hashchange',route);
+$('shopSel').onchange=e=>{ SHOP=e.target.value; lsSet(LS.shop,SHOP); pickMonth(MONTH); renderAll(); };
+$('mPrev').onclick=()=>{ const ms=allMonths(); const i=ms.indexOf(MONTH); if(i>0){MONTH=ms[i-1];lsSet(LS.month,MONTH);renderAll();} };
+$('mNext').onclick=()=>{ const ms=allMonths(); const i=ms.indexOf(MONTH); if(i<ms.length-1){MONTH=ms[i+1];lsSet(LS.month,MONTH);renderAll();} };
+document.addEventListener('click',e=>{
+  const act=e.target.closest('[data-act]'); if(act){ const a=act.dataset.act;
+    if(a==='plan') openPlan(); if(a==='import') $('csvFile').click(); if(a==='fblogin') fbLogin(); if(a==='fbpull') fbPull(); if(a==='sblogin') sbLogin(); if(a==='sbpull') sbPull(); if(a==='sbout') SB.auth.signOut();
+    if(a==='clearimp'){ try{localStorage.removeItem(LS.imp);}catch(err){} boot(); toast('กลับไปใช้แหล่งข้อมูลเดิมแล้ว'); } return; }
+  const day=e.target.closest('[data-day]'); if(day){ openDay(day.dataset.day); return; }
+  const wk=e.target.closest('[data-week]'); if(wk){ const ws=wk.dataset.week; const dm=dailyMap(); const d=range(ws,addD(ws,6)).find(x=>dm.has(x)); if(d){ MONTH=mKey(d); lsSet(LS.month,MONTH); location.hash='overview'; if(VIEW==='overview') renderAll(); setTimeout(()=>openDay(d),30); } else toast('สัปดาห์นี้ไม่มีข้อมูลรายวัน'); return; }
+  const mo=e.target.closest('[data-month]'); if(mo){ MONTH=mo.dataset.month; lsSet(LS.month,MONTH); if(VIEW==='overview') renderAll(); else location.hash='overview'; return; }
+  if(e.target.closest('[data-tip]')&&e.pointerType==='touch'){ }
+});
+// touch: tap a mark shows its tip (day bars open the drawer directly)
+document.addEventListener('pointerdown',e=>{ if(e.pointerType!=='touch') return; const el=e.target.closest&&e.target.closest('[data-tip]'); if(el&&!el.closest('[data-day]')) { showTip(el,e); setTimeout(()=>{tip.hidden=true;tipOn=null;},2500);} });
+$('csvFile').onchange=async e=>{ const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  try{ const d=importCSV(await f.text()); if(!d.records.length){ toast('ไม่พบรอบที่มีตัวเลขในไฟล์นี้'); return; }
+    const stored={shops:d.shops,records:d.records}; if(!lsSet(LS.imp,stored)) toast('ไฟล์ใหญ่เกินจะจำในเบราว์เซอร์ จะแสดงจนกว่าจะปิดหน้า');
+    setData(d.shops,d.records,d.images,{kind:'import',label:'ไฟล์ '+f.name}); toast(`นำเข้า ${d.records.length} รอบ จาก ${d.shops.length} ร้านแล้ว`);
+  }catch(err){ toast('อ่านไฟล์ไม่ได้ ใช้ไฟล์ CSV ที่ดาวน์โหลดจากหน้ากรอกข้อมูล'); } };
+
+const h0=location.hash.slice(1); VIEW=['overview','weeks','months','ads','mix','data'].includes(h0)?h0:'overview';
+boot();
+</script>
+
+</html>
