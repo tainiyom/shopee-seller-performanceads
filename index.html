@@ -2828,7 +2828,7 @@ async function sbBoot(){
   try{ const r=await fetch('supabase-config.json',{cache:'no-store'}); if(r.ok){ cfg=await r.json(); SB_FROM_FILE=!!(cfg&&cfg.url); } }catch(e){}
   if(!(cfg&&cfg.url)){ cfg=null; try{ cfg=JSON.parse(localStorage.getItem(SB_CFG_KEY)||'null'); }catch(e){} }
   SBCFG=cfg; if(!(cfg&&cfg.url&&cfg.anonKey)){ sbUI(); return false; }
-  try{ await sbLoadLib(); SB=window.supabase.createClient(cfg.url, cfg.anonKey, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}); }
+  try{ await sbLoadLib(); SB=window.supabase.createClient(cfg.url, cfg.anonKey, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'shopee-perf-auth'}}); }
   catch(e){ SB=null; sbUI(); sbSay('โหลดระบบ server ไม่สำเร็จ ลองรีเฟรชหน้า'); return false; }
   sbUI();
   const attach=async u=>{ if(!u||(db&&uid===u.id)) return; SBUSER=u; sbUI();

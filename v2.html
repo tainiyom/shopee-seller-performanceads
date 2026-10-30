@@ -433,7 +433,7 @@ async function sbBoot(){
   let cfg=null; try{ const r=await fetch('supabase-config.json',{cache:'no-store'}); if(r.ok) cfg=await r.json(); }catch(e){}
   if(!(cfg&&cfg.url)){ try{ cfg=JSON.parse(localStorage.getItem('shopee-roi-sbcfg')||'null'); }catch(e){} }
   if(!(cfg&&cfg.url&&cfg.anonKey)) return false;
-  try{ if(!(window.supabase&&window.supabase.createClient)) await loadScript(SB_JS); SB=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true}}); }catch(e){ return false; }
+  try{ if(!(window.supabase&&window.supabase.createClient)) await loadScript(SB_JS); SB=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'shopee-perf-auth'}}); }catch(e){ return false; }
   const pub=new URLSearchParams(location.search).get('shop');
   const {data:{session}}=await SB.auth.getSession(); SBU=session&&session.user||null;
   SB.auth.onAuthStateChange((ev,ses)=>{ const u=ses&&ses.user||null; if(ev==='SIGNED_IN'&&(!SBU||SBU.id!==u.id)){ SBU=u; sbPull(); } if(ev==='SIGNED_OUT'){ SBU=null; location.reload(); } });
