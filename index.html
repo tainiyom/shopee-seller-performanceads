@@ -150,7 +150,21 @@ body.viewmode .planbtn{display:none}
 @media (max-width:600px){.pldays{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .plday label{display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px}
 .plday input{padding:5px 6px!important;font-size:.8rem!important;text-align:right}
-.plday.big input{border-color:var(--shopee)!important}
+.plday label{height:18px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;user-select:none}
+.plday.promo{background:color-mix(in srgb,var(--shopee) 14%,transparent);border:1.5px solid var(--shopee);border-radius:8px;padding:3px 4px 4px;margin:-4px -5px -5px}
+.plday.promo label{color:var(--shopee);font-weight:700}
+.plday.promo input{border-color:var(--shopee)!important;font-weight:700}
+.plday.promo label{overflow:visible}
+.plday .ptag{display:inline-block;font-size:.62rem;font-weight:700;background:var(--shopee);color:#fff;border-radius:4px;padding:0 4px;margin-left:3px;vertical-align:1px}
+.mbox.planbox{width:min(860px,100%)}
+.plhelp{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:6px;font-size:.86rem}
+.plhelp-h{font-weight:700}
+.plopt{display:flex;gap:8px;align-items:center;cursor:pointer;line-height:1.9}
+.plopt span{display:inline}
+.planbox input.plnum{width:70px!important;display:inline-block!important;padding:3px 6px!important;text-align:right;margin:0 3px!important;vertical-align:baseline}
+.plprev{font-size:.8rem;line-height:1.5}
+.plhelp-f{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.plwarn{color:var(--bad,#d03b3b);font-weight:600}
 .plcard{border:1px solid color-mix(in srgb,var(--shopee) 35%,var(--line));border-radius:12px;padding:16px 18px;margin-bottom:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--shopee) 6%,transparent),transparent)}
 .plcard h3{margin:0;font-size:1.02rem}
 .plmini{padding:10px 14px}
@@ -871,11 +885,18 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
 <div class="modal" id="planModal" hidden role="dialog" aria-modal="true" aria-labelledby="planTitle">
   <div class="mbox planbox">
     <h3 id="planTitle">🎯 แผนเป้าหมายยอดขาย (ยอดยืนยันแล้ว)</h3>
-    <p class="hint" style="font-size:.84rem">ตั้งเป้ายอดขายรายวัน ระบบรวมเป็นรายสัปดาห์ (พุธ–อังคาร) และเป้าเดือนให้เอง ใช้กับร้านที่เลือกอยู่</p>
+    <p class="hint" style="font-size:.84rem">ตั้งเป้ายอดขายรายวัน ระบบรวมเป็นรายสัปดาห์ (YOUNGAGE พุธ–อังคาร · ร้านอื่น จันทร์–อาทิตย์) และเป้าเดือนให้เอง ใช้กับร้านที่เลือกอยู่</p>
     <div class="plrow">
       <div><label class="mlbl" for="plMonth">เดือน</label><input type="month" id="plMonth"></div>
       <div><label class="mlbl" for="plRoi">เป้า ROI (รวม CPAS)</label><input type="text" id="plRoi" inputmode="decimal" placeholder="เช่น 6.5"></div>
-      <div><label class="mlbl" for="plFill">เติมทุกวันเท่ากัน (฿)</label><div style="display:flex;gap:6px"><input type="text" id="plFill" inputmode="decimal" placeholder="เช่น 200000"><button type="button" class="btn sm" id="plFillBtn">เติม</button></div></div>
+      <div><label class="mlbl" for="plTarget">เป้ายอดขายทั้งเดือน (฿)</label><input type="text" id="plTarget" inputmode="decimal" placeholder="เช่น 7,000,000"></div>
+    </div>
+    <div class="plhelp">
+      <div class="plhelp-h">กระจายยอดเป็นรายวัน</div>
+      <label class="plopt"><input type="radio" name="plMode" value="ratio" checked><span>แบ่งจากเป้าเดือน · วันโปรได้ <input type="text" id="plMult" inputmode="decimal" value="2.5" class="plnum"> เท่าของวันปกติ</span></label>
+      <label class="plopt"><input type="radio" name="plMode" value="growth"><span>ใช้ยอดเฉลี่ยต่อวันเดือนก่อน + เติบโต <input type="text" id="plGrow" inputmode="decimal" value="10" class="plnum"> % · วันโปรรับยอดที่เหลือให้ถึงเป้า</span></label>
+      <div class="plprev hint" id="plPrev"></div>
+      <div class="plhelp-f"><span class="hint">วันโปร: <b>DD</b> (วันที่ = เดือน) และ <b>PD</b> (25) เลือกให้อัตโนมัติ · แตะวันที่ในตารางเพื่อเพิ่ม/เอาวันโปรออก · แก้ยอดวันโปรวันหนึ่ง วันโปรที่เหลือจะปรับให้ยังได้ตามเป้า</span><button type="button" class="btn sm primary" id="plSpread">กระจายยอด</button></div>
     </div>
     <div id="plPreset"></div>
     <div class="plsum" id="plSum"></div>
@@ -1659,8 +1680,10 @@ $('groupSeg').addEventListener('click', e=>{ const b=e.target.closest('button[da
   groupMode=b.dataset.g; try{ localStorage.setItem('shopee-roi-group',groupMode); }catch(err){}
   renderTypeSeg(); renderOverview(); });
 // weeks run Wednesday–Tuesday (accounting weeks)
-const WEEK_START_DOW=3;
-function weekStart(iso){ const d=new Date(iso+'T00:00:00'); const wd=(d.getDay()-WEEK_START_DOW+7)%7; d.setDate(d.getDate()-wd); return d; }
+// YOUNGAGE (s1) counts Wednesday–Tuesday (accounting); other shops Monday–Sunday like Shopee
+const wsDow=()=>{ const b=(typeof BRAND!=='undefined'&&BRAND)||{}; if(b.weekStart!=null) return +b.weekStart; return (typeof curShop==='undefined'||curShop==='s1')?3:1; };
+const wkLbl=()=>wsDow()===3?'พุธ–อังคาร':'จันทร์–อาทิตย์';
+function weekStart(iso){ const d=new Date(iso+'T00:00:00'); const wd=(d.getDay()-wsDow()+7)%7; d.setDate(d.getDate()-wd); return d; }
 const isoD = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const ddmm = iso => iso ? iso.slice(8,10)+'/'+iso.slice(5,7) : '';
 const TH_M=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
@@ -1896,41 +1919,115 @@ function weeksOfMonth(mk){ const days=monthDays(mk), W=[]; for(const d of days){
 // preset from the October 2026 plan
 function presetOct2026(){ const o={}; for(const d of monthDays('2026-10')){ const n=+d.slice(8); o[d]= n===10||n===25 ? 500000 : n<=7 ? 185000 : n<=14 ? 205000 : n<=21 ? 215000 : 220000; } return o; }
 let plDraft=null;
+// promo days: DD = day number equals month (11.11), PD = payday 25
+const promoTag = d => { const m=+d.slice(5,7), n=+d.slice(8); return n===m?'DD':n===25?'PD':'โปร'; };
+const defaultPromo = mk => monthDays(mk).filter(d=>{ const n=+d.slice(8); return n===+mk.slice(5,7)||n===25; });
+const isPromoDay = (p,d) => Array.isArray(p&&p.promo) ? p.promo.includes(d) : (+(p&&p.days&&p.days[d])||0)>=400000;
+function plLoad(mk){
+  const p=planOf(mk);
+  plDraft={days:p?{...p.days}:{}, promo: p&&Array.isArray(p.promo) ? [...p.promo] : (p ? monthDays(mk).filter(d=>isPromoDay(p,d)) : defaultPromo(mk)), mode:p&&p.mode||''};
+  if(!plDraft.promo.length && !p) plDraft.promo=defaultPromo(mk);
+  const tot=Object.values(plDraft.days).reduce((a,v)=>a+(+v||0),0);
+  $('plTarget').value = p&&p.target ? Math.round(p.target).toLocaleString('en-US') : (tot?Math.round(tot).toLocaleString('en-US'):'');
+  const st=prevStats(mk);
+  if(p&&p.mult) $('plMult').value=p.mult; else if(st&&st.ratio) $('plMult').value=st.ratio.toFixed(1);
+  if(p&&p.grow!=null&&p.mode) $('plGrow').value=p.grow;
+  if(p&&p.mode) document.querySelector(`input[name=plMode][value=${p.mode}]`).checked=true;
+  plPrevInfo(mk,st);
+}
+// last month: average of normal days and of promo days, from daily rounds (else the month round)
+function prevStats(mk){
+  let [y,m]=mk.split('-').map(Number); m--; if(!m){ m=12; y--; } const pm=`${y}-${String(m).padStart(2,'0')}`;
+  const daily=shopRecords().filter(r=>r.ptype==='day'&&(r.d1||'').startsWith(pm)&&r.sales>0);
+  const pp=planOf(pm); const promoSet=new Set(pp&&Array.isArray(pp.promo)?pp.promo:defaultPromo(pm));
+  if(daily.length){
+    const pr=daily.filter(r=>promoSet.has(r.d1)), no=daily.filter(r=>!promoSet.has(r.d1));
+    const nAvg=no.length?no.reduce((a,r)=>a+r.sales,0)/no.length:0, pAvg=pr.length?pr.reduce((a,r)=>a+r.sales,0)/pr.length:0;
+    return {pm, nAvg, pAvg, nDays:no.length, pDays:pr.length, promo:pr.map(r=>[r.d1,r.sales]), ratio:nAvg&&pAvg?pAvg/nAvg:0, total:daily.reduce((a,r)=>a+r.sales,0), days:daily.length};
+  }
+  const mr=shopRecords().find(r=>r.ptype==='month'&&(r.d1||'').startsWith(pm));
+  if(mr){ const n=monthDays(pm).length; return {pm, nAvg:mr.sales/n, pAvg:0, nDays:n, pDays:0, promo:[], ratio:0, total:mr.sales, days:n, monthOnly:true}; }
+  return null;
+}
+function plPrevInfo(mk,st){
+  const TMN=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  $('plPrev').innerHTML = !st ? 'ยังไม่มีข้อมูลเดือนก่อนของร้านนี้ ใช้แบบ "แบ่งจากเป้าเดือน" ได้' :
+    `เดือนก่อน (${TMN[+st.pm.slice(5)-1]}): ${st.monthOnly?`เฉลี่ย <b>${fmtB0(st.nAvg)}</b>/วัน (จากรอบรายเดือน)`:`วันปกติเฉลี่ย <b>${fmtB0(st.nAvg)}</b>/วัน (${st.nDays} วัน)${st.pDays?` · วันโปร ${st.promo.map(([d,v])=>promoTag(d)+' '+ddmm(d)+' '+fmtB0(v)).join(' · ')} = ${st.ratio.toFixed(1)} เท่าของวันปกติ`:''} · รวม ${fmtB0(st.total)} (${st.days} วัน)`}`;
+}
+function plSpread(){
+  const mk=$('plMonth').value; if(!mk) return;
+  const days=monthDays(mk), pd=plDraft.promo.filter(d=>d.startsWith(mk)), nd=days.filter(d=>!pd.includes(d));
+  const tgt=pNum($('plTarget').value), mode=document.querySelector('input[name=plMode]:checked').value; const out={};
+  if(mode==='ratio'){
+    if(!tgt){ toast('ใส่เป้ายอดขายทั้งเดือนก่อน'); $('plTarget').focus(); return; }
+    const mult=pNum($('plMult').value)||1; const unit=tgt/(nd.length+pd.length*mult);
+    nd.forEach(d=>out[d]=Math.round(unit)); pd.forEach(d=>out[d]=Math.round(unit*mult));
+  } else {
+    const st=prevStats(mk); if(!st||!st.nAvg){ toast('ยังไม่มียอดเดือนก่อนของร้านนี้ ใช้แบบแบ่งจากเป้าเดือนแทน'); return; }
+    const g=1+pNum($('plGrow').value)/100, base=Math.round(st.nAvg*g); nd.forEach(d=>out[d]=base);
+    if(pd.length){
+      // split what is left between promo days in last month's proportions (e.g. DD was 2x PD)
+      const wTag={}; for(const [d,v] of (st.promo||[])) wTag[promoTag(d)]=(wTag[promoTag(d)]||0)+v; const wAvg=Object.values(wTag).length?Object.values(wTag).reduce((a,v)=>a+v,0)/Object.values(wTag).length:1;
+      const w=d=>wTag[promoTag(d)]||wAvg, wSum=pd.reduce((a,d)=>a+w(d),0);
+      if(tgt){ const left=tgt-base*nd.length; if(left<=0){ toast(`เป้าเดือนต่ำกว่ายอดวันปกติรวม (${fmtB0(base*nd.length)}) ลด % เติบโต หรือเพิ่มเป้า`); }
+        pd.forEach(d=>out[d]=Math.max(0,Math.round(left*w(d)/wSum))); }
+      else { const pAvg=st.pAvg||st.nAvg*(pNum($('plMult').value)||2.5); pd.forEach(d=>out[d]=Math.round(pAvg*g)); }
+    } else if(tgt){ toast('ยังไม่มีวันโปรให้รับยอดที่เหลือ แตะวันที่ในตารางเพื่อเลือกวันโปร'); }
+    if(!tgt) $('plTarget').value=Math.round(Object.values(out).reduce((a,v)=>a+v,0)).toLocaleString('en-US');
+  }
+  // rounding remainder goes to the last promo day (or last day) so the month adds up exactly
+  if(tgt){ const sum=Object.values(out).reduce((a,v)=>a+v,0), diff=tgt-sum; const last=pd.length?pd[pd.length-1]:days[days.length-1]; if(diff&&out[last]+diff>=0) out[last]+=diff; }
+  plDraft.days=out; plDraft.mode=mode; plDraft.lock=new Set(); plRender();
+  const pv=pd.map(d=>promoTag(d)+' '+fmtB0(out[d])).join(' · ');
+  toast(`กระจายแล้ว · วันปกติ ${fmtB0(out[nd[0]]||0)}/วัน${pv?' · '+pv:''}`);
+}
 function plRead(){ const o={}; document.querySelectorAll('#plGrid input[data-d]').forEach(i=>{ const v=parseFloat(String(i.value).replace(/[,\s฿]/g,'')); if(isFinite(v)&&v>0) o[i.dataset.d]=v; }); return o; }
 function plRender(){
   const mk=$('plMonth').value; if(!mk){ $('plGrid').innerHTML=''; return; }
   const days=plDraft.days||{};
   $('plPreset').innerHTML = mk==='2026-10' ? `<button type="button" class="btn sm" id="plUsePreset" style="margin-top:10px">ใช้แผนตุลาคมที่วางไว้ (7.01 ล้าน · 10.10 และ 25 ต.ค. วันละ 500k)</button>` : '';
   $('plGrid').innerHTML = weeksOfMonth(mk).map((w,i)=>`<div class="plwk"><div class="plwk-h"><span>สัปดาห์ ${ddmm(w.days[0])}–${ddmm(w.days[w.days.length-1])}</span><span class="num" data-wsum="${i}"></span></div><div class="pldays">${
-    w.days.map(d=>{ const dw=new Date(d+'T00:00:00').getDay(); return `<div class="plday${(+days[d]||0)>=400000?' big':''}"><label for="pl_${d}">${TH_DOW[dw]} ${ddmm(d)}</label><input type="text" inputmode="decimal" id="pl_${d}" data-d="${d}" data-w="${i}" value="${days[d]?Math.round(days[d]):''}" placeholder="0"></div>`; }).join('')
+    w.days.map(d=>{ const dw=new Date(d+'T00:00:00').getDay(), pr=plDraft.promo.includes(d); return `<div class="plday${pr?' promo':''}" data-pd="${d}"><label for="pl_${d}" data-ptoggle="${d}" title="แตะเพื่อตั้ง/ยกเลิกวันโปร">${TH_DOW[dw]} ${ddmm(d)}${pr?`<span class="ptag">${promoTag(d)}</span>`:''}</label><input type="text" inputmode="decimal" id="pl_${d}" data-d="${d}" data-w="${i}" value="${days[d]?Math.round(days[d]).toLocaleString('en-US'):''}" placeholder="0"></div>`; }).join('')
   }</div></div>`).join('');
   plSums();
 }
 function plSums(){
   const mk=$('plMonth').value, o=plRead(); let tot=0; const ws={};
-  document.querySelectorAll('#plGrid input[data-d]').forEach(i=>{ const v=+o[i.dataset.d]||0; tot+=v; ws[i.dataset.w]=(ws[i.dataset.w]||0)+v; i.closest('.plday').classList.toggle('big', v>=400000); });
+  document.querySelectorAll('#plGrid input[data-d]').forEach(i=>{ const v=+o[i.dataset.d]||0; tot+=v; ws[i.dataset.w]=(ws[i.dataset.w]||0)+v; });
   document.querySelectorAll('[data-wsum]').forEach(e=>e.textContent=fmtB0(ws[e.dataset.wsum]||0));
   const roi=parseFloat($('plRoi').value)||0;
-  $('plSum').innerHTML = mk ? `เป้าเดือน <b class="num">${fmtB0(tot)}</b> · ${Object.keys(o).length}/${monthDays(mk).length} วันที่ตั้งเป้า${roi>0?` · งบแอดสูงสุดทั้งเดือนที่ ROI ${fmtX(roi)} = <b class="num">${fmtB0(tot/roi)}</b>`:''}` : '';
+  const tgt=pNum($('plTarget').value), pd=plDraft.promo.filter(d=>d.startsWith(mk)), pTot=pd.reduce((a,d)=>a+(+o[d]||0),0);
+  const nd=monthDays(mk).filter(d=>!pd.includes(d)), nAvg=nd.length?(tot-pTot)/nd.length:0;
+  $('plSum').innerHTML = mk ? `รวมรายวัน <b class="num">${fmtB0(tot)}</b>${tgt?` จากเป้า <b class="num">${fmtB0(tgt)}</b> ${Math.abs(tot-tgt)>=1?`<span class="plwarn">(${tot>tgt?'เกิน':'ขาด'} ${fmtB0(Math.abs(tot-tgt))})</span>`:'✓'}`:''} · ${Object.keys(o).length}/${monthDays(mk).length} วันที่ตั้งเป้า<br>วันปกติเฉลี่ย <b class="num">${fmtB0(nAvg)}</b>/วัน · วันโปร ${pd.length} วัน รวม <b class="num">${fmtB0(pTot)}</b>${pd.length?` (${pd.map(d=>promoTag(d)+' '+ddmm(d)+' '+fmtB0(+o[d]||0)).join(' · ')})`:''}${roi>0?`<br>งบแอดสูงสุดทั้งเดือนที่ ROI ${fmtX(roi)} = <b class="num">${fmtB0(tot/roi)}</b>`:''}` : '';
 }
 function openPlan(mk){
   mk = mk || (shopRecords().map(recStart).sort().pop()||isoD(new Date())).slice(0,7);
-  const p=planOf(mk); plDraft={days:p?{...p.days}:{}};
-  $('plMonth').value=mk; $('plRoi').value = p&&p.roi ? p.roi : (planRoi(mk)||'');
+  $('plMonth').value=mk; plLoad(mk);
+  $('plRoi').value = (planOf(mk)&&planOf(mk).roi) ? planOf(mk).roi : (planRoi(mk)||'');
   plRender(); $('planModal').hidden=false;
 }
 $('planBtn').addEventListener('click', ()=>openPlan());
-$('plMonth').addEventListener('change', ()=>{ const mk=$('plMonth').value; const p=planOf(mk); plDraft={days:p?{...p.days}:{}}; if(p&&p.roi) $('plRoi').value=p.roi; plRender(); });
-$('plGrid').addEventListener('input', plSums);
+$('plMonth').addEventListener('change', ()=>{ const mk=$('plMonth').value; plLoad(mk); const p=planOf(mk); if(p&&p.roi) $('plRoi').value=p.roi; plRender(); });
+$('plTarget').addEventListener('input', plSums);
+$('plGrid').addEventListener('click', e=>{ const l=e.target.closest('[data-ptoggle]'); if(!l) return; e.preventDefault(); const d=l.dataset.ptoggle; plDraft.days=plRead(); plDraft.promo=plDraft.promo.includes(d)?plDraft.promo.filter(x=>x!==d):[...plDraft.promo,d].sort(); plRender(); });
+$('plSpread').addEventListener('click', plSpread);
+$('plGrid').addEventListener('input', e=>{
+  const d=e.target.dataset&&e.target.dataset.d, mk=$('plMonth').value, tgt=pNum($('plTarget').value);
+  if(d && tgt && plDraft.promo.includes(d)){ plDraft.lock=new Set([...(plDraft.lock||[]), d]);
+    const o=plRead(), pd=plDraft.promo.filter(x=>x.startsWith(mk)), free=pd.filter(x=>!plDraft.lock.has(x));
+    if(free.length){ const fixed=Object.entries(o).filter(([k])=>!free.includes(k)).reduce((a,[,v])=>a+v,0); const each=Math.max(0,Math.round((tgt-fixed)/free.length));
+      free.forEach(x=>{ const i=$('pl_'+x); if(i) i.value=each.toLocaleString('en-US'); }); } }
+  plSums(); });
 $('plRoi').addEventListener('input', plSums);
-$('plFillBtn').addEventListener('click', ()=>{ const v=parseFloat(String($('plFill').value).replace(/[,\s฿]/g,'')); if(!(v>0)) return; plDraft.days=Object.fromEntries(monthDays($('plMonth').value).map(d=>[d,v])); plRender(); });
-$('plPreset').addEventListener('click', e=>{ if(e.target.id!=='plUsePreset') return; plDraft.days=presetOct2026(); if(!$('plRoi').value) $('plRoi').value='6.5'; plRender(); });
+
+$('plPreset').addEventListener('click', e=>{ if(e.target.id!=='plUsePreset') return; plDraft.days=presetOct2026(); plDraft.promo=['2026-10-10','2026-10-25']; if(!$('plRoi').value) $('plRoi').value='6.5'; plRender(); });
 $('plCancel').addEventListener('click', ()=>$('planModal').hidden=true);
 $('planModal').addEventListener('click', e=>{ if(e.target===$('planModal')) $('planModal').hidden=true; });
 $('plSave').addEventListener('click', ()=>{
   const mk=$('plMonth').value; if(!mk) return; const days=plRead();
   if(!Object.keys(days).length){ toast('ใส่เป้าอย่างน้อย 1 วัน'); return; }
-  BRAND.plans={...(BRAND.plans||{}), [mk]:{roi:parseFloat($('plRoi').value)||0, days}};
+  const tgt=pNum($('plTarget').value);
+  BRAND.plans={...(BRAND.plans||{}), [mk]:{roi:parseFloat($('plRoi').value)||0, days, promo:plDraft.promo.filter(d=>d.startsWith(mk)), ...(tgt?{target:tgt}:{}), ...(plDraft.mode?{mode:plDraft.mode,mult:pNum($('plMult').value),grow:pNum($('plGrow').value)}:{})}};
   saveBrand('บันทึกแผนเป้าหมายแล้ว'); $('planModal').hidden=true; renderOverview(); try{ autoPublish(); }catch(e){}
 });
 $('plDel').addEventListener('click', ()=>{
@@ -1965,8 +2062,8 @@ function planSection(list){
   const budget=roiT>0?T/roiT:NaN, bLeft=budget-SP, bPerDay=rest.length?bLeft/rest.length:NaN;
   const missing=past.filter(d=>!byDay[d]);
   const st=(v,g,y)=>!isFinite(v)?'':v>=g?'<span class="st g">ตามแผน</span>':v>=y?'<span class="st y">ใกล้เป้า</span>':'<span class="st r">ต่ำกว่าแผน</span>';
-  const bigRest=rest.filter(d=>(+p.days[d]||0)>=400000);
-  const normRest=rest.filter(d=>(+p.days[d]||0)<400000);
+  const bigRest=rest.filter(d=>isPromoDay(p,d));
+  const normRest=rest.filter(d=>!isPromoDay(p,d));
   // campaign days stay at their planned target; the shortfall is spread over the normal days
   const bigPlan=bigRest.reduce((a,d)=>a+(+p.days[d]||0),0);
   const normNeed = normRest.length ? Math.max(0,need-bigPlan)/normRest.length : NaN;
@@ -1986,7 +2083,7 @@ function planSection(list){
       <span class="num muted">ทำได้ ${fmtB0(A)} / ${fmtB0(T)} · คาดปิด ${fmtP(fcp)}${roiT>0?` · ROI ${fmtX(roi)}/${fmtX(roiT)}`:''}</span>
       <button type="button" class="btn sm" data-plantoggle="1" aria-expanded="false">ดูรายงานแผน ▾</button></div></div>`;
   }
-  let h=`<div class="plcard"><div class="card-h"><h3>${ttl}</h3><span class="muted small">ยอดยืนยันแล้ว · สัปดาห์ พุธ–อังคาร · ข้อมูลถึง ${ddmm(asOf)} <button type="button" class="btn sm" data-plantoggle="0" aria-expanded="true" style="margin-left:8px">ซ่อน ▴</button></span></div>
+  let h=`<div class="plcard"><div class="card-h"><h3>${ttl}</h3><span class="muted small">ยอดยืนยันแล้ว · สัปดาห์ ${wkLbl()} · ข้อมูลถึง ${ddmm(asOf)} <button type="button" class="btn sm" data-plantoggle="0" aria-expanded="true" style="margin-left:8px">ซ่อน ▴</button></span></div>
   <p class="plsentence">${sent}</p>
   <div class="plkpis">
     <div class="plk"><small>ยอดสะสมเทียบแผนถึงวันนี้ ${st(ach,100,90)}</small><b class="num">${fmtP(ach)}</b><div class="sub num">${fmtB0(A)} / ${fmtB0(Pt)}</div>${bar(ach,null,ach>=100?'var(--good)':ach>=90?'var(--warn)':'var(--bad)')}</div>
