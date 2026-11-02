@@ -520,7 +520,19 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
 .ov-filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
 .ov-filter .chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.84rem}
 .ov-filter .chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
-.ov-filter input[type=month]{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit;color:inherit}
+.cmpsel{display:inline-flex;gap:6px;align-items:center;font-size:.84rem}
+.cmpsel select{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit;color:inherit}
+.cmpcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.cmpcard h3{margin:0 0 4px;font-size:1rem}
+.cmpcard .cmpsub{font-size:.82rem;color:var(--muted);margin-bottom:10px}
+.cmpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.cmpit{background:var(--field);border-radius:10px;padding:10px 12px}
+.cmpit small{display:block;color:var(--muted);font-size:.78rem}
+.cmpit b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums;margin:2px 0}
+.cmpit .vs{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cmpit .dl{font-weight:700;font-size:.82rem;white-space:nowrap}
+.cmpit .dl.up{color:var(--good,#12a57a)}.cmpit .dl.down{color:var(--bad,#d03b3b)}.cmpit .dl.flat{color:var(--muted)}
+.ov-filter input[type=date],.ov-filter input[type=month]{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit;color:inherit}
 .ov-count{font-size:.84rem;color:var(--muted);margin-left:auto}
 .ov-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:6px}
 .ov-kpis .k{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
@@ -660,13 +672,22 @@ details.ovtable summary{cursor:pointer;font-weight:600;font-size:.9rem}
         </div>
         <div class="ov-filter" id="ovFilter">
           <button class="chip" data-q="all" aria-pressed="true">ทุกรอบ</button>
+          <button class="chip" data-q="latest" aria-pressed="false">วันล่าสุด</button>
+          <button class="chip" data-q="last7" aria-pressed="false">7 วันล่าสุด</button>
           <button class="chip" data-q="thisMonth" aria-pressed="false">เดือนนี้</button>
+          <button class="chip" data-q="lastMonth" aria-pressed="false">เดือนที่แล้ว</button>
           <button class="chip" data-q="last3" aria-pressed="false">3 เดือนล่าสุด</button>
           <button class="chip" data-q="thisYear" aria-pressed="false">ปีนี้</button>
           <span style="display:inline-flex;gap:6px;align-items:center;font-size:.84rem">
-            <label for="m1" class="muted">เดือน</label><input type="month" id="m1">
-            <label for="m2" class="muted">ถึง</label><input type="month" id="m2">
+            <label for="m1" class="muted">วันที่</label><input type="date" id="m1">
+            <label for="m2" class="muted">ถึง</label><input type="date" id="m2">
           </span>
+          <span class="cmpsel"><label for="cmpMode" class="muted">เทียบกับ</label><select id="cmpMode">
+            <option value="">ไม่เทียบ</option>
+            <option value="lm">เดือนที่แล้ว (วันที่เดียวกัน)</option>
+            <option value="prev">ช่วงก่อนหน้า (ยาวเท่ากัน)</option>
+            <option value="lmfull">เดือนที่แล้วทั้งเดือน</option>
+          </select></span>
           <span class="ov-count num" id="ovCount"></span>
         </div>
         <div id="ovBody"></div>
@@ -1709,15 +1730,72 @@ function hasOverlap(list){
 const recDate = r => r.d2 || r.d1 || (r.savedAt||'').slice(0,10);
 const recStart = r => r.d1 || r.d2 || (r.savedAt||'').slice(0,10);
 function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+// date helpers for day-level filters (ISO yyyy-mm-dd)
+const addDays=(iso,n)=>{ const d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return isoD(d); };
+const monthEnd=mk=>{ const [y,m]=mk.split('-').map(Number); return `${mk}-${String(new Date(y,m,0).getDate()).padStart(2,'0')}`; };
+const prevMk=mk=>{ let [y,m]=mk.split('-').map(Number); m--; if(!m){ m=12; y--; } return `${y}-${String(m).padStart(2,'0')}`; };
+const lastDataDay=()=>{ const ds=shopRecords().filter(r=>r.ptype==='day').map(r=>r.d1).filter(Boolean).sort(); return ds[ds.length-1]||isoD(new Date(Date.now()-864e5)); };
 function quickRange(q){
-  const now=new Date(); const mk=monthKey(now);
-  if(q==='thisMonth') return [mk,mk];
-  if(q==='last3'){ const d=new Date(now.getFullYear(),now.getMonth()-2,1); return [monthKey(d),mk]; }
-  if(q==='thisYear') return [now.getFullYear()+'-01',mk];
-  if(q==='custom') return [$('m1').value||'0000-00',$('m2').value||'9999-99'];
+  const now=new Date(); const mk=monthKey(now), today=isoD(now);
+  if(q==='latest'){ const d=lastDataDay(); return [d,d]; }
+  if(q==='last7'){ const d=lastDataDay(); return [addDays(d,-6),d]; }
+  if(q==='thisMonth') return [mk+'-01',monthEnd(mk)];
+  if(q==='lastMonth'){ const p=prevMk(mk); return [p+'-01',monthEnd(p)]; }
+  if(q==='last3'){ const d=new Date(now.getFullYear(),now.getMonth()-2,1); return [monthKey(d)+'-01',monthEnd(mk)]; }
+  if(q==='thisYear') return [now.getFullYear()+'-01-01',now.getFullYear()+'-12-31'];
+  if(q==='custom') return [$('m1').value||'0000-00-00',$('m2').value||'9999-99-99'];
   return null;
 }
-function inQuick(r){ if(!inType(r)) return false; const rg=quickRange(quick); if(!rg) return true; const m=recDate(r).slice(0,7); return m>=rg[0] && m<=rg[1]; }
+// a round belongs to a range when its whole span lies inside it (a month round is not counted in a 7-day range)
+function inQuick(r){ if(!inType(r)) return false; const rg=quickRange(quick); if(!rg) return true; const a=recStart(r), b=recDate(r); return a>=rg[0] && b<=rg[1]; }
+// comparison: range A = the current filter (capped at the last day with data), range B per the chosen mode
+function cmpRanges(){
+  const mode=$('cmpMode').value; if(!mode) return null;
+  let rg=quickRange(quick);
+  if(!rg){ const ds=records.filter(r=>selected.has(r.id)&&r.ptype==='day').map(r=>r.d1).sort(); if(!ds.length) return null; rg=[ds[0],ds[ds.length-1]]; }
+  const last=lastDataDay(); let [a1,a2]=rg; if(a2>last) a2=last; if(a1>a2) return null;
+  let b1,b2;
+  const shiftM=(iso)=>{ const pm=prevMk(iso.slice(0,7)); const e=monthEnd(pm); const d=pm+'-'+iso.slice(8,10); return d>e?e:d; };
+  if(mode==='lm'){ b1=shiftM(a1); b2=shiftM(a2); }
+  else if(mode==='lmfull'){ const pm=prevMk(a1.slice(0,7)); b1=pm+'-01'; b2=monthEnd(pm); }
+  else { const n=dayCount(a1,a2); b2=addDays(a1,-1); b1=addDays(b2,-(n-1)); }
+  return {mode,a:[a1,a2],b:[b1,b2]};
+}
+// use whichever round type covers more days of the range: daily rounds, else monthly or weekly rounds
+function rangeAgg(a,b){
+  const span=r=>Math.max(1,dayCount(r.d1||r.d2,r.d2||r.d1)||1);
+  const inR=r=>recStart(r)>=a&&recDate(r)<=b;
+  const sets=[['day','รายวัน'],['month','รายเดือน'],['week','รายสัปดาห์']].map(([t,n])=>{ const l=shopRecords().filter(r=>r.ptype===t&&inR(r)); return {list:l.map(V), days:l.reduce((x,r)=>x+span(r),0), src:n}; });
+  return sets.reduce((best,x)=>x.days>best.days?x:best, sets[0]);
+}
+function cmpCard(){
+  const C=cmpRanges(); if(!C) return '';
+  const A=rangeAgg(...C.a), B=rangeAgg(...C.b);
+  const lbl=([x,y])=>x===y?`${+x.slice(8)} ${TH_M[+x.slice(5,7)-1]}`:`${+x.slice(8)} ${TH_M[+x.slice(5,7)-1]} – ${+y.slice(8)} ${TH_M[+y.slice(5,7)-1]}`;
+  if(!A.list.length) return `<div class="cmpcard"><h3>เปรียบเทียบ</h3><div class="cmpsub">ไม่มีข้อมูลรายวันในช่วง ${lbl(C.a)}</div></div>`;
+  const ma=calc(aggregate(A.list)), mb=B.list.length?calc(aggregate(B.list)):null;
+  const ga=aggregate(A.list), gb=B.list.length?aggregate(B.list):null;
+  const live=g=>g?(g.traffic.live||0):0, ads=g=>g?CH.reduce((t,c)=>t+g.channels[c.k].sales,0):0;
+  const ch=(x,y,goodUp=true)=>{ if(!mb||!isFinite(x)||!isFinite(y)||!y) return '<span class="dl flat">–</span>'; const v=x/y-1; const c=Math.abs(v)<.005?'flat':((v>0)===goodUp?'up':'down'); return `<span class="dl ${c}">${v>0?'▲':v<0?'▼':''} ${Math.abs(v*100).toFixed(1)}%</span>`; };
+  const chX=(x,y,goodUp=true)=>{ if(!mb||!isFinite(x)||!isFinite(y)) return '<span class="dl flat">–</span>'; const v=x-y; const c=Math.abs(v)<.005?'flat':((v>0)===goodUp?'up':'down'); return `<span class="dl ${c}">${v>0?'+':''}${v.toFixed(2)}</span>`; };
+  const it=(t,a,b,d)=>`<div class="cmpit"><small>${t}</small><b>${a}</b><div class="vs">${mb?`เทียบ ${b} · `:''}${d}</div></div>`;
+  const mlabel={lm:'เดือนที่แล้ว วันที่เดียวกัน',prev:'ช่วงก่อนหน้า',lmfull:'เดือนที่แล้วทั้งเดือน'}[C.mode];
+  const avgA=ma.S/A.days, avgB=mb?mb.S/B.days:NaN, spA=ma.spend/A.days, spB=mb?mb.spend/B.days:NaN;
+  const sameLen=A.days===B.days;
+  return `<div class="cmpcard"><h3>เปรียบเทียบ ${lbl(C.a)} <span class="muted" style="font-weight:400">(${A.days} วัน${A.src!=='รายวัน'?' จากรอบ'+A.src:''})</span> กับ ${mlabel} ${lbl(C.b)} <span class="muted" style="font-weight:400">(${B.days} วัน${B.src!=='รายวัน'&&B.list.length?' จากรอบ'+B.src:''})</span></h3>
+    <div class="cmpsub">${mb?(sameLen?'จำนวนวันเท่ากัน เทียบยอดรวมได้ตรง ๆ':'จำนวนวันไม่เท่ากัน ดูช่อง "เฉลี่ย/วัน" เพื่อเทียบให้ยุติธรรม'):'ไม่มีข้อมูลรายวันในช่วงที่ใช้เทียบ'} · ค่าแอดลดลง = สีเขียว · ROI เปลี่ยนแสดงเป็นแต้ม</div>
+    <div class="cmpgrid">
+      ${it('ยอดขายที่ยืนยันแล้ว',fmtB0(ma.S),mb?fmtB0(mb.S):'',ch(ma.S,mb&&mb.S))}
+      ${A.days>1||B.days>1?it('ยอดขายเฉลี่ย/วัน',fmtB0(avgA),fmtB0(avgB),ch(avgA,avgB)):''}
+      ${it('ค่าโฆษณารวม',fmtB0(ma.spend),mb?fmtB0(mb.spend):'',ch(ma.spend,mb&&mb.spend,false))}
+      ${A.days>1||B.days>1?it('ค่าแอดเฉลี่ย/วัน',fmtB0(spA),fmtB0(spB),ch(spA,spB,false)):''}
+      ${it('ROI รวม',fmtX(ma.roi),mb?fmtX(mb.roi):'',chX(ma.roi,mb&&mb.roi))}
+      ${it('ACOS',fmtP(ma.acos),mb?fmtP(mb.acos):'',chX(ma.acos,mb&&mb.acos,false).replace(/([+-]?\d+\.\d+)/,'$1 แต้ม'))}
+      ${it('ยอดขายจากแอด',fmtB0(ads(ga)),gb?fmtB0(ads(gb)):'',ch(ads(ga),ads(gb)))}
+      ${it('ยอดจาก Live ของร้าน',fmtB0(live(ga)),gb?fmtB0(live(gb)):'',ch(live(ga),live(gb)))}
+    </div></div>`;
+}
+$('cmpMode').addEventListener('change', ()=>renderOverview());
 function applyQuick(q){
   quick=q;
   document.querySelectorAll('#ovFilter .chip').forEach(c=>c.setAttribute('aria-pressed', c.dataset.q===q));
@@ -2128,7 +2206,7 @@ function renderOverview(){
   const lastMk=(list.length?recStart(list[list.length-1]):'').slice(0,7);
   const target = agg.target || planRoi(lastMk) || (isFinite(m.breakEven)?m.breakEven:0);
   const adSales = CH.reduce((t,c)=>t+agg.channels[c.k].sales,0);
-  let h = (ptFilter==='all' && hasOverlap(list)) ? `<div class="warnbox">⚠️ กำลังรวมรอบต่างประเภทที่มีช่วงวันที่ทับกัน (เช่น รายวันซ้อนอยู่ในรายสัปดาห์) ตัวเลขรวมอาจนับซ้ำ เลือกประเภทเดียวด้านบนเพื่อเปรียบเทียบแบบเดียวกัน</div>` : '';
+  let h = cmpCard() + ((ptFilter==='all' && hasOverlap(list)) ? `<div class="warnbox">⚠️ กำลังรวมรอบต่างประเภทที่มีช่วงวันที่ทับกัน (เช่น รายวันซ้อนอยู่ในรายสัปดาห์) ตัวเลขรวมอาจนับซ้ำ เลือกประเภทเดียวด้านบนเพื่อเปรียบเทียบแบบเดียวกัน</div>` : '');
   // average per day (daily rounds: per round; weekly/monthly: by the number of days covered)
   const kRounds = kList.length ? kList : list;
   const nDays = kRounds.reduce((a,r)=>a+Math.max(1, dayCount(r.d1||r.d2, r.d2||r.d1)||1), 0);
