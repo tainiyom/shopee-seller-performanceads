@@ -301,6 +301,7 @@ const CH=[
   {k:'cpasShop',g:'off',n:'CPAS in shop',full:'CPAS in shop',c:'--c5'},
   {k:'cpasMeta',g:'off',n:'CPAS in Meta',full:'CPAS in Meta',c:'--c7'},
 ];
+const LIVE_N=4, LIVE_H=12; // live plan: 4 rounds × 3 h per day
 const TR=[{k:'pdp',n:'หน้ารายละเอียดสินค้า',c:'--c1'},{k:'live',n:'Live ของร้านค้า',c:'--c2'},{k:'video',n:'วิดีโอของร้านค้า',c:'--c3'},{k:'partner',n:'พาร์ทเนอร์',c:'--c4'}];
 const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const TMF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
@@ -350,6 +351,7 @@ function normRec(r){
   r.sales=+r.sales||0; r.adsSales=+r.adsSales||0; r.tags=Array.isArray(r.tags)?r.tags:[]; r.note=r.note||'';
   r.top5=(r.top5||[]).filter(x=>x&&x.name); r.top5u=(r.top5u||[]).filter(x=>x&&x.name);
   r.shop=r.shop||'s1';
+  r.live=(r.live&&typeof r.live==='object')?{n:+r.live.n||0,h:+r.live.h||0,slots:Array.isArray(r.live.slots)?r.live.slots:[],target:+r.live.target||LIVE_N}:null;
   if(!r.ptype){ r.ptype = r.d1===r.d2?'day' : (dow(r.d1)===3&&r.d2===addD(r.d1,6))?'week' : (r.d1.endsWith('-01')&&r.d2===mKey(r.d1)+'-'+mDays(mKey(r.d1)))?'month':'custom'; }
   return r;
 }
@@ -726,10 +728,36 @@ function renderMix(){
     <div class="panel"><header><h3>รวมทั้งช่วง</h3></header><div class="tbl"><table><thead><tr><th>ที่มา</th><th class="n">ยอดขาย</th><th class="n">สัดส่วน</th></tr></thead><tbody>${trRows}</tbody></table></div>
       <p class="note">ยอดจาก Shopee Ads ${B(a.adsSales)} = ${P(a.sales?a.adsSales/a.sales:NaN,0)} ของยอดร้าน · Live ${P(a.trSum?a.tr.live/a.trSum:NaN,0)} ของยอดตามที่มา</p></div>
   </div>
+  ${livePanel(md)}
   <div class="grid2e">
     <div class="panel"><header><h3>สินค้าขายดีตามยอดขาย</h3><span class="hint">${md.src==='month'?'TOP 5 ของรอบรายเดือน':'รวม TOP 5 รายวันทั้งเดือน'}</span></header>${prodList(ts,'sales')}</div>
     <div class="panel"><header><h3>สินค้าขายดีตามจำนวนชิ้น</h3></header>${prodList(tu,'units')}</div>
   </div>`;
+}
+
+/* ================= live hours ================= */
+function liveStats(daily){
+  const ld=daily.filter(r=>r.live); const full=ld.filter(r=>r.live.n>=r.live.target), part=ld.filter(r=>r.live.n>0&&r.live.n<r.live.target), none=ld.filter(r=>!r.live.n);
+  const h=ld.reduce((s,r)=>s+r.live.h,0), ls=ld.reduce((s,r)=>s+r.traffic.live,0);
+  const avg=l=>l.length?l.reduce((s,r)=>s+r.traffic.live,0)/l.length:NaN;
+  return {ld,full,part,none,h,hT:ld.length*LIVE_H,perH:h?ls/h:NaN,avgFull:avg(full),avgPart:avg(part),avgNone:avg(none)};
+}
+function livePanel(md){
+  if(md.src==='month') return '';
+  const L=liveStats(md.daily); if(!L.ld.length) return '';
+  const miss=md.daily.length-L.ld.length;
+  const short=[...L.none,...L.part].sort((a,b)=>a.d1.localeCompare(b.d1)).map(r=>`<span class="tag" style="cursor:pointer" data-day="${r.d1}">${dLabel(r.d1)} · ${r.live.n}/${r.live.target} รอบ</span>`).join(' ');
+  const hSt=statusOf(L.h/L.hT,1,.9);
+  return `<div class="panel"><header><h3>ชั่วโมงไลฟ์รายวัน</h3><span class="hint">แท่ง = ชั่วโมงไลฟ์ · เส้น = ยอดขายผ่านไลฟ์ · เป้า ${LIVE_N} รอบ ${LIVE_H} ชม./วัน</span><span class="sp"></span>
+    <div class="legend"><span><i style="background:var(--s-sales)"></i>ไลฟ์ครบ</span><span><i style="background:var(--warn)"></i>ไลฟ์ไม่ครบ</span><span><i style="background:var(--bad)"></i>ไม่ได้ไลฟ์</span><span><i class="ln" style="background:var(--c2)"></i>ยอดไลฟ์</span><span><i class="dash"></i>${LIVE_H} ชม.</span></div></header>
+    <div class="kpis" style="margin-bottom:10px">
+      <div class="kpi"><div class="lb">ชั่วโมงไลฟ์รวม ${chip(hSt)}</div><div class="v num">${L.h.toFixed(1)}<small>/ ${L.hT} ชม.</small></div><div class="s">ครบ ${L.full.length} วัน · ไม่ครบ ${L.part.length} วัน · ไม่ได้ไลฟ์ ${L.none.length} วัน</div></div>
+      <div class="kpi"><div class="lb">ยอดไลฟ์ต่อชั่วโมง</div><div class="v num">${B(L.perH)}<small>/ชม.</small></div><div class="s">ยอดขายผ่านไลฟ์ ÷ ชั่วโมงไลฟ์</div></div>
+      <div class="kpi"><div class="lb">ยอดไลฟ์เฉลี่ยต่อวัน</div><div class="v num">${B(L.avgFull)}<small>วันไลฟ์ครบ</small></div><div class="s">${L.part.length?`ไม่ครบ <b>${B(L.avgPart)}</b> ${dlt(pct(L.avgPart,L.avgFull))}`:''}${L.none.length?`${L.part.length?' · ':''}ไม่ได้ไลฟ์ <b>${B(L.avgNone)}</b>`:''}</div></div>
+    </div>
+    <div class="chart" data-chart="liveDaily" style="height:230px"></div>
+    ${short?`<p class="note" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">วันที่ไลฟ์ไม่ครบ: ${short}</p>`:''}
+    ${miss?`<p class="muted" style="font-size:12.5px;margin:6px 0 0">${miss} วันยังไม่มีข้อมูลชั่วโมงไลฟ์</p>`:''}</div>`;
 }
 
 /* ================= data view ================= */
@@ -861,6 +889,26 @@ function stack100(w,h,rows,keys,label,tipT){
 function weeksOfMonth(){ return weekList().filter(w=>mKey(w.ws)===MONTH||mKey(w.we)===MONTH); }
 charts.trMix=(w,h)=>{ const md=monthData(MONTH); let rows=weeksOfMonth().map(x=>({l:dLabel(x.ws),t:`${dLabel(x.ws)} – ${dLabel(x.we)}`,v:x.a.tr}));
   if(md.src==='month') rows=[{l:mLabel(MONTH),v:md.a.tr}]; return stack100(w,h,rows,TR); };
+charts.liveDaily=(w,h)=>{
+  const days=mList(MONTH), dm=dailyMap(); const pad={l:40,r:52,t:22,b:24}; const iw=w-pad.l-pad.r, ih=h-pad.t-pad.b; const bw=iw/days.length;
+  const recs=days.map(d=>dm.get(d)); const maxH=Math.ceil(Math.max(LIVE_H+2,...recs.map(r=>r&&r.live?r.live.h:0))/4)*4;
+  const maxS=niceMax(Math.max(1,...recs.map(r=>r?r.traffic.live:0))*1.1); const YH=v=>pad.t+ih-v/maxH*ih, YS=v=>pad.t+ih-v/maxS*ih;
+  let s=''; for(let i=0;i<=4;i++){ const y=pad.t+ih*(1-i/4); s+=`<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}"/><text x="${pad.l-6}" y="${y+4}" text-anchor="end">${Math.round(maxH*i/4)}</text><text x="${w-pad.r+6}" y="${y+4}">${BM(maxS*i/4)}</text>`; }
+  s+=`<text x="${pad.l-6}" y="${pad.t-12}" text-anchor="end">ชม.</text><text x="${w-pad.r+6}" y="${pad.t-12}">ยอดไลฟ์</text>`;
+  let line='',on=false;
+  days.forEach((d,i)=>{ const r=recs[i]; const cx=pad.l+i*bw+bw/2; const bwid=Math.max(2,bw-Math.min(6,bw*.28));
+    if(!r){ on=false; return; }
+    const lv=r.live; const st=!lv?null:lv.n>=lv.target?'full':lv.n>0?'part':'none';
+    const tipH=`<div class="t">${dLabelW(d)}</div>${lv?trow('รอบไลฟ์',`${lv.n}/${lv.target}`)+trow('ชั่วโมงไลฟ์',lv.h.toFixed(1)+' ชม.'):trow('ชั่วโมงไลฟ์','ยังไม่มีข้อมูล')}${trow('ยอดขายผ่านไลฟ์',B(r.traffic.live))}${lv&&lv.h?trow('ยอดต่อชั่วโมง',B(r.traffic.live/lv.h)):''}${lv&&lv.slots.length?`<div class="h">${lv.slots.map(esc).join(' · ')}</div>`:''}${r.note?`<div class="h">${esc(r.note)}</div>`:''}<div class="h">คลิกเพื่อดูรายละเอียด</div>`;
+    if(lv&&lv.h>0){ const y=YH(lv.h); s+=`<rect class="bar" data-day="${d}" ${tipAttr(tipH)} x="${cx-bwid/2}" y="${y}" width="${bwid}" height="${pad.t+ih-y}" rx="${Math.min(3,bwid/2)}" fill="${st==='full'?'var(--s-sales)':'var(--warn)'}"/>`; }
+    else if(lv){ s+=`<rect class="bar" data-day="${d}" ${tipAttr(tipH)} x="${cx-bwid/2}" y="${pad.t+ih-4}" width="${bwid}" height="4" rx="1" fill="var(--bad)"/><text x="${cx}" y="${pad.t+ih-8}" text-anchor="middle" style="fill:var(--bad-ink);font-weight:700">✕</text>`; }
+    else { s+=`<rect data-day="${d}" ${tipAttr(tipH)} x="${cx-bw/2}" y="${pad.t}" width="${bw}" height="${ih}" fill="transparent"/>`; }
+    line+=(on?'L':'M')+cx+' '+YS(r.traffic.live); on=true; });
+  s+=`<line x1="${pad.l}" x2="${w-pad.r}" y1="${YH(LIVE_H)}" y2="${YH(LIVE_H)}" stroke="var(--s-plan)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  s+=`<path d="${line}" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linejoin="round" pointer-events="none"/>`;
+  s+=`<line class="axis" x1="${pad.l}" x2="${w-pad.r}" y1="${pad.t+ih}" y2="${pad.t+ih}"/>`+xLabels(days.map((_,i)=>pad.l+i*bw+bw/2),days.map(d=>+d.slice(8)),h-4,w<520?4:w<800?2:1);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="ชั่วโมงไลฟ์รายวัน">${s}</svg>`;
+};
 charts.spendMix=(w,h)=>{ const md=monthData(MONTH); const keys=[...CH.filter(c=>['product','search','brand','live'].includes(c.k)),{k:'oth',n:'Shopee อื่นๆ',c:'--c6'},...CH.filter(c=>c.g==='off')];
   const pack=a=>{const v={};for(const k of keys) v[k.k]=k.k==='oth'?['brandMax','autoBid','gmvShop','otherAds'].reduce((s,x)=>s+a.ch[x].spend,0):a.ch[k.k].spend;return v;};
   let rows=weeksOfMonth().map(x=>({l:dLabel(x.ws),t:`${dLabel(x.ws)} – ${dLabel(x.we)}`,v:pack(x.a)})); if(md.src==='month') rows=[{l:mLabel(MONTH),v:pack(md.a)}];
@@ -893,6 +941,7 @@ function openDay(d){ const dm=dailyMap(); const r=dm.get(d); if(!r) return; DAY=
     </div>
     <div class="dsec"><h4>ค่าแอดและ ROAS รายช่องทาง</h4><div class="kv"><span class="muted">ช่องทาง</span><span class="muted">ค่าใช้จ่าย</span><span class="muted">ROAS</span>${chRows}</div></div>
     ${trT?`<div class="dsec"><h4>ที่มายอดขาย</h4><div class="kv">${TR.map(t=>`<span><span class="sw" style="background:var(${t.c})"></span>${t.n}</span><span>${B(r.traffic[t.k])}</span><span>${P(r.traffic[t.k]/trT,0)}</span>`).join('')}</div></div>`:''}
+    ${r.live?`<div class="dsec"><h4>ไลฟ์ ${chip(r.live.n>=r.live.target?'good':r.live.n?'warn':'bad',r.live.n>=r.live.target?'ครบ':r.live.n?'ไม่ครบ':'ไม่ได้ไลฟ์')}</h4><div class="kv"><span>รอบไลฟ์</span><span>${r.live.n}/${r.live.target}</span><span></span><span>ชั่วโมงไลฟ์</span><span>${r.live.h.toFixed(1)} ชม.</span><span class="muted">เป้า ${LIVE_H}</span><span>ยอดผ่านไลฟ์</span><span>${B(r.traffic.live)}</span><span>${r.live.h?B(r.traffic.live/r.live.h)+'/ชม.':''}</span></div>${r.live.slots.length?`<p class="muted" style="font-size:12.5px;margin:6px 0 0">${r.live.slots.map(esc).join(' · ')}</p>`:''}</div>`:''}
     ${top?`<div class="dsec"><h4>TOP 5 ตามยอดขาย</h4><div class="prods">${top}</div></div>`:''}`;
   const keys=[...dm.keys()].sort(); const i=keys.indexOf(d); $('dPrev').disabled=i<=0; $('dNext').disabled=i>=keys.length-1;
   $('drawer').hidden=false; $('scrim').hidden=false; }
