@@ -302,6 +302,8 @@ const CH=[
   {k:'cpasMeta',g:'off',n:'CPAS in Meta',full:'CPAS in Meta',c:'--c7'},
 ];
 const LIVE_N=4, LIVE_H=12; // live plan: 4 rounds × 3 h per day
+const LIVE_SLOTS=['07:30','11:30','15:30','19:30'];
+const isCampDay=d=>{const dd=+d.slice(8), mm=+d.slice(5,7); return dd===mm||dd===15||dd===25;};
 const TR=[{k:'pdp',n:'หน้ารายละเอียดสินค้า',c:'--c1'},{k:'live',n:'Live ของร้านค้า',c:'--c2'},{k:'video',n:'วิดีโอของร้านค้า',c:'--c3'},{k:'partner',n:'พาร์ทเนอร์',c:'--c4'}];
 const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const TMF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
@@ -351,7 +353,8 @@ function normRec(r){
   r.sales=+r.sales||0; r.adsSales=+r.adsSales||0; r.tags=Array.isArray(r.tags)?r.tags:[]; r.note=r.note||'';
   r.top5=(r.top5||[]).filter(x=>x&&x.name); r.top5u=(r.top5u||[]).filter(x=>x&&x.name);
   r.shop=r.shop||'s1';
-  r.live=(r.live&&typeof r.live==='object')?{n:+r.live.n||0,h:+r.live.h||0,slots:Array.isArray(r.live.slots)?r.live.slots:[],target:+r.live.target||LIVE_N}:null;
+  r.live=(r.live&&typeof r.live==='object')?{n:+r.live.n||0,h:+r.live.h||0,slots:Array.isArray(r.live.slots)?r.live.slots:[],target:+r.live.target||LIVE_N,
+    rounds:Array.isArray(r.live.rounds)?r.live.rounds.filter(x=>x&&x.sl>=0&&x.sl<LIVE_N).map(x=>({sl:+x.sl,h:+x.h||0,s:+x.s||0,o:+x.o||0,v:+x.v||0})):[]}:null;
   if(!r.ptype){ r.ptype = r.d1===r.d2?'day' : (dow(r.d1)===3&&r.d2===addD(r.d1,6))?'week' : (r.d1.endsWith('-01')&&r.d2===mKey(r.d1)+'-'+mDays(mKey(r.d1)))?'month':'custom'; }
   return r;
 }
@@ -729,6 +732,7 @@ function renderMix(){
       <p class="note">ยอดจาก Shopee Ads ${B(a.adsSales)} = ${P(a.sales?a.adsSales/a.sales:NaN,0)} ของยอดร้าน · Live ${P(a.trSum?a.tr.live/a.trSum:NaN,0)} ของยอดตามที่มา</p></div>
   </div>
   ${livePanel(md)}
+  ${roundPanel(md)}
   <div class="grid2e">
     <div class="panel"><header><h3>สินค้าขายดีตามยอดขาย</h3><span class="hint">${md.src==='month'?'TOP 5 ของรอบรายเดือน':'รวม TOP 5 รายวันทั้งเดือน'}</span></header>${prodList(ts,'sales')}</div>
     <div class="panel"><header><h3>สินค้าขายดีตามจำนวนชิ้น</h3></header>${prodList(tu,'units')}</div>
@@ -758,6 +762,41 @@ function livePanel(md){
     <div class="chart" data-chart="liveDaily" style="height:230px"></div>
     ${short?`<p class="note" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">วันที่ไลฟ์ไม่ครบ: ${short}</p>`:''}
     ${miss?`<p class="muted" style="font-size:12.5px;margin:6px 0 0">${miss} วันยังไม่มีข้อมูลชั่วโมงไลฟ์</p>`:''}</div>`;
+}
+
+function roundStats(recs){ // recs = daily records with live.rounds
+  const z=()=>({n:0,s:0,h:0,o:0,v:0}); const norm=LIVE_SLOTS.map(z), camp=LIVE_SLOTS.map(z); let days=0, cdays=0;
+  for(const r of recs){ if(!r.live||!r.live.rounds.length&&r.live.n) continue; const c=isCampDay(r.d1); if(c) cdays++; else days++;
+    for(const x of r.live.rounds){ const t=(c?camp:norm)[x.sl]; t.n++; t.s+=x.s; t.h+=x.h; t.o+=x.o; t.v+=x.v; } }
+  return {norm,camp,days,cdays};
+}
+function roundPanel(md){
+  if(md.src==='month') return '';
+  const recs=md.daily.filter(r=>r.live); if(!recs.some(r=>r.live.rounds.length)) return '';
+  const R=roundStats(recs); const avg=t=>t.n?t.s/t.n:NaN;
+  const best=R.norm.reduce((b,t,i)=>avg(t)>avg(R.norm[b])||!isFinite(avg(R.norm[b]))?i:b,0); const mx=Math.max(...R.norm.map(avg).filter(isFinite),1);
+  const rows=LIVE_SLOTS.map((nm,i)=>{ const t=R.norm[i], c=R.camp[i]; const miss=R.days-t.n;
+    return `<tr${i===best?' style="font-weight:600"':''}><td>${nm}${i===best?' ★':''}</td>
+      <td class="n">${t.n}/${R.days}${miss>0?` <span class="down" style="font-size:12px">ขาด ${miss}</span>`:''}</td>
+      <td class="n">${B(avg(t))} <span class="bar" style="width:${(avg(t)/mx*60)||0}px;margin-left:6px"></span></td>
+      <td class="n">${t.h?B(t.s/t.h):'–'}</td><td class="n">${t.n?Math.round(t.v/t.n).toLocaleString('th-TH'):'–'}</td>
+      <td class="n">${t.v?P(t.o/t.v):'–'}</td><td class="n">${c.n?B(avg(c)):'–'}</td></tr>`; }).join('');
+  const lost=LIVE_SLOTS.reduce((s,_,i)=>s+Math.max(0,R.days-R.norm[i].n)*(avg(R.norm[i])||0),0);
+  // weekday × round heat (all loaded months, normal days)
+  const all=[...dailyMap().values()].filter(r=>r.live&&!isCampDay(r.d1)); const H={};
+  for(const r of all) for(const x of r.live.rounds){ const k=dow(r.d1)+'|'+x.sl; const a=H[k]||(H[k]={s:0,n:0}); a.s+=x.s; a.n++; }
+  const hv=Object.values(H).map(a=>a.s/a.n); const hmin=Math.min(...hv), hmax=Math.max(...hv);
+  const order=[1,2,3,4,5,6,0];
+  const heat=`<div class="tbl"><table><thead><tr><th>วัน</th>${LIVE_SLOTS.map(s=>`<th class="n">${s}</th>`).join('')}</tr></thead><tbody>${order.map(dw=>`<tr><td>${TD[dw]}</td>${LIVE_SLOTS.map((_,i)=>{const a=H[dw+'|'+i]; if(!a) return '<td class="n muted">–</td>'; const v=a.s/a.n, k=(v-hmin)/((hmax-hmin)||1);
+    return `<td class="n" title="${a.n} รอบ" style="background:color-mix(in srgb, var(--s-sales) ${Math.round(8+k*55)}%, transparent);${k>.6?'color:#fff;font-weight:600':''}">${BM(v)}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
+  const nAll=new Set(all.map(r=>mKey(r.d1))).size;
+  return `<div class="grid2">
+    <div class="panel"><header><h3>ยอดขายตามรอบไลฟ์</h3><span class="hint">${mLabel(MONTH,true)} · วันปกติ ${R.days} วัน${R.cdays?` · วันแคมเปญ ${R.cdays} วัน แยกไว้คอลัมน์ขวาสุด`:''}</span></header>
+      <div class="tbl"><table><thead><tr><th>รอบ</th><th class="n">ไลฟ์</th><th class="n">ยอดเฉลี่ย/รอบ</th><th class="n">ยอด/ชม.</th><th class="n">คนดู/รอบ</th><th class="n">อัตราสั่งซื้อ</th><th class="n">วันแคมเปญ</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="note">★ = รอบที่ยอดเฉลี่ยสูงสุด · ยอด = ยอดขายยืนยันแล้วระหว่างไลฟ์รอบนั้น · อัตราสั่งซื้อ = คำสั่งซื้อ ÷ คนดู${lost>0?`<br>รอบที่ขาดในวันปกติ คิดเป็นยอดที่อาจเสียไปราว <b>${B(lost)}</b> (จำนวนรอบที่ขาด × ยอดเฉลี่ยของรอบนั้น)`:''}</p></div>
+    <div class="panel"><header><h3>ยอดเฉลี่ยต่อรอบ ตามวันในสัปดาห์</h3><span class="hint">วันปกติ ${nAll>1?`รวม ${nAll} เดือนที่มีข้อมูล`:''} · สีเข้ม = ขายดี</span></header>${heat}
+      <p class="note">ใช้ดูว่าวันไหนควรใส่คนไลฟ์หลักหรือ Live Ads รอบไหน ชี้ที่ช่องเพื่อดูจำนวนรอบที่ใช้คำนวณ</p></div>
+  </div>`;
 }
 
 /* ================= data view ================= */
@@ -941,7 +980,7 @@ function openDay(d){ const dm=dailyMap(); const r=dm.get(d); if(!r) return; DAY=
     </div>
     <div class="dsec"><h4>ค่าแอดและ ROAS รายช่องทาง</h4><div class="kv"><span class="muted">ช่องทาง</span><span class="muted">ค่าใช้จ่าย</span><span class="muted">ROAS</span>${chRows}</div></div>
     ${trT?`<div class="dsec"><h4>ที่มายอดขาย</h4><div class="kv">${TR.map(t=>`<span><span class="sw" style="background:var(${t.c})"></span>${t.n}</span><span>${B(r.traffic[t.k])}</span><span>${P(r.traffic[t.k]/trT,0)}</span>`).join('')}</div></div>`:''}
-    ${r.live?`<div class="dsec"><h4>ไลฟ์ ${chip(r.live.n>=r.live.target?'good':r.live.n?'warn':'bad',r.live.n>=r.live.target?'ครบ':r.live.n?'ไม่ครบ':'ไม่ได้ไลฟ์')}</h4><div class="kv"><span>รอบไลฟ์</span><span>${r.live.n}/${r.live.target}</span><span></span><span>ชั่วโมงไลฟ์</span><span>${r.live.h.toFixed(1)} ชม.</span><span class="muted">เป้า ${LIVE_H}</span><span>ยอดผ่านไลฟ์</span><span>${B(r.traffic.live)}</span><span>${r.live.h?B(r.traffic.live/r.live.h)+'/ชม.':''}</span></div>${r.live.slots.length?`<p class="muted" style="font-size:12.5px;margin:6px 0 0">${r.live.slots.map(esc).join(' · ')}</p>`:''}</div>`:''}
+    ${r.live?`<div class="dsec"><h4>ไลฟ์ ${chip(r.live.n>=r.live.target?'good':r.live.n?'warn':'bad',r.live.n>=r.live.target?'ครบ':r.live.n?'ไม่ครบ':'ไม่ได้ไลฟ์')}</h4><div class="kv"><span>รอบไลฟ์</span><span>${r.live.n}/${r.live.target}</span><span></span><span>ชั่วโมงไลฟ์</span><span>${r.live.h.toFixed(1)} ชม.</span><span class="muted">เป้า ${LIVE_H}</span><span>ยอดผ่านไลฟ์</span><span>${B(r.traffic.live)}</span><span>${r.live.h?B(r.traffic.live/r.live.h)+'/ชม.':''}</span></div>${r.live.rounds.length?`<div class="kv" style="margin-top:8px"><span class="muted">รอบ</span><span class="muted">ยอดขาย</span><span class="muted">คนดู · สั่งซื้อ</span>${LIVE_SLOTS.map((nm,i)=>{const x=r.live.rounds.find(q=>q.sl===i); return x?`<span>${nm} <span class="muted">(${x.h.toFixed(1)} ชม.)</span></span><span>${B(x.s)}</span><span>${x.v.toLocaleString('th-TH')} · ${x.o}</span>`:`<span class="down">${nm}</span><span class="down">ไม่ได้ไลฟ์</span><span></span>`;}).join('')}</div>`:''}${r.live.slots.length?`<p class="muted" style="font-size:12.5px;margin:6px 0 0">${r.live.slots.map(esc).join(' · ')}</p>`:''}</div>`:''}
     ${top?`<div class="dsec"><h4>TOP 5 ตามยอดขาย</h4><div class="prods">${top}</div></div>`:''}`;
   const keys=[...dm.keys()].sort(); const i=keys.indexOf(d); $('dPrev').disabled=i<=0; $('dNext').disabled=i>=keys.length-1;
   $('drawer').hidden=false; $('scrim').hidden=false; }
