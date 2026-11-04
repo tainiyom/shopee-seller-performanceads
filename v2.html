@@ -338,7 +338,7 @@ const range=(a,b)=>{const o=[];for(let d=a;d<=b;d=addD(d,1))o.push(d);return o;}
 const todayIso=()=>{const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;};
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2600);}
-function niceMax(v){if(v<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(v)));const f=v/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e;}
+function niceMax(v){if(v<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(v)));const f=v/e;return ([1,1.2,1.6,2,2.4,3,4,5,6,7,8,10].find(s=>f<=s+1e-9))*e;}
 
 /* ================= state ================= */
 let SHOPS=[], RECS=[], IMAGES={}, SRC={kind:'none',label:'ไม่มีข้อมูล'};
@@ -861,7 +861,7 @@ function lineChart(w,h,{labels,series,target,fmtY,maxY,tips,every,onKey,ticks}){
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${s}</svg>`;
 }
 charts.roiDaily=(w,h)=>{ const days=mList(MONTH), dm=dailyMap(); const v=days.map(d=>{const r=dm.get(d);if(!r)return null;const sp=spendOf(r);return sp?r.sales/sp:null;});
-  return lineChart(w,h,{labels:days.map(d=>+d.slice(8)),series:[{v,c:'var(--s-roi)',dots:true}],target:roiTarget(MONTH),fmtY:x=>x.toFixed(0),every:w<520?4:w<800?2:1,tips:days.map(d=>dm.get(d)?dayTip(dm.get(d)):null),onKey:{k:'day',v:days}}); };
+  return lineChart(w,h,{labels:days.map(d=>+d.slice(8)),series:[{v,c:'var(--s-roi)',dots:true}],target:roiTarget(MONTH),fmtY:x=>+x.toFixed(1),ticks:4,every:w<520?4:w<800?2:1,tips:days.map(d=>dm.get(d)?dayTip(dm.get(d)):null),onKey:{k:'day',v:days}}); };
 charts.burn=(w,h)=>{
   const K=monthKpis(MONTH); const {md,plan}=K; const days=mList(MONTH); const dm=dailyMap();
   if(md.src==='month'){ return `<p class="empty">เดือนนี้มีเฉพาะรอบรายเดือน · ยอดรวม ${B(md.a.sales)}${plan?` = ${P(md.a.sales/K.target,0)} ของเป้า`:''}</p>`; }
