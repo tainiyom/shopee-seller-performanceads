@@ -353,6 +353,7 @@ function normRec(r){
   r.sales=+r.sales||0; r.adsSales=+r.adsSales||0; r.tags=Array.isArray(r.tags)?r.tags:[]; r.note=r.note||'';
   r.top5=(r.top5||[]).filter(x=>x&&x.name); r.top5u=(r.top5u||[]).filter(x=>x&&x.name);
   r.shop=r.shop||'s1';
+  for(const k of ['visitors','clicks','pageViews','orders']) r[k]=r[k]!=null&&r[k]!==''&&isFinite(+r[k])?+r[k]:null;
   r.live=(r.live&&typeof r.live==='object')?{n:+r.live.n||0,h:+r.live.h||0,slots:Array.isArray(r.live.slots)?r.live.slots:[],target:+r.live.target||LIVE_N,
     rounds:Array.isArray(r.live.rounds)?r.live.rounds.filter(x=>x&&x.sl>=0&&x.sl<LIVE_N).map(x=>({sl:+x.sl,h:+x.h||0,s:+x.s||0,o:+x.o||0,v:+x.v||0})):[]}:null;
   if(!r.ptype){ r.ptype = r.d1===r.d2?'day' : (dow(r.d1)===3&&r.d2===addD(r.d1,6))?'week' : (r.d1.endsWith('-01')&&r.d2===mKey(r.d1)+'-'+mDays(mKey(r.d1)))?'month':'custom'; }
@@ -731,12 +732,35 @@ function renderMix(){
     <div class="panel"><header><h3>รวมทั้งช่วง</h3></header><div class="tbl"><table><thead><tr><th>ที่มา</th><th class="n">ยอดขาย</th><th class="n">สัดส่วน</th></tr></thead><tbody>${trRows}</tbody></table></div>
       <p class="note">ยอดจาก Shopee Ads ${B(a.adsSales)} = ${P(a.sales?a.adsSales/a.sales:NaN,0)} ของยอดร้าน · Live ${P(a.trSum?a.tr.live/a.trSum:NaN,0)} ของยอดตามที่มา</p></div>
   </div>
+  ${trafficPanel(md)}
   ${livePanel(md)}
   ${roundPanel(md)}
   <div class="grid2e">
     <div class="panel"><header><h3>สินค้าขายดีตามยอดขาย</h3><span class="hint">${md.src==='month'?'TOP 5 ของรอบรายเดือน':'รวม TOP 5 รายวันทั้งเดือน'}</span></header>${prodList(ts,'sales')}</div>
     <div class="panel"><header><h3>สินค้าขายดีตามจำนวนชิ้น</h3></header>${prodList(tu,'units')}</div>
   </div>`;
+}
+
+/* ================= visitors & clicks ================= */
+const NUM=v=>v==null||!isFinite(v)?'–':Math.round(v).toLocaleString('th-TH');
+function trafficPanel(md){
+  if(md.src==='month') return '';
+  const ds=md.daily.filter(r=>r.visitors!=null); if(!ds.length) return '';
+  const sum=k=>ds.reduce((s,r)=>s+(r[k]||0),0); const V=sum('visitors'), C=sum('clicks'), O=ds.filter(r=>r.orders!=null).reduce((s,r)=>s+r.orders,0);
+  const best=ds.reduce((b,r)=>r.visitors>b.visitors?r:b), low=ds.reduce((b,r)=>r.visitors<b.visitors?r:b);
+  const ms=allMonths(); const pm=ms[ms.indexOf(MONTH)-1]; const pmd=pm?monthData(pm):null; const pds=pmd&&pmd.daily?pmd.daily.filter(r=>r.visitors!=null):[];
+  const pV=pds.length?pds.reduce((s,r)=>s+r.visitors,0)/pds.length:NaN, pC=pds.length?pds.reduce((s,r)=>s+(r.clicks||0),0)/pds.length:NaN;
+  const miss=md.daily.length-ds.length;
+  return `<div class="panel"><header><h3>ผู้เยี่ยมชม &amp; จำนวนคลิก</h3><span class="hint">แท่ง = ผู้เยี่ยมชม · เส้น = คลิกสินค้า (ข้อมูล Business Insights)</span><span class="sp"></span>
+    <div class="legend"><span><i style="background:var(--c3)"></i>ผู้เยี่ยมชม</span><span><i class="ln" style="background:var(--c7)"></i>คลิก</span></div></header>
+    <div class="kpis" style="margin-bottom:10px">
+      <div class="kpi"><div class="lb">ผู้เยี่ยมชมเฉลี่ย/วัน</div><div class="v num">${NUM(V/ds.length)}<small>คน</small></div><div class="s">รวม ${NUM(V)} คน · ${ds.length} วัน${isFinite(pV)?` · vs เดือนก่อน ${dlt(pct(V/ds.length,pV))}`:''}</div></div>
+      <div class="kpi"><div class="lb">คลิกเฉลี่ย/วัน</div><div class="v num">${NUM(C/ds.length)}<small>ครั้ง</small></div><div class="s">รวม ${NUM(C)} · ${(C/V).toFixed(2)} คลิก/คน${isFinite(pC)?` · vs เดือนก่อน ${dlt(pct(C/ds.length,pC))}`:''}</div></div>
+      <div class="kpi"><div class="lb">ผู้เยี่ยมชม → สั่งซื้อ</div><div class="v num">${P(O/V)}</div><div class="s">${NUM(O)} คำสั่งซื้อ · ยอด/ผู้เยี่ยมชม ${B(ds.reduce((s,r)=>s+r.sales,0)/V)}</div></div>
+    </div>
+    <div class="chart" data-chart="visitDaily" style="height:230px"></div>
+    <p class="note">สูงสุด <span class="tag" style="cursor:pointer" data-day="${best.d1}">${dLabel(best.d1)} · ${NUM(best.visitors)} คน</span> · ต่ำสุด <span class="tag" style="cursor:pointer" data-day="${low.d1}">${dLabel(low.d1)} · ${NUM(low.visitors)} คน</span></p>
+    ${miss?`<p class="muted" style="font-size:12.5px;margin:6px 0 0">${miss} วันยังไม่มีข้อมูลผู้เยี่ยมชม</p>`:''}</div>`;
 }
 
 /* ================= live hours ================= */
@@ -948,6 +972,23 @@ charts.liveDaily=(w,h)=>{
   s+=`<line class="axis" x1="${pad.l}" x2="${w-pad.r}" y1="${pad.t+ih}" y2="${pad.t+ih}"/>`+xLabels(days.map((_,i)=>pad.l+i*bw+bw/2),days.map(d=>+d.slice(8)),h-4,w<520?4:w<800?2:1);
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="ชั่วโมงไลฟ์รายวัน">${s}</svg>`;
 };
+charts.visitDaily=(w,h)=>{
+  const days=mList(MONTH), dm=dailyMap(); const pad={l:44,r:48,t:22,b:24}; const iw=w-pad.l-pad.r, ih=h-pad.t-pad.b; const bw=iw/days.length;
+  const recs=days.map(d=>dm.get(d)); const has=r=>r&&r.visitors!=null;
+  const maxV=niceMax(Math.max(1,...recs.map(r=>has(r)?r.visitors:0))*1.08), maxC=niceMax(Math.max(1,...recs.map(r=>has(r)?r.clicks||0:0))*1.08);
+  const YV=v=>pad.t+ih-v/maxV*ih, YC=v=>pad.t+ih-v/maxC*ih; const K=v=>v>=1000?+(v/1000).toFixed(2)+'k':Math.round(v);
+  let s=''; for(let i=0;i<=4;i++){ const y=pad.t+ih*(1-i/4); s+=`<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}"/><text x="${pad.l-6}" y="${y+4}" text-anchor="end">${K(maxV*i/4)}</text><text x="${w-pad.r+6}" y="${y+4}">${K(maxC*i/4)}</text>`; }
+  s+=`<text x="${pad.l-6}" y="${pad.t-12}" text-anchor="end">คน</text><text x="${w-pad.r+6}" y="${pad.t-12}">คลิก</text>`;
+  let line='',on=false;
+  days.forEach((d,i)=>{ const r=recs[i]; const cx=pad.l+i*bw+bw/2; const bwid=Math.max(2,bw-Math.min(6,bw*.28));
+    if(!has(r)){ on=false; return; }
+    const tipT=`<div class="t">${dLabelW(d)}</div>${trow('ผู้เยี่ยมชม',NUM(r.visitors)+' คน')}${trow('คลิกสินค้า',NUM(r.clicks))}${r.visitors?trow('คลิก/คน',(r.clicks/r.visitors).toFixed(2)):''}${r.orders!=null?trow('คำสั่งซื้อ',NUM(r.orders)+` (${P(r.orders/r.visitors)})`):''}${trow('ยอดขาย',B(r.sales))}${r.live?trow('ไลฟ์',`${r.live.n}/${r.live.target} รอบ`):''}<div class="h">คลิกเพื่อดูรายละเอียด</div>`;
+    const y=YV(r.visitors); s+=`<rect class="bar" data-day="${d}" ${tipAttr(tipT)} x="${cx-bwid/2}" y="${y}" width="${bwid}" height="${pad.t+ih-y}" rx="${Math.min(3,bwid/2)}" fill="var(--c3)" fill-opacity=".8"/>`;
+    if(r.clicks!=null){ line+=(on?'L':'M')+cx+' '+YC(r.clicks); on=true; } });
+  s+=`<path d="${line}" fill="none" stroke="var(--c7)" stroke-width="2" stroke-linejoin="round" pointer-events="none"/>`;
+  s+=`<line class="axis" x1="${pad.l}" x2="${w-pad.r}" y1="${pad.t+ih}" y2="${pad.t+ih}"/>`+xLabels(days.map((_,i)=>pad.l+i*bw+bw/2),days.map(d=>+d.slice(8)),h-4,w<520?4:w<800?2:1);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="ผู้เยี่ยมชมและคลิกรายวัน">${s}</svg>`;
+};
 charts.spendMix=(w,h)=>{ const md=monthData(MONTH); const keys=[...CH.filter(c=>['product','search','brand','live'].includes(c.k)),{k:'oth',n:'Shopee อื่นๆ',c:'--c6'},...CH.filter(c=>c.g==='off')];
   const pack=a=>{const v={};for(const k of keys) v[k.k]=k.k==='oth'?['brandMax','autoBid','gmvShop','otherAds'].reduce((s,x)=>s+a.ch[x].spend,0):a.ch[k.k].spend;return v;};
   let rows=weeksOfMonth().map(x=>({l:dLabel(x.ws),t:`${dLabel(x.ws)} – ${dLabel(x.we)}`,v:pack(x.a)})); if(md.src==='month') rows=[{l:mLabel(MONTH),v:pack(md.a)}];
@@ -980,6 +1021,7 @@ function openDay(d){ const dm=dailyMap(); const r=dm.get(d); if(!r) return; DAY=
     </div>
     <div class="dsec"><h4>ค่าแอดและ ROAS รายช่องทาง</h4><div class="kv"><span class="muted">ช่องทาง</span><span class="muted">ค่าใช้จ่าย</span><span class="muted">ROAS</span>${chRows}</div></div>
     ${trT?`<div class="dsec"><h4>ที่มายอดขาย</h4><div class="kv">${TR.map(t=>`<span><span class="sw" style="background:var(${t.c})"></span>${t.n}</span><span>${B(r.traffic[t.k])}</span><span>${P(r.traffic[t.k]/trT,0)}</span>`).join('')}</div></div>`:''}
+    ${r.visitors!=null?`<div class="dsec"><h4>ผู้เยี่ยมชม &amp; คลิก</h4><div class="kv"><span>ผู้เยี่ยมชม</span><span>${NUM(r.visitors)} คน</span><span>${prevR&&prevR.visitors?'vs '+TD[dow(d)]+'ก่อน '+dlt(pct(r.visitors,prevR.visitors)):''}</span><span>คลิกสินค้า</span><span>${NUM(r.clicks)}</span><span class="muted">${r.visitors?(r.clicks/r.visitors).toFixed(2)+' คลิก/คน':''}</span>${r.orders!=null?`<span>คำสั่งซื้อ</span><span>${NUM(r.orders)}</span><span class="muted">${P(r.orders/r.visitors)} ของผู้เยี่ยมชม</span>`:''}</div></div>`:''}
     ${r.live?`<div class="dsec"><h4>ไลฟ์ ${chip(r.live.n>=r.live.target?'good':r.live.n?'warn':'bad',r.live.n>=r.live.target?'ครบ':r.live.n?'ไม่ครบ':'ไม่ได้ไลฟ์')}</h4><div class="kv"><span>รอบไลฟ์</span><span>${r.live.n}/${r.live.target}</span><span></span><span>ชั่วโมงไลฟ์</span><span>${r.live.h.toFixed(1)} ชม.</span><span class="muted">เป้า ${LIVE_H}</span><span>ยอดผ่านไลฟ์</span><span>${B(r.traffic.live)}</span><span>${r.live.h?B(r.traffic.live/r.live.h)+'/ชม.':''}</span></div>${r.live.rounds.length?`<div class="kv" style="margin-top:8px"><span class="muted">รอบ</span><span class="muted">ยอดขาย</span><span class="muted">คนดู · สั่งซื้อ</span>${LIVE_SLOTS.map((nm,i)=>{const x=r.live.rounds.find(q=>q.sl===i); return x?`<span>${nm} <span class="muted">(${x.h.toFixed(1)} ชม.)</span></span><span>${B(x.s)}</span><span>${x.v.toLocaleString('th-TH')} · ${x.o}</span>`:`<span class="down">${nm}</span><span class="down">ไม่ได้ไลฟ์</span><span></span>`;}).join('')}</div>`:''}${r.live.slots.length?`<p class="muted" style="font-size:12.5px;margin:6px 0 0">${r.live.slots.map(esc).join(' · ')}</p>`:''}</div>`:''}
     ${top?`<div class="dsec"><h4>TOP 5 ตามยอดขาย</h4><div class="prods">${top}</div></div>`:''}`;
   const keys=[...dm.keys()].sort(); const i=keys.indexOf(d); $('dPrev').disabled=i<=0; $('dNext').disabled=i>=keys.length-1;

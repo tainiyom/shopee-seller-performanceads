@@ -1523,7 +1523,7 @@ async function saveRecord(asNew){
   const updating = !!editingId && !asNew;
   const id = updating ? editingId : ('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
   const old = records.find(x=>x.id===id);
-  const rec = {...f, ...(old&&old.live&&!f.live&&updating?{live:old.live}:{}), id, shop:(old&&old.shop)||curShop, createdAt:(old&&old.createdAt)||(old&&old.savedAt)||new Date().toISOString(), savedAt:new Date().toISOString()};
+  const rec = {...f, ...(old&&old.live&&!f.live&&updating?{live:old.live}:{}), ...(old&&updating?Object.fromEntries(['visitors','clicks','pageViews','orders'].filter(k=>old[k]!=null&&f[k]==null).map(k=>[k,old[k]])):{}), id, shop:(old&&old.shop)||curShop, createdAt:(old&&old.createdAt)||(old&&old.savedAt)||new Date().toISOString(), savedAt:new Date().toISOString()};
   if(!rec.ptype) rec.ptype=guessType(rec.d1,rec.d2);
   const i = records.findIndex(x=>x.id===id); if(i>=0) records[i]=rec; else records.push(rec);
   selected.add(id);
