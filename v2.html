@@ -78,6 +78,7 @@ button{cursor:pointer}
 .btn:hover{background:var(--sunk)}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn.pri:hover{filter:brightness(.95)}
+a.btn{text-decoration:none;color:var(--ink);display:inline-block}
 .btn.sm{padding:3px 9px;font-size:12px}
 
 main{padding-block:18px 48px;display:grid;gap:16px}
@@ -164,6 +165,8 @@ td .bar{display:inline-block;height:6px;border-radius:3px;background:var(--s-sal
 .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:-1px}
 .dl{font-size:12px;font-weight:600}
 .muted{color:var(--ink-3)}
+.cpm{display:inline-grid;place-items:center;width:30px;height:30px;margin:1px 4px 1px 0;border-radius:7px;border:1px solid var(--line-2);background:var(--sunk);color:var(--ink);text-decoration:none;font-size:13px}
+.cpm:hover{border-color:var(--accent);color:var(--accent)} .cpm.off{opacity:.45}
 .note{font-size:12.5px;color:var(--ink-3);margin:10px 0 0;line-height:1.55}
 
 /* products */
@@ -725,7 +728,10 @@ function cpasDecode(){ // per day record: data.cpas = {camps:"id^name^st^obj^bud
     for(const x of String(r.cpas.rows||'').split(';')){ if(!x) continue; const a=x.split(','); const c=cs[parseInt(a[1],36)]; if(!c) continue;
       rows.push({d:r.d1,id:c[0].replace(/\s/g,''),sp:parseInt(a[2],36)/100,sa:parseInt(a[3],36)||0,o:parseInt(a[4],36)||0,clk:parseInt(a[5],36)||0,im:parseInt(a[6],36)||0}); }
   }
-  return {meta,rows,days:recs.map(r=>r.d1),at:recs.length?recs[recs.length-1].cpas.at:null};
+  const media=new Map(); const mr=[...recs].reverse().find(r=>r.cpas.media); // "campId^V|I^A|P|W^fb.me code~…"
+  if(mr) for(const x of String(mr.cpas.media).split('~')){ const a=x.split('^'); if(a.length<4) continue; const id=a[0].replace(/\s/g,''); (media.get(id)||media.set(id,[]).get(id)).push({t:a[1],st:a[2],u:'https://fb.me/'+a[3]}); }
+  for(const v of media.values()) v.sort((a,b)=>(a.st==='A'?0:1)-(b.st==='A'?0:1));
+  return {meta,rows,media,days:recs.map(r=>r.d1),at:recs.length?recs[recs.length-1].cpas.at:null};
 }
 function cpasRange(days){ if(!days.length) return [null,null]; const L=days[days.length-1];
   if(CP.rg==='last') return [L,L]; if(CP.rg==='7') return [addD(L,-6),L]; if(CP.rg==='14') return [addD(L,-13),L];
@@ -734,7 +740,7 @@ const cpZ=()=>({sp:0,sa:0,o:0,clk:0,im:0});
 const cpAdd=(a,r)=>{a.sp+=r.sp;a.sa+=r.sa;a.o+=r.o;a.clk+=r.clk;a.im+=r.im;return a;};
 function cpRoasChip(roas,obj,t){ if(!isFinite(roas)) return '<span class="muted">–</span>'; const st=statusOf(roas/t,1,.6); return `<span class="chip ${st}">${roas.toFixed(2)}</span>`; }
 function renderCpas(){
-  const el=$('v-cpas'); const {meta,rows,days,at}=cpasDecode();
+  const el=$('v-cpas'); const {meta,rows,media,days,at}=cpasDecode();
   if(!rows.length){ el.innerHTML=`<div class="panel empty"><h3>ยังไม่มีข้อมูลแคมเปญ CPAS</h3><p>ข้อมูลแคมเปญรายวันจะขึ้นเมื่อบันทึกรอบรายวันที่มีข้อมูล CPAS (Meta) แล้ว</p></div>`; return; }
   const [f,t]=cpasRange(days); const T=roiTarget(MONTH||mKey(t));
   const inR=rows.filter(r=>r.d>=f&&r.d<=t);
@@ -750,10 +756,14 @@ function renderCpas(){
   const th=(k,l,n)=>`<th class="${n?'n ':''}cps" data-cs="${k}" style="cursor:pointer">${l}${CP.sort===k?(CP.dir<0?' ▾':' ▴'):''}</th>`;
   const dot=s=>`<span title="${s==='A'?'เปิดอยู่':'ปิดอยู่'}" style="display:inline-block;width:28px;height:16px;border-radius:9px;vertical-align:middle;position:relative;background:${s==='A'?'var(--accent)':'var(--line-2)'}"><i style="position:absolute;top:2px;${s==='A'?'right':'left'}:2px;width:12px;height:12px;border-radius:50%;background:#fff"></i></span>`;
   const cell=(a,b)=>{ const roas=a.sp?a.sa/a.sp:NaN; return `<td class="n num">${a.sp?B(a.sp):'–'}</td><td class="n num">${a.sa?B(a.sa):'–'}</td><td class="n">${cpRoasChip(roas,b,T)}</td><td class="n num">${a.o||'–'}</td><td class="n num">${a.o?B(a.sp/a.o):'–'}</td><td class="n num">${a.clk?NUM(a.clk):'–'}</td><td class="n num">${a.clk?'฿'+(a.sp/a.clk).toFixed(2):'–'}</td><td class="n num">${a.im?NUM(a.im):'–'}</td><td class="n num">${a.im?P(a.clk/a.im,2):'–'}</td>`; };
+  const AM='https://adsmanager.facebook.com/adsmanager/manage/ads?act=1023296806789965&selected_campaign_ids=';
+  const mCell=id=>{ const m=media.get(id)||[]; if(!m.length) return '<td class="muted">–</td>';
+    return `<td style="white-space:normal;min-width:96px">${m.slice(0,4).map((x,i)=>`<a class="cpm${x.st==='A'?'':' off'}" href="${esc(x.u)}" target="_blank" rel="noopener" title="${x.t==='V'?'วิดีโอ':'ภาพ'} · ${x.st==='A'?'เปิดอยู่':x.st==='W'?'มีปัญหา':'ปิดอยู่'} · เปิดดูตัวอย่างโฆษณา">${x.t==='V'?'▶':'▣'}</a>`).join('')}${m.length>4?`<span class="muted" style="font-size:11.5px">+${m.length-4}</span>`:''}</td>`; };
   let body='';
   for(const c of list){ const open=CP.open===c.id;
-    body+=`<tr class="click" data-cpid="${esc(c.id)}"><td>${dot(c.st)}</td><td style="white-space:normal;min-width:240px"><b style="font-weight:600">${open?'▾':'▸'} ${esc(c.n)}</b><div class="muted" style="font-size:11.5px">${esc(c.id)} · สร้าง ${esc(c.cr)}</div></td><td>${c.st==='A'?(c.sp>0?'<span class="chip good">ใช้งานอยู่</span>':'<span class="chip warn">ไม่มีการใช้จ่าย</span>'):'<span class="chip mute">ปิดอยู่</span>'}</td><td>${c.obj==='sales'?'ยอดขาย':'ทราฟฟิก'}</td><td class="n num">${c.b?B(c.b)+'/วัน':'–'}</td>${cell(c,c.obj)}</tr>`;
-    if(open) for(const [d,a] of [...c.days.entries()].sort((x,y)=>x[0]<y[0]?1:-1)) body+=`<tr class="sub" style="font-weight:400"><td></td><td colspan="4" style="font-weight:500">${dLabelW(d)}</td>${cell(a,c.obj)}</tr>`;
+    body+=`<tr class="click" data-cpid="${esc(c.id)}"><td>${dot(c.st)}</td><td style="white-space:normal;min-width:240px"><b style="font-weight:600">${open?'▾':'▸'} ${esc(c.n)}</b><div class="muted" style="font-size:11.5px">${esc(c.id)} · สร้าง ${esc(c.cr)}</div></td><td>${c.st==='A'?(c.sp>0?'<span class="chip good">ใช้งานอยู่</span>':'<span class="chip warn">ไม่มีการใช้จ่าย</span>'):'<span class="chip mute">ปิดอยู่</span>'}</td>${mCell(c.id)}<td>${c.obj==='sales'?'ยอดขาย':'ทราฟฟิก'}</td><td class="n num">${c.b?B(c.b)+'/วัน':'–'}</td>${cell(c,c.obj)}</tr>`;
+    if(open){ const m=media.get(c.id)||[]; body+=`<tr class="sub" style="font-weight:400"><td></td><td colspan="14" style="white-space:normal"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="muted">สื่อในแคมเปญ ${m.length} ชิ้น</span>${m.map((x,i)=>`<a class="btn sm" href="${esc(x.u)}" target="_blank" rel="noopener">${x.t==='V'?'▶ วิดีโอ':'▣ ภาพ'} ${i+1}${x.st==='A'?'':' (ปิด)'}</a>`).join('')}<a class="btn sm" href="${AM+esc(c.id)}" target="_blank" rel="noopener">เปิดใน Ads Manager ↗</a></div></td></tr>`; }
+    if(open) for(const [d,a] of [...c.days.entries()].sort((x,y)=>x[0]<y[0]?1:-1)) body+=`<tr class="sub" style="font-weight:400"><td></td><td colspan="5" style="font-weight:500">${dLabelW(d)}</td>${cell(a,c.obj)}</tr>`;
   }
   // per-day totals
   const dd=new Map(); for(const r of inR.filter(r=>list.some(c=>c.id===r.id))) dd.set(r.d,cpAdd(dd.get(r.d)||cpZ(),r));
@@ -774,14 +784,15 @@ function renderCpas(){
     <div class="kpi"><div class="lb">การแสดงผล</div><div class="v num">${NUM(tot.im)}</div><div class="s">CPM <b>${tot.im?B(tot.sp/tot.im*1000):'–'}</b></div></div>
   </div>
   <div class="panel"><header><h3>แคมเปญ</h3><span class="hint">กดหัวคอลัมน์เพื่อเรียง · กดแถวเพื่อดูรายวัน</span></header>
-  <div class="tbl"><table><thead><tr>${th('st','ปิด/เปิด')}${th('n','แคมเปญ')}<th>การส่งมอบ</th><th>เป้าหมาย</th>${th('b','งบ',1)}${th('sp','ใช้จ่าย',1)}${th('sa','ยอดขาย',1)}${th('roas','ROAS',1)}${th('o','ออเดอร์',1)}${th('cpo','ต่อออเดอร์',1)}${th('clk','คลิกลิงก์',1)}${th('cpc','CPC',1)}${th('im','แสดงผล',1)}${th('ctr','CTR',1)}</tr></thead>
-  <tbody>${body||'<tr><td colspan="14" class="muted">ไม่มีแคมเปญตามตัวกรอง</td></tr>'}</tbody>
-  <tfoot><tr class="tot"><td></td><td colspan="4">ผลลัพธ์จาก ${list.length} แคมเปญ</td>${cell(tot,'sales')}</tr></tfoot></table></div></div>
+  <div class="tbl"><table><thead><tr>${th('st','ปิด/เปิด')}${th('n','แคมเปญ')}<th>การส่งมอบ</th><th>สื่อ</th><th>เป้าหมาย</th>${th('b','งบ',1)}${th('sp','ใช้จ่าย',1)}${th('sa','ยอดขาย',1)}${th('roas','ROAS',1)}${th('o','ออเดอร์',1)}${th('cpo','ต่อออเดอร์',1)}${th('clk','คลิกลิงก์',1)}${th('cpc','CPC',1)}${th('im','แสดงผล',1)}${th('ctr','CTR',1)}</tr></thead>
+  <tbody>${body||'<tr><td colspan="15" class="muted">ไม่มีแคมเปญตามตัวกรอง</td></tr>'}</tbody>
+  <tfoot><tr class="tot"><td></td><td colspan="5">ผลลัพธ์จาก ${list.length} แคมเปญ</td>${cell(tot,'sales')}</tr></tfoot></table></div></div>
   <div class="panel"><header><h3>รวมรายวัน</h3><span class="hint">แคมเปญตามตัวกรอง</span></header><div class="tbl"><table><thead><tr><th>วัน</th><th class="n">ใช้จ่าย</th><th class="n">ยอดขาย</th><th></th><th class="n">ROAS</th><th class="n">ออเดอร์</th><th class="n">คลิก</th></tr></thead><tbody>
   ${dRows.map(([d,a])=>`<tr><td>${dLabelW(d)}</td><td class="n num">${B(a.sp)}</td><td class="n num">${B(a.sa)}</td><td style="width:30%"><span class="bar" style="width:${(a.sa/mx*100).toFixed(1)}%"></span></td><td class="n">${cpRoasChip(a.sp?a.sa/a.sp:NaN,'sales',T)}</td><td class="n num">${NUM(a.o)}</td><td class="n num">${NUM(a.clk)}</td></tr>`).join('')}</tbody></table></div></div>`;
   const qi=$('cpQ'); qi.oninput=()=>{ CP.q=qi.value; const p=qi.selectionStart; renderCpas(); const n=$('cpQ'); n.focus(); n.setSelectionRange(p,p); };
 }
 $('v-cpas').addEventListener('click',e=>{
+  if(e.target.closest('a')) return;
   const b=e.target.closest('[data-cp]'); if(b){ CP[b.dataset.cp]=b.dataset.v; renderCpas(); return; }
   const h=e.target.closest('[data-cs]'); if(h){ const k=h.dataset.cs; if(CP.sort===k) CP.dir*=-1; else { CP.sort=k; CP.dir=(k==='n'||k==='st')?1:-1; } renderCpas(); return; }
   const r=e.target.closest('[data-cpid]'); if(r){ CP.open=CP.open===r.dataset.cpid?null:r.dataset.cpid; renderCpas(); }
