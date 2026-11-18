@@ -350,6 +350,7 @@ let SHOPS=[], RECS=[], IMAGES={}, SRC={kind:'none',label:'ไม่มีข้�
 let SHOP=null, MONTH=null, VIEW='overview';
 let PLANS_LOCAL=lsGet(LS.plans,{});
 let FB=null;
+let VTOP=[]; // sp_video_top rows: {shop_id,month,kind:'product'|'clip',data}
 
 /* ================= data model ================= */
 function normRec(r){
@@ -459,6 +460,7 @@ async function sbPull(pub){
     const shops=await sbAllRows(()=>{ let q=SB.from('sp_shops').select('id,name,data'); return pub&&!SBU?q.eq('id',pub):q; });
     const recs=await sbAllRows(()=>{ let q=SB.from('sp_records').select('id,shop_id,data'); return pub&&!SBU?q.eq('shop_id',pub):q; });
     const prods=await sbAllRows(()=>{ let q=SB.from('sp_products').select('shop_id,data'); return pub&&!SBU?q.eq('shop_id',pub):q; });
+    try{ VTOP=await sbAllRows(()=>{ let q=SB.from('sp_video_top').select('shop_id,month,kind,data'); return pub&&!SBU?q.eq('shop_id',pub):q; }); }catch(e){ VTOP=[]; }
     if(!recs.length){ SRC={kind:'sbgate',label:SBU?'บัญชีนี้ยังไม่มีร้านบน server':'ไม่พบรายงานนี้ หรือเจ้าของปิดลิงก์แล้ว'}; renderAll(); return; }
     const images={}; for(const p of prods){ const d=p.data||{}; if(d.url&&d.img) images[d.url]=d.img; }
     const sh=shops.map(x=>({id:x.id,name:x.name,plans:(x.data||{}).plans||{},logo:(x.data||{}).logo||'',url:(x.data||{}).url||''}));
@@ -821,10 +823,44 @@ function renderMix(){
   ${trafficPanel(md)}
   ${livePanel(md)}
   ${roundPanel(md)}
+  ${videoTopPanel(md)}
   <div class="grid2e">
     <div class="panel"><header><h3>สินค้าขายดีตามยอดขาย</h3><span class="hint">${md.src==='month'?'TOP 5 ของรอบรายเดือน':'รวม TOP 5 รายวันทั้งเดือน'}</span></header>${prodList(ts,'sales')}</div>
     <div class="panel"><header><h3>สินค้าขายดีตามจำนวนชิ้น</h3></header>${prodList(tu,'units')}</div>
   </div>`;
+}
+
+/* ================= top 10 video (Seller Centre › Live&Video › วิดีโอ) ================= */
+function videoTopPanel(md){
+  if(!SB) return '';
+  const rows=VTOP.filter(r=>r.shop_id===SHOP&&r.month===MONTH);
+  const head=`<header><h3>TOP 10 วิดีโอทำยอด · ${mLabel(MONTH,true)}</h3><span class="hint">ข้อมูลจาก Seller Centre › Live&amp;Video › วิดีโอ · ยอดยืนยันแล้ว</span></header>`;
+  if(!rows.length) return `<div class="panel">${head}<p class="muted" style="margin:0">ยังไม่มีข้อมูลวิดีโอของเดือนนี้ ป้องจะเก็บให้อัตโนมัติ (ทุกวันจันทร์ และวันที่ 1 สรุปเดือนก่อน)</p></div>`;
+  const prods=rows.filter(r=>r.kind==='product').map(r=>r.data).sort((a,b)=>(b.sales||0)-(a.sales||0)).slice(0,10);
+  const clipsAll=rows.filter(r=>r.kind==='clip').map(r=>r.data);
+  const clips=[...clipsAll].sort((a,b)=>(b.sales||0)-(a.sales||0)||(b.views||0)-(a.views||0)).slice(0,10);
+  const asOf=rows.map(r=>r.data.asOf||'').sort().pop();
+  const urlOf=id=>Object.keys(IMAGES).find(u=>u.endsWith('/'+id))||'';
+  const pSum=prods.reduce((s,p)=>s+(p.sales||0),0), vBI=md.a&&md.a.tr?md.a.tr.video:NaN, mx=prods.length?prods[0].sales||1:1;
+  const pList=prods.length?`<div class="prods">${prods.map((p,i)=>{const u=urlOf(p.itemId), img=u?IMAGES[u]:'';
+    return `<div class="prod"><span class="rk">${i+1}</span>${img?`<img src="${esc(img)}" alt="" loading="lazy">`:'<span class="ph"></span>'}<span style="min-width:0">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(p.name)}</a>`:`<span style="font-size:13px">${esc(p.name)}</span>`}</span>
+      <span class="pv">${B(p.sales)}<small>${NUM(p.orders)} คำสั่งซื้อ · ${NUM(p.buyers)} ผู้ซื้อ</small></span><span class="pb"><i style="width:${(p.sales||0)/mx*100}%"></i></span></div>`;}).join('')}</div>`:'<p class="muted">ยังไม่มีข้อมูลสินค้า</p>';
+  const lbl=c=>c.title?esc(c.title):'คลิป '+esc((c.posted||'').replace(/-\d{4}/,'').replace('-','/'));
+  const clipRows=clips.map((c,i)=>`<tr><td class="n">${i+1}</td><td style="max-width:260px"><a href="https://seller.shopee.co.th/creator-center/insight/video/${esc(c.videoId)}" target="_blank" rel="noopener" style="color:var(--ink)">${lbl(c)}</a><div class="muted" style="font-size:11.5px">${esc(c.posted||'')}</div></td>
+    <td class="n">${NUM(c.views)}</td><td class="n">${c.orders==null?'–':NUM(c.orders)}</td><td class="n">${c.sales==null?'<span class="muted">รอเช็ก</span>':B(c.sales)}</td></tr>`).join('');
+  const withSale=clipsAll.filter(c=>c.sales>0).length, unchk=clipsAll.filter(c=>c.sales==null).length, views=clipsAll.reduce((s,c)=>s+(c.views||0),0);
+  return `<div class="panel">${head}
+    <div class="kpis" style="margin-bottom:12px">
+      <div class="kpi"><div class="lb">ยอดสินค้า TOP 10 ผ่านวิดีโอ</div><div class="v num">${B(pSum)}</div><div class="s">${isFinite(vBI)&&vBI?`ยอดจากวิดีโอทั้งเดือน (BI) ${B(vBI)} · TOP 10 = ${P(pSum/vBI,0)}`:'รวมทุกคลิปที่ปักสินค้าเรา (ร้าน + ครีเอเตอร์)'}</div></div>
+      <div class="kpi"><div class="lb">คลิปที่ร้านลงเอง</div><div class="v num">${clipsAll.length}<small>คลิป</small></div><div class="s">ยอดวิว ${NUM(views)} · เฉลี่ย ${NUM(clipsAll.length?views/clipsAll.length:0)} วิว/คลิป</div></div>
+      <div class="kpi"><div class="lb">คลิปร้านที่มียอดขาย</div><div class="v num">${withSale}<small>/ ${clipsAll.length-unchk}</small></div><div class="s">${withSale?'':'ยอดวิดีโอมาจากคลิปครีเอเตอร์/Affiliate เป็นหลัก'}${unchk?` · รอเช็กยอด ${unchk} คลิป`:''}</div></div>
+    </div>
+    <div class="grid2e">
+      <div><h4 style="margin:0 0 8px;font-size:14px">สินค้าขายดีผ่านวิดีโอ</h4>${pList}</div>
+      <div><h4 style="margin:0 0 8px;font-size:14px">คลิปของร้าน เรียงตามยอดขาย แล้วตามยอดวิว</h4>
+        ${clips.length?`<div class="tbl"><table><thead><tr><th class="n">#</th><th>คลิป</th><th class="n">วิว</th><th class="n">คำสั่งซื้อ</th><th class="n">ยอดขาย</th></tr></thead><tbody>${clipRows}</tbody></table></div>`:'<p class="muted">ไม่มีคลิปที่ร้านลงในเดือนนี้</p>'}</div>
+    </div>
+    <p class="note">สินค้า = ยอดยืนยันแล้วในเดือนนี้ของทุกวิดีโอที่ปักสินค้าเรา · คลิป = คลิปที่ร้านโพสต์ในเดือนนี้ วิวในเดือน และยอดขายสะสมของคลิป${asOf?` · อัปเดต ${esc(asOf)}`:''}</p></div>`;
 }
 
 /* ================= visitors & clicks ================= */
